@@ -1,8 +1,23 @@
 #! /usr/bin/env bash
 #
 
+# i       x1v         rho          press          vel1         vel2         vel3     
 
+
+#> ENTRY   base=LinWave
+#> RADIO   xcol=x1v       i,x1v,rho,press,vel1,vel2,vel3  
+#> RADIO   ycol=vel1      i,x1v,rho,press,vel1,vel2,vel3  
+
+#             set defaults (again)
 base=LinWave
+xcol=x1v
+ycol=vel1
+
+#             simple keyword=value command line parser for bash
+for arg in "$@"; do
+  export "$arg"
+done
+
 
 
 if [ "$NEMO" == "" ]; then
@@ -10,7 +25,10 @@ if [ "$NEMO" == "" ]; then
     exit 0
 fi
 
+xcol=2
+ycol=5
+
 for f in ${base}*tab; do
-   tabplot $f $*
+   tabplot $f xcol=$xcol ycol=$ycol
 done
 
