@@ -18,7 +18,7 @@ GIT_DIRS = athena athenak
 
 URL1  = https://github.com/PrincetonUniversity/athena
 URL2  = https://gitlab.com/theias/hpc/jmstone/athena-parthenon/athenak
-
+URL3  = https://github.com/teuben/nemo
 
 .PHONY:  help install build
 
@@ -58,6 +58,14 @@ athena:
 	git clone $(URL1)
 
 athenak:
-	git clone $(URL2)
+	git clone --recursive $(URL2)
 
+nemo:
+	git clone $(URL3)
 
+## build:     build athenak
+build:	athenak
+	(mkdir -p athenak/build; cd athenak/build; cmake ..; make -j)
+
+build_nemo:	nemo
+	(cd nemo; ./configure ; make build check bench5)
