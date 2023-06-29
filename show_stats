@@ -1,0 +1,18 @@
+#! /usr/bin/env bash
+#
+if [ "$NEMO" == "" ]; then
+    echo "Alas, we need some NEMO tools for this"
+    exit 0
+fi
+
+hst=LinWave.hst
+
+if [ ! -e $hst ]; then
+    echo "History file $hst does not exist here"
+    exit 0
+fi
+
+tabrows $hst 2 > junk1
+tabstat $hst 1:11 >> junk1
+tabalign.py junk1
+rm junk1
