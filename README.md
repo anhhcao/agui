@@ -1,16 +1,18 @@
 # Testing an Athena* GUI
 
-Focussed on athena++, we show some examples of executing athena, and analyzing it's output using a GUI.
+Focussed on athenak, we show some examples of executing athena, and analyzing it's output using a GUI.
 In theory could apply to any of the athena family (athena, athena++, athenak), but we are focussing on
-athenak, since all the problems are compiled into one executable.
+athenak, since all the problems are compiled into one executable. Earlier explorations here used
+athena++.
 
 
-Related (inspired?) code is NEMO's **tkrun** and **run** frontends.
+Related (inspired?) code is NEMO's **tkrun** and **run** frontends, but we aim to use
+basic matplotlib here.
 
 
-## Example (athenak) using Linear Wave
+## Example (athenak) 
 
-Using **athenak** is now preferred, as the executable has *all* problems compiled
+Using **athenak** is now preferred, as it has *all* problems compiled
 into the executable. Some older comments on athena++ can be found below.
 
 Again, an example how to compile and run the code
@@ -21,11 +23,12 @@ Again, an example how to compile and run the code
      cmake ..
      make -j
 
-or if you're lazy, use the Makefile in this agui directory:
+or if you're lazy, use the Makefile in this directory:
 
      make build
 
-this takes a bit longer, mostly because the kokkos library has to be compiled with).   The binary is
+this takes a bit longer than athena++,
+mostly because the kokkos library has to be compiled with).   The binary is
 now in **athenak/build/src/athena**.
 
 ```text
