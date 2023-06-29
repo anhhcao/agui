@@ -10,13 +10,19 @@ Related (inspired?) code is NEMO's **tkrun** and **run** frontends.
 
 First we grab and compile the code for the linear wave problem
 
-     https://github.com/PrincetonUniversity/athena
+     git clone https://github.com/PrincetonUniversity/athena
      cd athena
      ./configure.py --prob linear_wave
      make clean
      make -j
 
-after which we can run it
+Compiling the code takes the most time, but on a typical laptop well under 30 seconds.
 
-     bin/athena   -i inputs/hydro/athinput.linear_wave1d  -d run1
+After this we can run it
 
+     bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d run1
+
+but the default output from that athinput file is the **vtk** data format, which for this demo will
+be too complex to parse.
+
+     bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d run2 output2/file_type=tab
