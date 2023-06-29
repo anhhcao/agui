@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+#
+
+
+base=LinWave
+
+
+if [ "$NEMO" == "" ]; then
+    echo "Alas, we need some NEMO tools for this"
+    exit 0
+fi
+
+for f in ${base}*tab; do
+   tabplot $f $*
+done
+
