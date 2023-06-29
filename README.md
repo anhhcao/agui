@@ -1,9 +1,63 @@
 # Testing an Athena* GUI
 
 Focussed on athena++, we show some examples of executing athena, and analyzing it's output using a GUI.
-In theory could apply to any of the athena family (athena, athena++, athenak).
+In theory could apply to any of the athena family (athena, athena++, athenak), but we are focussing on
+athenak, since all the problems are compiled into one executable.
+
 
 Related (inspired?) code is NEMO's **tkrun** and **run** frontends.
+
+
+## Example (athenak) using Linear Wave
+
+Using **athenak** is now preferred, as the executable has *all* problems compiled
+into the executable. Some older comments on athena++ can be found below.
+
+Again, an example how to compile and run the code
+
+     git clone --recursive https://gitlab.com/theias/hpc/jmstone/athena-parthenon/athenak
+     mkdir athenak/build
+     cd athenak/build
+     cmake ..
+     make -j
+
+or if you're lazy, use the Makefile in this agui directory:
+
+     make build
+
+this takes a bit longer, mostly because the kokkos library has to be compiled with).   The binary is
+now in **athenak/build/src/athena**.
+
+```text
+build/src/athena -i inputs/tests/linear_wave_hydro.athinput -d run1
+ -> LinWave.hydro_w.00000.tab
+
+build/src/athena -i inputs/tests/advect_hyd.athinput        -d run2
+ -> Advect.hydro_u.00000.tab
+ 
+build/src/athena -i inputs/tests/advect_mhd.athinput        -d run3
+  -> Advect.mhd_u.00000.tab
+
+build/src/athena -i inputs/tests/hohlraum_1d.athinput       -d run4
+  -> hohlraum_1d.rad_coord.00000.tab  
+
+build/src/athena -i inputs/tests/rad_linwave.athinput       -d run5
+ -> rad_linwave.hydro_w.*.tab
+ -> rad_linwave.rad_coord.*.tab
+
+build/src/athena -i inputs/hydro/sod.athinput               -d run6
+ -> Sod.hydro_w.00000.tab
+   base=run6/tab/Sod  xcol=3 ycol=4
+   base=run6/tab/Sod  xcol=3 ycol=5
+   base=run6/tab/Sod  xcol=3 ycol=6
+
+build/src/athena -i inputs/hydro/shu_osher.athinput         -d run7
+   ERROR
+
+build/src/athena -i inputs/hydro/viscosity.athinput         -d run8
+   ViscTest.hydro_w.00000.tab 
+   base=run8/tab/ViscTest xcol=3 ycol=6
+```
 
 
 ## Example (athena++) using Linear Wave
@@ -49,6 +103,10 @@ or using our sample script
    ../../animate1 xcol=2 ycol=5
 ```
 
+if **tkrun** is enabled, use
+
+   tkrun ../../animate1 
+
 
 ### Statistics
 
@@ -68,4 +126,3 @@ min/sig: -1.72989     -22.3607    -nan     -3.28599     -nan      -nan      -1.7
 max/sig: 1.72732      0.0447214   -nan     4.07715      -nan      -nan      1.68025     -nan     -nan     inf        -nan
 median:  2.50312      0.003125    1        -3.21566e-23 0         0         2.49757e-13 0        0        0.9        0
 ```
->>>>>>> 442032f1ed1844ebf85a161ed8a84b898f4a8778
