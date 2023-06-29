@@ -7,8 +7,15 @@ fi
 
 hst=LinWave.hst
 
+#             simple keyword=value command line parser for bash
+for arg in "$@"; do
+  export "$arg"
+done
+
+
+
 if [ ! -e $hst ]; then
-    echo "History file $hst does not exist here"
+    echo "History file $hst does not exist here, try a different hst="
     exit 0
 fi
 
