@@ -26,20 +26,20 @@ ATHENA = athenak/build/src/athena
 .PHONY:  help install build
 
 
-install:
-	@echo "The installation has a few manual steps:"
+install: help
+	@echo "These are some make targets we advertise. See Makefile for details"
 
 help:
-## help:      This Help
+## help:        This Help
 help : Makefile
 	@sed -n 's/^##//p' $<
 
 
-## git:       Get all git repos for this install
+## git:         Get all git repos for this install
 git:  $(GIT_DIRS)
 	@echo Last git: `date` >> git.log
 
-## pull:      Update all git repos
+## pull:        Update all git repos
 pull:
 	@echo -n "lmtoy: "; git pull
 	-@for dir in $(GIT_DIRS); do\
@@ -66,21 +66,26 @@ athenak:
 nemo:
 	git clone $(URL3)
 
-## build:     build athenak
+## build:       build athenak
 build:	athenak
 	(mkdir -p athenak/build; cd athenak/build; cmake ..; make -j)
 
+## build_nemo:  build nemo
 build_nemo:	nemo
 	(cd nemo; ./configure ; make build check bench5)
 
 # a few sample runs
 
+## run1:        example linear_wave_hydro
 run1:
 	$(ATHENA) -i athenak/inputs/tests/linear_wave_hydro.athinput -d run1
+	@echo ./animate1 base=run1/tab/LinWave xcol=x1v ycol=velx
 	# -> LinWave.hydro_w.00000.tab
 
+## run1:        example advect_hyd
 run2:
 	$(ATHENA) -i athenak/inputs/tests/advect_hyd.athinput        -d run2
+	@echo ./animate1 base=run2/tab/Advect xcol=x1v ycol=dens
 	# -> Advect.hydro_u.00000.tab
 
 run3:
