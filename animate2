@@ -25,7 +25,9 @@ def xycols(fname, xcol, ycol):
     return (ixcol,iycol)
 
 # 1-based columns numbers from the column names
-(xcol,ycol) = xycols(f[0],'x1v','velx')
+xcol='x1v'
+ycol='velx'
+(ixcol,iycol) = xycols(f[0],xcol,ycol)
 
 # delay in ms
 delay=100
@@ -37,14 +39,16 @@ fig, ax = plt.subplots()
 def animate(i):
     # print(f[i])
     d = np.loadtxt(f[i]).T
-    x = d[xcol-1]
-    y = d[ycol-1]
+    x = d[ixcol-1]
+    y = d[iycol-1]
     
     ax.clear()
     ax.plot(x, y)
     #ax.set_xlim([0,20])
     #ax.set_ylim([0,10])
     ax.set_title(f[i])
+    ax.set_xlabel(xcol)
+    ax.set_ylabel(ycol)    
 
 
 # run the animation
