@@ -3,7 +3,7 @@
 #
 #  athenak animations of 1D problems using NEMO's tabplot 
 #
-#> ENTRY   base=LinWave    la la
+#> IFILE   base=LinWave   
 #> RADIO   xcol=x1v       i,x1v,rho,press,vel1,vel2,vel3  
 #> RADIO   ycol=vel1      i,x1v,rho,press,vel1,vel2,vel3  
 
