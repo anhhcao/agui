@@ -6,12 +6,26 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 # get the filenames, make sure they are sorted in time
-f = glob.glob('run1/tab/LinWave*tab')
+fnames='run1/tab/LinWave*tab'
+f = glob.glob(fnames)
 f.sort()
+print('DEBUG: %s has %d files' % (fnames,len(f)))
 
-# 1-based columns numbers for now
-xcol = 3
-ycol = 5
+
+def xycols(fname, xcol, ycol):
+    """
+    translate column names into 1-based column numbers
+    """
+    lines = open(fname).readlines()
+    cols = lines[1].split()
+    print('DEBUG: ',cols[1:])
+    ixcol = cols.index(xcol)
+    iycol = cols.index(ycol)
+    print('DEBUG: ',ixcol,iycol)
+    return (ixcol,iycol)
+
+# 1-based columns numbers from the column names
+(xcol,ycol) = xycols(f[0],'x1v','velx')
 
 # delay in ms
 delay=100
