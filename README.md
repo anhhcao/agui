@@ -152,4 +152,6 @@ median: 2.50312      0.003125    1      -3.21566e-23 0       0       2.49757e-13
 
 # References
 
+1. athena++ GRMHD code and adaptive mesh refinement (AMR) framework - https://www.athena-astro.app/
+
 1. pyro: a python hydro code - https://github.com/python-hydro/pyro2 
