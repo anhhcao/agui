@@ -18,6 +18,7 @@ GIT_DIRS = athena athenak
 URL1  = https://github.com/PrincetonUniversity/athena
 URL2  = https://gitlab.com/theias/hpc/jmstone/athena-parthenon/athenak
 URL3  = https://github.com/teuben/nemo
+URL4  = https://github.com/teuben/tkrun
 
 # the ATHENA executable
 
@@ -66,9 +67,12 @@ athenak:
 nemo:
 	git clone $(URL3)
 
+tkrun:
+	git clone $(URL4)
+
 ## build:       build athenak
 build:	athenak
-	(mkdir -p athenak/build; cd athenak/build; cmake ..; make -j)
+	(mkdir -p athenak/build; cd athenak/build; cmake ..; make -j 4)
 
 ## build_nemo:  build nemo
 build_nemo:	nemo
