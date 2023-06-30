@@ -148,3 +148,8 @@ min:    -1.72989     -22.3607    -nan   -3.28599     -nan    -nan    -1.75681   
 max:    1.72732      0.0447214   -nan   4.07715      -nan    -nan    1.68025     -nan    -nan    inf       -nan
 median: 2.50312      0.003125    1      -3.21566e-23 0       0       2.49757e-13 0       0       0.9       0
 ```
+
+
+# References
+
+1. pyro: a python hydro code - https://github.com/python-hydro/pyro2 
