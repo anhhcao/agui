@@ -125,7 +125,7 @@ if **tkrun** is enabled, use
      tkrun ../../animate1
 ```
 
-but this may be broken by now.
+but this may be broken by now, at least the names of the columns differ  between athena++ and athenak
 
 
 ### Statistics
