@@ -20,8 +20,8 @@ URL2  = https://gitlab.com/theias/hpc/jmstone/athena-parthenon/athenak
 URL3  = https://github.com/teuben/nemo
 URL4  = https://github.com/teuben/tkrun
 
-# the ATHENA executable
-
+# the ATHENA executable (from athena or athenak)
+# ATHENA = athena/bin/athena
 ATHENA = athenak/build/src/athena
 
 .PHONY:  help install build
@@ -114,7 +114,7 @@ run6:
 
 run7:
 	$(ATHENA) -i athenak/inputs/hydro/shu_osher.athinput         -d run7
-	#   ERROR
+	#   THIS IS A KNOWN ERROR
 
 run8:
 	$(ATHENA) -i athenak/inputs/hydro/viscosity.athinput         -d run8
