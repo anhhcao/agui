@@ -125,3 +125,7 @@ run8:
 test1:
 	./arun1.py athinput.linear_wave1d > test1.sh
 	tkrun test1.sh
+
+test2:
+	./arun1.py linear_wave_hydro.athinput > test2.sh
+	tkrun test2.sh
