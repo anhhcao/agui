@@ -120,3 +120,8 @@ run8:
 	$(ATHENA) -i athenak/inputs/hydro/viscosity.athinput         -d run8
 	#   ViscTest.hydro_w.00000.tab 
 	#   base=run8/tab/ViscTest xcol=3 ycol=6
+
+
+test1:
+	./arun1.py athinput.linear_wave1d > test1.sh
+	tkrun test1.sh
