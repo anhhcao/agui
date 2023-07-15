@@ -17,21 +17,31 @@ key = value     # help text     #> WIDGET wpars
 
 
 
-## 
+## Proposed workflow.
 
-0. Terminal command: (a GUI can do that too, looking for athinput files)
+0. Terminal command: (a separate GUI can do that too, looking for athinput files
+   and then "executing" them via our new gui). 
+
+   Examples :
 
    agui.py [options] athena/inputs/hydro/athinput.linear_wave1d
    agui.py [options] athenak/inputs/tests/linear_wave_hydro.athinput
  
    [options]
 
+   Should it be able to deal with athena++ as well as athenak ?
+
 1. parse the athinput file and sort by "<name/key=val> help [GUI]"
    
    athena:     no magic marker?
    athenak:    '# AthenaXXX'       has new <meshblock> ?
 
-2. Decide which (or all) that have GUI markup ?
+   Decide which (or all) that have GUI markup ?
+
+   These [GUI] directives will be displayed via this new dynamics
+   GUI on screen, and builds up a command 
+
+   
 
 3. EXE -i ATHINPUT -d RUNDIR PARS...
 
