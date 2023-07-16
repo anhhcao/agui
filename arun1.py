@@ -1,9 +1,12 @@
 #! /usr/bin/env python
 #
-#  
+#  python version of the tkrun program, specific for athena's athinput files
+#
 #
 #  14-jul-2023   parse athinput file, tagged with tkrun (V1) widgets
 #                and output a tkrun-nable snippet of code
+#
+#  @todo   options parser, e.g. to select the output format 
 
 import sys    
 
