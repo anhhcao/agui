@@ -16,7 +16,7 @@
 ./athena/inputs/hydro/athinput.kh-shear
 ./athena/inputs/hydro/athinput.kh-shear-lecoanet
 ./athena/inputs/hydro/athinput.kh-slip
-./athena/inputs/hydro/athinput.linear_wave1d
+./athena/inputs/hydro/athinput.linear_wave1d                           TEST1
 ./athena/inputs/hydro/athinput.linear_wave2d
 ./athena/inputs/hydro/athinput.linear_wave3d
 ./athena/inputs/hydro/athinput.lw_implode
@@ -134,7 +134,7 @@
 ./athenak/inputs/tests/cpaw3d.athinput
 ./athenak/inputs/tests/cpaw3d_smr.athinput
 ./athenak/inputs/tests/hohlraum_1d.athinput
-./athenak/inputs/tests/linear_wave_hydro.athinput
+./athenak/inputs/tests/linear_wave_hydro.athinput                      TEST2
 ./athenak/inputs/tests/linear_wave_hydro_amr.athinput
 ./athenak/inputs/tests/linear_wave_hydro_smr.athinput
 ./athenak/inputs/tests/linear_wave_mhd.athinput
