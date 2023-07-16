@@ -129,3 +129,7 @@ test1:
 test2:
 	./arun1.py linear_wave_hydro.athinput > test2.sh
 	tkrun test2.sh
+
+test3:
+	pyuic5 -x test3.ui  -o test3.py
+	python test3.py
