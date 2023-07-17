@@ -13,7 +13,7 @@ evolution  = dynamic    # dynamic/kinematic/static                              
 
 
 <name>
-key = value     # help text     #> WIDGET wpars
+key = value     # help text     #> WIDGET [wpars]
 
 
 ## Command Line Interface
@@ -107,3 +107,9 @@ This Athena++ executable is configured with:
 
      ./arun1.py linear_wave_hydro.athinput > test2.sh
      tkrun test2.sh
+
+## Other ideas
+
+1. For 1D cases it's nice to have a GUI that can plot two variables from the *.tab files
+   (or two columns from the hst file), in addition a slider to stop the animation and step
+   through the tab files.
