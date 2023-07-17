@@ -1,12 +1,14 @@
 #! /usr/bin/env python
 #
 #  python version of the tkrun program, specific for athena's athinput files
+#  Should handle Athena++ (AX) as well as Athenak (AK)
 #
 #
 #  14-jul-2023   parse athinput file, tagged with tkrun (V1) widgets
 #                and output a tkrun-nable snippet of code
 #
-#  @todo   options parser, e.g. to select the output format 
+#  @todo   options parser, e.g. to select the output format
+#  @todo   keep 'comment/problem' and 'comment/reference'  and 'job/problem_id' (AX) 'job/basename' (AK)
 
 import sys    
 
