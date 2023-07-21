@@ -6,13 +6,14 @@
 #
 #  14-jul-2023   parse athinput file, tagged with tkrun (V1) widgets
 #                and output a tkrun-nable snippet of code
+#  21-jul-2023   add argparse
 #
-#  @todo   options parser, e.g. to select the output format
 #  @todo   keep 'comment/problem' and 'comment/reference'  and 'job/problem_id' (AX) 'job/basename' (AK)
 
 import sys    
+import argparse
 
-def read_athinput(fname, mode=1):
+def read_athinput(fname, mode=1, all=False):
     """   read an athena style athinput
 
        fname     filename
@@ -22,7 +23,6 @@ def read_athinput(fname, mode=1):
 
     """
     lines = open(fname).readlines()
-    Qall = False    # True causes too many, and this crashes tkrun
     
     print("# Parsing %d lines in %s" % (len(lines),fname))
     ngui = 0
@@ -64,13 +64,25 @@ def read_athinput(fname, mode=1):
             #print('%s=%s\\n%s#>%s' % (key2,val2,help2,gui2))
         else:
             # not a GUI line
-            if Qall:
+            if all:
                 keys.append([key1,key2,val2,help2,'ENTRY',''])
     print("# classic tkrun output")
     for i in range(len(keys)):
         k = keys[i]
         print('#> %s  %s_%s=%s   %s' % (k[4],k[0],k[1],k[2],k[5]))
 
+#             somehow formatting with \n doesn't work
+my_help = """
+  This script converts an athinput file (AX and AK are both supported)
+  to a shorthand notation.  Currently only "tkrun" format is supported.
+"""
+
+p = argparse.ArgumentParser(description=my_help)
+p.add_argument('filename',  help='Input athintput file (required)')
+p.add_argument('-a', '--all',  action='store_true', help='Force all keywords to be ENTRY widgets')
+p.add_argument('-m', '--mode', type = int, default = 1, help='Output mode:  1=tkrun')
 
 
-read_athinput(sys.argv[1])    
+args = p.parse_args()
+
+read_athinput(args.filename, mode=args.mode, all=args.all)
