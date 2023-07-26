@@ -33,9 +33,7 @@ file.write(f'from gooey import Gooey, GooeyParser\n\
 def main():\n\
 \tparser = GooeyParser(description=\'Problem: {name}\\nReference: {reference}\')\n')
 
-keys = data.keys()
-
-for k in keys:
+for k in data:
     file.write(f'\tparser.add_argument(\'{k}\', metavar=\'{k}\', default=\'{data[k]}\')\n')
 
 file.write('\
@@ -44,7 +42,9 @@ main()')
 
 file.close()
 
+# run gui file in a subprocess
 p = Popen(['python', path])
+# wait for subprocess to finish before deleting the temp file
 p.wait()
 
 # remove temp file

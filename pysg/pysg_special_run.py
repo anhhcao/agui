@@ -27,8 +27,7 @@ def build_layout():
     else:
         layout.append([sg.Text('Reference: N/A')])
     layout.append([sg.Text('Parameters:')])
-    keys = data.keys()
-    for k in keys:
+    for k in data:
         e = data[k]
         # use this if removing the prefix and underscore is desired
         # row = [sg.Text(match('.*_(.+)', k).group(1))] 

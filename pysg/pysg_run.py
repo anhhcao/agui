@@ -24,8 +24,7 @@ def build_layout():
     else:
         layout.append([sg.Text('Reference: N/A')])
     layout.append([sg.Text('Parameters:')])
-    keys = data.keys()
-    for k in keys:
+    for k in data:
         # push to align right
         layout.append([sg.Text(k), sg.Push(), sg.Input(data[k], enable_events=True, size=25)])
     # add buttons to run/quit/help
