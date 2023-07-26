@@ -1,37 +1,16 @@
+# main imports
 # PySimpleGUIQt is many versions behind PySimpleGUI it seems
 import PySimpleGUI as sg
-from sys import argv
-from re import match
+from sys import argv, modules
 
-# parses the athinput file and returns a dictionary
-# use this to parse the entire file as well?
-def parse(filename):
-    file = open(filename, 'r')
-    lines = file.readlines()
-    data = {}
-    info = {}
-    prefix = ''
-    # looking for name and abstract
-    # assuming name and abstract lines have no comments in them
-    for line in lines:
-        # this regex matches the section line:
-        # <[string]>
-        m = match('^\s*<(.+)>.*', line)
-        if m:
-            prefix = m.group(1).strip()
-            continue
-        # this regex matches strings of the form:
-        # [string] = [string with spaces] # comment
-        m = match('^([^#]+)\s*=\s*([^#]+).*', line)
-        if m:
-            # strip the leading and trailing whitespace
-            # dictionary entry is a list
-            name = m.group(1).strip()
-            if prefix == 'comment':
-                info[name] = m.group(2).strip()
-            else:
-                data[f'{prefix}_{name}'] = m.group(2).strip()
-    return data, info
+# import aparser
+from os import environ
+from importlib.util import spec_from_file_location as sffl, module_from_spec as mfs
+spec = sffl('aparser', (environ['AGUI'] if 'AGUI' in environ else '~/agui') + '/aparser.py')
+aparser = mfs(spec)
+modules[spec.name] = aparser
+spec.loader.exec_module(aparser)
+parse = aparser.parse
 
 def build_layout():
 

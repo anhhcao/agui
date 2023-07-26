@@ -1,67 +1,51 @@
-from gooey import Gooey, GooeyParser
-from sys import argv
-from re import match
+from sys import argv, modules
+from tempfile import mkstemp
+from os import remove
+from subprocess import Popen
 
-# parses the athinput file and returns a dictionary
-def parse(filename):
-    file = open(filename, 'r')
-    lines = file.readlines()
-    data = {}
-    info = {}
-    prefix = ''
-    # looking for name and abstract
-    # assuming name and abstract lines have no comments in them
-    for line in lines:
-        # this regex matches the section line:
-        # <[string]>
-        m = match('^\s*<(.+)>.*', line)
-        if m:
-            prefix = m.group(1).strip()
-            continue
-        # this regex matches strings of the form:
-        # [string] = [string with spaces] # comment
-        m = match('^([^#]+)\s*=\s*([^#]+).*', line)
-        if m:
-            # strip the leading and trailing whitespace
-            # dictionary entry is a list
-            name = m.group(1).strip()
-            if prefix == 'comment':
-                info[name] = m.group(2).strip()
-            else:
-                data[f'{prefix}_{name}'] = m.group(2).strip()
-    return data, info
+# import aparser
+from os import environ
+from importlib.util import spec_from_file_location as sffl, module_from_spec as mfs
+spec = sffl('aparser', (environ['AGUI'] if 'AGUI' in environ else '~/agui') + '/aparser.py')
+aparser = mfs(spec)
+modules[spec.name] = aparser
+spec.loader.exec_module(aparser)
+parse = aparser.parse
 
-@Gooey(program_name='AGOOEY')
-def main():
+if len(argv) != 2:
+    print('Arity error')
+    exit()
 
-    # arity checking, same old
-    if len(argv) != 2:
-        print('Arity error')
-        exit()
+data, info = parse(argv[1])
+name = info['problem']
+reference = info['reference']
+if not reference: # empty string is falsy
+    reference = 'N/A'
 
-    data, info = parse(argv[1])
-    name = info['problem']
-    reference = info['reference']
-    if not reference: # empty strings are falsy
-        reference = 'N/A'
+# make temp file
+_, path = mkstemp(suffix='.py')
 
-    parser = GooeyParser(description=f'Problem: {name}\nReference: {reference}')
+file = open(path, 'w')
 
-    keys = data.keys()
-    for k in keys:
-        parser.add_argument(
-            k, # this is the name to acces the element value after parsing is complete
-            metavar=k, # display name for widget
-            #help='description' # description for widget
-            default=data[k]
-        )
+# write a the script that generates the gui
+file.write(f'from gooey import Gooey, GooeyParser\n\
+@Gooey(program_name=\'AGOOEY\')\n\
+def main():\n\
+\tparser = GooeyParser(description=\'Problem: {name}\\nReference: {reference}\')\n')
 
-    args = parser.parse_args()
-    # output
-    # using command line args is an issue
-    # arity error on start (in gui)
-    # use file widget instead?
+keys = data.keys()
 
-# need to have a main?
-if __name__ == '__main__':
-    main()
+for k in keys:
+    file.write(f'\tparser.add_argument(\'{k}\', metavar=\'{k}\', default=\'{data[k]}\')\n')
+
+file.write('\
+\targs = parser.parse_args()\n\
+main()')
+
+file.close()
+
+p = Popen(['python', path])
+p.wait()
+
+# remove temp file
+remove(path)
