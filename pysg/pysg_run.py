@@ -39,11 +39,11 @@ def build_layout():
     data, info = parse(argv[1])
     layout = [[sg.Text('Problem: ' + info['problem'])]]
     reference = info['reference']
-    if len(reference) == 0:
-        layout.append([sg.Text('Reference: N/A')])
-    else:
+    if reference: # empty strings are falsy
         # in the future, go to the link and get the abstract if possible
         layout.append([sg.Text('Reference: ' + info['reference'])])
+    else:
+        layout.append([sg.Text('Reference: N/A')])
     layout.append([sg.Text('Parameters:')])
     keys = data.keys()
     for k in keys:

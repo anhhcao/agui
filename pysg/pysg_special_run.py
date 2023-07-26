@@ -3,7 +3,6 @@ from sys import argv
 from re import match
 
 # parses the athinput file and returns a dictionary
-# use this to parse the entire file as well?
 def parse(filename):
     file = open(filename, 'r')
     lines = file.readlines()
@@ -47,11 +46,11 @@ def build_layout():
     data, info = parse(argv[1])
     layout = [[sg.Text('Problem: ' + info['problem'])]]
     reference = info['reference']
-    if len(reference) == 0:
-        layout.append([sg.Text('Reference: N/A')])
-    else:
+    if reference: # empty strings are falsy
         # in the future, go to the link and get the abstract if possible
         layout.append([sg.Text('Reference: ' + info['reference'])])
+    else:
+        layout.append([sg.Text('Reference: N/A')])
     layout.append([sg.Text('Parameters:')])
     keys = data.keys()
     for k in keys:
@@ -59,11 +58,8 @@ def build_layout():
         # use this if removing the prefix and underscore is desired
         # row = [sg.Text(match('.*_(.+)', k).group(1))] 
         # otherwise use
-        row = [sg.Text(k)]
+        row = [sg.Text(k), sg.Push()] # push to align right
         if e[GUI_TYPE] == 'SCALE':
-            # push to align right
-            row.append(sg.Push())
-
             # getting scale params
             # min:max:increment?
             # (\d*\.?\d*) also accepts just dots, so beware
@@ -80,9 +76,6 @@ def build_layout():
                 orientation='horizontal'
             ))
         elif e[GUI_TYPE] == 'ENTRY':
-            # push to align right
-            row.append(sg.Push())
-
             # entry = text box
             row.append(sg.Input(
                 e[VALUE], 
@@ -93,8 +86,6 @@ def build_layout():
                 size=25
             ))
         elif e[GUI_TYPE] == 'RADIO':
-            # push to align right
-            row.append(sg.Push())
             # radios = []
             # number of options is not predetermined, so can't use regex
             options = e[GUI_PARAMS].split(',')
