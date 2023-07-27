@@ -9,8 +9,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pagelayout = QtWidgets.QVBoxLayout()       #page layout
         self.dbtnlayout = QtWidgets.QHBoxLayout()       #layout for the default buttons
         self.addelmtlayout = QtWidgets.QHBoxLayout()    #layout for the buttons to add widgets
-        self.elmtlayout = QtWidgets.QHBoxLayout()       #layout for each added element in a row
-        self.elmtvertlayout = QtWidgets.QVBoxLayout()   #layout for the added widgets, stacks elements
+        self.elmthorlayout = QtWidgets.QHBoxLayout()       #layout for each added element in a row
+        self.elmtlayout = QtWidgets.QVBoxLayout()   #layout for the added widgets, stacks elements
         
         #add layouts to the page
         self.pagelayout.addLayout(self.dbtnlayout) 
