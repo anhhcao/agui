@@ -6,24 +6,49 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>834</width>
+    <height>747</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="toolTip">
+   <string extracomment="tooltip for the integrator"/>
+  </property>
+  <property name="statusTip">
+   <string extracomment="statustip for integrator"/>
+  </property>
+  <property name="whatsThis">
+   <string extracomment="whatsthis for integrator"/>
+  </property>
+  <property name="layoutDirection">
+   <enum>Qt::LeftToRight</enum>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>90</x>
       <y>70</y>
-      <width>501</width>
+      <width>374</width>
       <height>80</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>mesh/nx1</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QRadioButton" name="radioButton_4">
        <property name="text">
@@ -68,97 +93,6 @@
      </item>
     </layout>
    </widget>
-   <widget class="QSlider" name="mesh__nx2">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>200</y>
-      <width>491</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>50</weight>
-      <italic>true</italic>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="cursor">
-     <cursorShape>IBeamCursor</cursorShape>
-    </property>
-    <property name="mouseTracking">
-     <bool>true</bool>
-    </property>
-    <property name="tabletTracking">
-     <bool>true</bool>
-    </property>
-    <property name="toolTip">
-     <string extracomment="hello slider"/>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-    <property name="value">
-     <number>15</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-    <property name="invertedAppearance">
-     <bool>false</bool>
-    </property>
-    <property name="invertedControls">
-     <bool>false</bool>
-    </property>
-    <property name="tickPosition">
-     <enum>QSlider::TicksBelow</enum>
-    </property>
-    <property name="tickInterval">
-     <number>20</number>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>100</y>
-      <width>81</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>mesh/nx1</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>200</y>
-      <width>81</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>mesh/nx2</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="Title">
     <property name="geometry">
      <rect>
@@ -175,49 +109,219 @@
       <bold>true</bold>
      </font>
     </property>
+    <property name="toolTip">
+     <string extracomment="aaa">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The &lt;span style=&quot; font-weight:600;&quot;&gt;Linear Wave&lt;/span&gt; problem is described in: &lt;br/&gt;&lt;span style=&quot; font-family:'monospace'; color:#000000; background-color:#ffffff;&quot;&gt;Stone et al, ApJS 178, 137 (2008), sect 8.1&lt;/span&gt;&lt;span style=&quot; font-family:'monospace';&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;a href=&quot;https://ui.adsabs.harvard.edu/abs/2008ApJS..178..137S&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;ADS paper for linear wave&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="text">
      <string>Linear Wave</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>310</y>
-      <width>81</width>
+      <x>680</x>
+      <y>10</y>
+      <width>99</width>
+      <height>38</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Run</string>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="progressBar">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>370</y>
+      <width>141</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>24</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>360</y>
+      <width>71</width>
       <height>21</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
+    <property name="toolTip">
+     <string>aaaaaaaaaaa</string>
+    </property>
+    <property name="toolTipDuration">
+     <number>-1</number>
     </property>
     <property name="text">
-     <string>time/tlim</string>
+     <string>Progress:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QDialogButtonBox" name="buttonBox">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>300</y>
-      <width>201</width>
-      <height>36</height>
+      <x>620</x>
+      <y>360</y>
+      <width>174</width>
+      <height>38</height>
      </rect>
     </property>
+    <property name="standardButtons">
+     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    </property>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget_3">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>400</y>
+      <width>331</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>mesh size in Y.....</string>
+       </property>
+       <property name="text">
+        <string>mesh/nx2</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="mesh__nx2">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <italic>true</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="tabletTracking">
+        <bool>true</bool>
+       </property>
+       <property name="toolTip">
+        <string extracomment="hello slider">why no damn ticks and labels</string>
+       </property>
+       <property name="statusTip">
+        <string>status for slider</string>
+       </property>
+       <property name="whatsThis">
+        <string>whatsthis for slider</string>
+       </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <property name="value">
+        <number>15</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="invertedAppearance">
+        <bool>false</bool>
+       </property>
+       <property name="invertedControls">
+        <bool>false</bool>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksBelow</enum>
+       </property>
+       <property name="tickInterval">
+        <number>20</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget_4">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>270</y>
+      <width>471</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>time/tlim</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEdit">
+       <property name="text">
+        <string>5.0</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget_6">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>170</y>
+      <width>160</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_6"/>
    </widget>
    <widget class="QWidget" name="horizontalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>380</y>
-      <width>201</width>
-      <height>51</height>
+      <x>91</x>
+      <y>177</y>
+      <width>291</width>
+      <height>71</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label_6">
+       <property name="font">
+        <font>
+         <family>Comic Sans MS</family>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>integrator</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QCheckBox" name="checkBox_2">
        <property name="text">
@@ -241,75 +345,112 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLabel" name="label_4">
+   <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>390</y>
-      <width>111</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>time/integrator</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>10</y>
-      <width>99</width>
-      <height>38</height>
+      <x>230</x>
+      <y>330</y>
+      <width>32</width>
+      <height>99</height>
      </rect>
     </property>
     <property name="text">
-     <string>Run</string>
+     <string>time</string>
     </property>
    </widget>
-   <widget class="QProgressBar" name="progressBar">
+   <widget class="QStackedWidget" name="stackedWidget">
     <property name="geometry">
      <rect>
       <x>650</x>
-      <y>340</y>
-      <width>141</width>
-      <height>24</height>
+      <y>170</y>
+      <width>151</width>
+      <height>161</height>
      </rect>
     </property>
-    <property name="value">
-     <number>24</number>
+    <property name="toolTip">
+     <string>Never mind on this</string>
     </property>
+    <widget class="QWidget" name="page">
+     <widget class="QLabel" name="label_8">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>10</y>
+        <width>67</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Stacked</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>113</width>
+        <height>30</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QSlider" name="horizontalSlider">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>90</y>
+        <width>111</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>130</y>
+        <width>111</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>end of stacked</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page_2"/>
    </widget>
-   <widget class="QLabel" name="label_5">
+   <widget class="QTextBrowser" name="textBrowser">
     <property name="geometry">
      <rect>
-      <x>720</x>
-      <y>310</y>
-      <width>71</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Progress:</string>
-    </property>
-   </widget>
-   <widget class="QDialogButtonBox" name="buttonBox">
-    <property name="geometry">
-     <rect>
-      <x>620</x>
+      <x>110</x>
       <y>490</y>
-      <width>174</width>
-      <height>38</height>
+      <width>691</width>
+      <height>231</height>
      </rect>
     </property>
-    <property name="standardButtons">
-     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <property name="toolTip">
+     <string>background</string>
+    </property>
+    <property name="statusTip">
+     <string>paperlink at bottom</string>
+    </property>
+    <property name="lineWidth">
+     <number>5</number>
+    </property>
+    <property name="html">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;h2 style=&quot; margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; font-weight:600;&quot;&gt;Athena: A New Code for Astrophysical MHD &lt;/span&gt;&lt;/h2&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;A new code for astrophysical magnetohydrodynamics (MHD) is described. The code has been designed to be easily extensible for use with static and adaptive mesh refinement. It combines higher order Godunov methods with the constrained transport (CT) technique to enforce the divergence-free constraint on the magnetic field. Discretization is based on cell-centered volume averages for mass, momentum, and energy, and face-centered area averages for the magnetic field. Novel features of the algorithm include (1) a consistent framework for computing the time- and edge-averaged electric fields used by CT to evolve the magnetic field from the time- and area-averaged Godunov fluxes, (2) the extension to MHD of spatial reconstruction schemes that involve a dimensionally split time advance, and (3) the extension to MHD of two different dimensionally unsplit integration methods. Implementation of the algorithm in both C and FORTRAN95 is detailed, including strategies for parallelization using domain decomposition. Results from a test suite which includes problems in one-, two-, and three-dimensions for both hydrodynamics and MHD are given, not only to demonstrate the fidelity of the algorithms, but also to enable comparisons to other methods. The source code is freely available for download on the web. &lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;See also &lt;a href=&quot;https://ui.adsabs.harvard.edu/abs/2008ApJS..178..137S&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;the Athena paper&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
   </widget>
@@ -318,13 +459,91 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>34</height>
+     <width>834</width>
+     <height>27</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuaaa">
+    <property name="title">
+     <string>aaa</string>
+    </property>
+    <addaction name="actionbbb"/>
+    <addaction name="actionccc"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuddd">
+    <property name="title">
+     <string>ddd</string>
+    </property>
+    <addaction name="actioneee"/>
+    <addaction name="actionfff"/>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+    <addaction name="actionggg"/>
+   </widget>
+   <addaction name="menuaaa"/>
+   <addaction name="menuddd"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionnew">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>new</string>
+   </property>
+   <property name="toolTip">
+    <string>somethin new</string>
+   </property>
+   <property name="shortcut">
+    <string>A</string>
+   </property>
+  </action>
+  <action name="actionbbb">
+   <property name="text">
+    <string>bbb</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="actionccc">
+   <property name="text">
+    <string>ccc</string>
+   </property>
+  </action>
+  <action name="actioneee">
+   <property name="text">
+    <string>eee</string>
+   </property>
+  </action>
+  <action name="actionfff">
+   <property name="text">
+    <string>fff</string>
+   </property>
+  </action>
+  <action name="actionggg">
+   <property name="text">
+    <string>ggg</string>
+   </property>
+  </action>
  </widget>
+ <tabstops>
+  <tabstop>checkBox_3</tabstop>
+  <tabstop>radioButton_6</tabstop>
+  <tabstop>radioButton</tabstop>
+  <tabstop>radioButton_3</tabstop>
+  <tabstop>radioButton_5</tabstop>
+  <tabstop>radioButton_4</tabstop>
+  <tabstop>radioButton_2</tabstop>
+  <tabstop>checkBox_2</tabstop>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>mesh__nx2</tabstop>
+  <tabstop>checkBox</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>lineEdit_2</tabstop>
+  <tabstop>horizontalSlider</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
