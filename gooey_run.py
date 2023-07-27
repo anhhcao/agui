@@ -1,4 +1,4 @@
-from sys import argv, modules
+from sys import argv
 from tempfile import mkstemp
 from os import remove
 from subprocess import Popen

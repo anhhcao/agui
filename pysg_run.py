@@ -1,7 +1,7 @@
 # main imports
 # PySimpleGUIQt is many versions behind PySimpleGUI it seems
 import PySimpleGUI as sg
-from sys import argv, modules
+from sys import argv
 from aparser import parse
 
 def build_layout():

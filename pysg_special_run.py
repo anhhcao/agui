@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-from sys import argv, modules
+from sys import argv
 from re import match
 from aparser import parse_special as parse
 
