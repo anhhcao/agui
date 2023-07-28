@@ -9,7 +9,7 @@ set dir4    = baz       #> ODIR  dir4=
 set hello   = world     #> ENTRY hello=world
 set a       = 1         #> SCALE a=1       0:2:0.1
 set b       = 2         #> RADIO b=2       0,1,2
-set c       = 3         #> CHECK c=3       0,1,2,a,b,c
+set c       = 3,c       #> CHECK c=3,c     1,2,3,a,b,c
 
 #
 foreach _arg ($*)
