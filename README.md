@@ -1,18 +1,19 @@
 # Testing an Athena* GUI
 
-Focussed on athenak, we show some examples of executing athena, and analyzing it's output using a GUI.
-In theory could apply to any of the athena family (athena, athena++, athenak), but we are focussing on
-athenak, since all the problems are compiled into one executable. Earlier explorations here used
-athena++.
+We show some examples of executing *athena* using a dynamic GUI.  In theory
+could apply to any of the athena family (athena [AC], athena++ [AX], or
+athenak [AK]). It is easiest to work with **athenak**, since all the
+problems are compiled into one executable. We cover some examples of
+athena++ below as well.
 
 
 Related (inspired?) code is NEMO's **tkrun** and **run** frontends, but we aim to use
-basic matplotlib here.
+python based software.
 
 
 ## Example (athenak) 
 
-Using **athenak** is now preferred, as it has *all* problems compiled
+Using **athenak** is preferred, as it has *all* problems compiled
 into the executable. Some older comments on athena++ can be found below.
 
 Again, an example how to compile and run the code
