@@ -1,4 +1,5 @@
 # sample tkrun style directives
+# See the example*.* files which are actually working
 
 
 # OLD csh
