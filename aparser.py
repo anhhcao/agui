@@ -12,10 +12,10 @@ def parse_generic(filename):
     block = '' # keeps track of the current block (athinput files only)
     
     # check if filename has an extension
-    m = match('^(athinput\.)?.+(\..+)$', filename)
+    m = match('^([^\.]+)(..*)?$', filename)
     if m:
         ext = m.group(2)
-        if m.group(1): # currently athinput.* is the only prefix filetype
+        if m.group(1) == 'athinput': # currently athinput.* is the only prefix file type
             type = 'athinput'
         elif ext in recognized:
             type = ext[1:] # remove the dot
@@ -28,7 +28,7 @@ def parse_generic(filename):
         # check for block line
         m = match('^\s*<(.+)>.*', line)
         if m:
-            block = m.group(1).strip()
+            block = m.group(1).strip() + '/'
             if not type:
                 print('File type deduced to be athinput')
                 type = 'athinput'
@@ -50,28 +50,37 @@ def parse_generic(filename):
                 if m.group(1):
                     print('File type deduced to be csh')
                     type = 'csh'
-                else:
-                    # beware
-                    # no quotes => sh but not the other way around since we can still have quotes in shell scripts
-                    value = m.group(3).strip()
-                    if value != 'True' and value != 'False' and not value.isdigit() and not match('^\'.*\'|\".*\"$', value):
-                        print('File type deduced to be sh')
-                        type = 'sh'
                 # else still undetermined
-                # impossible to deduce python code?
             
             # process data
-            name = m.group(2).strip()
-            if block == 'comment': # only expect this part to run for athinput files
-                info[name] = m.group(2).strip()
-            else:
-                help = m.group(4)
-                data[f'{block}/{name}'] = {
-                    'value': m.group(3).strip(),
-                    'help': '' if not help else help.strip(),
-                    'gtype': m.group(5).strip(),
-                    'gparams': m.group(7).strip()
-                }
+            help = m.group(4)
+            gparams = m.group(7)
+            value = m.group(3).strip()
+            
+            # unwrap value if it is in quotes
+            if match('^\'.*\'|\".*\"$', value):
+                # for now, assume that quotes => python, otherwise impossible to deduce python code
+                if not type:
+                    print('File type deduced to be python')
+                    type = 'python'
+                value = value[1:-1]
+
+            # block_name/variable
+            data[f'{block}{m.group(2).strip()}'] = {
+                'value': value,
+                'help': '' if not help else help.strip(),
+                'gtype': m.group(5).strip(),
+                'gparams': '' if not gparams else gparams.strip()
+            }
+            continue
+ 
+        # only need to build the info dictionary for athinput files
+        if type == 'athinput' and block == 'comment/':
+            # this regex matches the name / abstract
+            m = match('^([^#]+)\s*=\s*([^#]+).*$', line)
+            if m:
+                info[m.group(1).strip()] = m.group(2).strip()
+                continue
     
     # default to sh if a type was not deduced
     if not type:
