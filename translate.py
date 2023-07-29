@@ -7,9 +7,9 @@ from os import remove
 from subprocess import Popen
 
 argparser = ArgumentParser(prog='translate.py', description='Translates a file into tkrun readable format')
-argparser.add_argument('-r', '--run', action='store_true', default=False)
-argparser.add_argument('FILE')
-argparser.add_argument('FORMAT')
+argparser.add_argument('-r', '--run', action='store_true', help='output is redirected to tkrun after translation', default=False)
+argparser.add_argument('FILE', help='the file to format')
+argparser.add_argument('FORMAT', help='the format of the output. Currently supports py, csh')
 args = argparser.parse_args()
 
 if args.run:
