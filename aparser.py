@@ -1,6 +1,7 @@
 from re import match
 
 # ^\s*((?:set)\s+)?([^#]+)\s*=([^#]+)(#.*)?#>\s+([^\s]+)(.*=[^\s]*)?(.+)?$
+# requires that each line has a #>
 def parse_generic(filename):
 
     #lines = file.readlines()
@@ -78,7 +79,7 @@ def parse_generic(filename):
         if type == 'athinput' and block == 'comment/':
             # this regex matches the name / abstract
             m = match('^([^#]+)\s*=\s*([^#]+).*$', line)
-            if m:
+            if m: # probably definitely matches, but just a formality
                 info[m.group(1).strip()] = m.group(2).strip()
                 continue
     
@@ -119,6 +120,7 @@ def parse(filename):
                 data[f'{prefix}_{name}'] = m.group(2).strip()
     return data, info
 
+# parse_special is similar but more primitive than parse_generic
 # parse but with special formatting
 def parse_special(filename):
     file = open(filename, 'r')
