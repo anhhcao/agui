@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from sys import argv, stdout
+from sys import stdout
 from aparser import parse_generic as parse
 from argparse import ArgumentParser
 from tempfile import mkstemp
