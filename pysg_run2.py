@@ -79,16 +79,16 @@ def run(input_file, output_dir, data, values):
                     break
         else:
             cmd += f'{k}={values[k]} '
+    # also print it since its easier to copy the text that way
     print(cmd)
     return cmd
 
 # builds and displays a new window containing only the athena command
 def display_output(s):
-    layout = [[sg.Text(s)]]
-    window = sg.Window("Athena Output", layout, modal=True, font=('arial', 10))
+    window = sg.Window('Athena Output', [[sg.Text(s)]], modal=True, font=('arial', 10))
     while True:
-        event, values = window.read()
-        if event == "Exit" or event == sg.WIN_CLOSED:
+        event, _ = window.read()
+        if event == sg.WIN_CLOSED:
             break
     window.close()
 
@@ -98,10 +98,10 @@ def display_help(data):
     for k in data:
         e = data[k]
         layout.append([sg.Text(k + ':', font=('arial', 10, 'bold')), sg.Text(e['help'][1:].strip())])
-    window = sg.Window("Help", layout, modal=True, font=('arial', 10))
+    window = sg.Window('Help', layout, modal=True, font=('arial', 10))
     while True:
-        event, values = window.read()
-        if event == "Exit" or event == sg.WIN_CLOSED:
+        event, _ = window.read()
+        if event == sg.WIN_CLOSED:
             break
     window.close()
 
