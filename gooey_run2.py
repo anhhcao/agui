@@ -26,17 +26,17 @@ file = open(path, 'w')
 
 # write a the script that generates the gui
 file.write(f'from gooey import Gooey, GooeyParser\n\
-@Gooey(program_name=\'AGOOEY\')\n\
+@Gooey(program_name=\'gooey_run2\')\n\
 def main():\n\
 \tparser = GooeyParser(description=\'Problem: {name}\\nReference: {reference}\')\n\
-\tparser.add_argument(\'output_dir\', metavar=\'Output Directory\', default=\'{cwd}\', widget=\'DirChooser\')\n')
+\tparser.add_argument(\'output_dir\', help=\'The directory where the output files will be dumped\', metavar=\'output directory\', default=\'{cwd}\', widget=\'DirChooser\')\n')
 
 # for some reason 
 for k in data:
     e = data[k]
     if e['gtype'] == 'ENTRY' or e['gtype'] == 'SCALE': # no sliders in gooey?
         # entry = text box
-        file.write('\tparser.add_argument(\'%s\', metavar=\'%s\', default=\'%s\')\n' % (k, k, e['value']))
+        file.write('\tparser.add_argument(\'%s\', help=\'%s\', metavar=\'%s\', default=\'%s\')\n' % (k, e['help'][1:].strip(), k, e['value']))
     elif e['gtype'] == 'RADIO': # currently dropdown menus and not radio buttons
         # number of options is not predetermined, so can't use regex
         options = e['gparams'].split(',')
@@ -45,7 +45,7 @@ for k in data:
         for o in options:
             c += f'\'{o}\',' # not wrapping o in quotes causes an error
         c += ']'
-        file.write('\tparser.add_argument(\'%s\', metavar=\'%s\', choices=%s, default=\'%s\')\n' % (k, k, c, e['value']))
+        file.write('\tparser.add_argument(\'%s\', help=\'%s\', metavar=\'%s\', choices=%s, default=\'%s\')\n' % (k, e['help'], k, c, e['value']))
     else:
         print('GUI type %s not implemented' & e['gtype'])
         exit()
