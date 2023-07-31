@@ -19,14 +19,14 @@ def build_layout(data, info):
         layout.append([sg.Text('Reference:', font=fstd_bold), sg.Text(info['reference'])])
     else:
         layout.append([sg.Text('Reference:', font=fstd_bold), sg.Text('N/A')])
-    layout.extend([[sg.Text('Output directory:', font=fstd_bold), sg.Push(), sg.In(size=(25,1), enable_events=True, default_text=cwd, key='output-dir'),sg.FolderBrowse(initial_folder=cwd)],
+    layout.extend([[sg.Text('Output directory:', font=fstd_bold, tooltip='The directory where the output files will be dumped'), sg.Push(), sg.In(size=(25,1), enable_events=True, default_text=cwd, key='output-dir'),sg.FolderBrowse(initial_folder=cwd)],
                   [sg.Text('Parameters:', font=fstd_bold)]])
     for k in data:
         e = data[k]
         # use this if removing the prefix and underscore is desired
         # row = [sg.Text(match('.*_(.+)', k).group(1))] 
         # otherwise use
-        row = [sg.Text(k), sg.Push()] # push to align right
+        row = [sg.Text(k, tooltip=e['help'][1:].strip()), sg.Push()] # push to align right
         if e['gtype'] == 'SCALE':
             # getting scale params
             # min:max:increment?
