@@ -45,7 +45,7 @@ for k in data:
         for o in options:
             c += f'\'{o}\',' # not wrapping o in quotes causes an error
         c += ']'
-        file.write('\tparser.add_argument(\'%s\', help=\'%s\', metavar=\'%s\', choices=%s, default=\'%s\')\n' % (k, e['help'], k, c, e['value']))
+        file.write('\tparser.add_argument(\'%s\', help=\'%s\', metavar=\'%s\', choices=%s, default=\'%s\')\n' % (k, e['help'][1:].strip(), k, c, e['value']))
     else:
         print('GUI type %s not implemented' & e['gtype'])
         exit()
