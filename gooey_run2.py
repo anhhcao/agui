@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 from tempfile import mkstemp
-from os import remove, getcwd
+from os import remove, getcwd, environ
 from subprocess import Popen
 from aparser import parse_generic as parse
 from argparse import ArgumentParser
@@ -50,8 +50,10 @@ for k in data:
         print('GUI type %s not implemented' & e['gtype'])
         exit()
 
+p = environ['AGUI'] if 'AGUI' in environ else cwd
+
 file.write(f'\targs = parser.parse_args()\n\
-\ts = \'{cwd}/athena/bin/athena -i {args.file} -d %s \' % args.output_dir\n')
+\ts = \'{p}/athena/bin/athena -i {args.file} -d %s \' % args.output_dir\n')
 
 for k in data:
     e = data[k]
