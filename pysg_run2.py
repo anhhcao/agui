@@ -3,21 +3,24 @@ import PySimpleGUI as sg
 from re import match
 from aparser import parse_generic as parse
 from argparse import ArgumentParser
-from os import getcwd
+from os import getcwd, environ
 
 cwd = getcwd()
 
+fstd = ('arial', 10)
+fstd_bold = ('arial', 10, 'bold')
+
 def build_layout(data, info):
     global cwd
-    layout = [[sg.Text('Problem:', font=('arial', 10, 'bold')), sg.Text(info['problem'])]]
+    layout = [[sg.Text('Problem:', font=fstd_bold), sg.Text(info['problem'])]]
     reference = info['reference']
     if reference: # empty strings are falsy
         # in the future, go to the link and get the abstract if possible
-        layout.append([sg.Text('Reference:', font=('arial', 10, 'bold')), sg.Text(info['reference'])])
+        layout.append([sg.Text('Reference:', font=fstd_bold), sg.Text(info['reference'])])
     else:
-        layout.append([sg.Text('Reference:', font=('arial', 10, 'bold')), sg.Text('N/A')])
-    layout.extend([[sg.Text('Output directory:', font=('arial', 10, 'bold')), sg.Push(), sg.In(size=(25,1), enable_events=True, default_text=cwd, key='output-dir'),sg.FolderBrowse(initial_folder=cwd)],
-                  [sg.Text('Parameters:', font=('arial', 10, 'bold'))]])
+        layout.append([sg.Text('Reference:', font=fstd_bold), sg.Text('N/A')])
+    layout.extend([[sg.Text('Output directory:', font=fstd_bold), sg.Push(), sg.In(size=(25,1), enable_events=True, default_text=cwd, key='output-dir'),sg.FolderBrowse(initial_folder=cwd)],
+                  [sg.Text('Parameters:', font=fstd_bold)]])
     for k in data:
         e = data[k]
         # use this if removing the prefix and underscore is desired
@@ -66,7 +69,8 @@ def build_layout(data, info):
 # returns a string
 def run(input_file, output_dir, data, values):
     global cwd
-    cmd = f'{cwd}/athena/bin/athena -i {input_file} -d {output_dir} '
+    p = environ['AGUI'] if 'AGUI' in environ else cwd
+    cmd = f'{p}/athena/bin/athena -i {input_file} -d {output_dir} '
     for k in data:
         e = data[k]
         # radio buttons are a special case
@@ -85,7 +89,7 @@ def run(input_file, output_dir, data, values):
 
 # builds and displays a new window containing only the athena command
 def display_output(s):
-    window = sg.Window('Athena Output', [[sg.Text(s)]], modal=True, font=('arial', 10))
+    window = sg.Window('Athena Output', [[sg.Text(s)]], modal=True, font=fstd)
     while True:
         event, _ = window.read()
         if event == sg.WIN_CLOSED:
@@ -94,11 +98,11 @@ def display_output(s):
 
 # builds and displays a new window containing the help information
 def display_help(data):
-    layout = []
+    layout = [[sg.Text('Output directory:', font=fstd_bold), sg.Text('The directory where the output files will be dumped')]]
     for k in data:
         e = data[k]
-        layout.append([sg.Text(k + ':', font=('arial', 10, 'bold')), sg.Text(e['help'][1:].strip())])
-    window = sg.Window('Help', layout, modal=True, font=('arial', 10))
+        layout.append([sg.Text(k + ':', font=fstd_bold), sg.Text(e['help'][1:].strip())])
+    window = sg.Window('Help', layout, modal=True, font=fstd)
     while True:
         event, _ = window.read()
         if event == sg.WIN_CLOSED:
@@ -115,12 +119,13 @@ data, info, type = parse(args.file)
 
 # start building gui
 inner_layout = build_layout(data, info)
-layout = [[sg.Column(inner_layout, size=(500, len(inner_layout) * 40), scrollable=True, vertical_scroll_only=True)]]
+win_size = (500, len(inner_layout) * 40)
+layout = [[sg.Column(inner_layout, size=win_size, scrollable=True, vertical_scroll_only=True)]]
 
 sg.theme('DarkBlue13')
 
 # create the main window
-window = sg.Window('pysg_run2', layout, size=(500, len(inner_layout) * 40), font=('arial', 10))
+window = sg.Window('pysg_run2', layout, size=win_size, font=fstd)
 
 # primary event loop
 while True:
