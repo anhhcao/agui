@@ -138,4 +138,4 @@ test4:
 	python pysimplegui.py
 
 test5:
-	python gooeytest.py
+	python pyqt.py tktest
