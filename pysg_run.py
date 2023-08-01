@@ -3,6 +3,7 @@ from re import match
 from aparser import parse_generic as parse
 from argparse import ArgumentParser
 from os import getcwd, environ
+from importlib import import_module
 
 cwd = getcwd()
 
@@ -19,10 +20,18 @@ argparser.add_argument('file', help='the athinput file to configure')
 args = argparser.parse_args()
 
 # import a version of PySimpleGUI
+# if the selected one doesn't work, try the other
+primary = 'PySimpleGUIQt'
+backup = 'PySimpleGUI'
+
 if args.tk:
-    import PySimpleGUI as sg
-else:
-    import PySimpleGUIQt as sg
+    primary = 'PySimpleGUI'
+    backup = 'PySimpleGUIQt'
+
+try:
+    sg = import_module(primary)
+except:
+    sg = import_module(backup)
 
 # removes the trailing zeroes then the dot from a string float x, then returns an int
 # utility function used by buidd_layout
