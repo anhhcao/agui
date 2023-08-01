@@ -2,7 +2,7 @@
 from re import match
 from aparser import parse_generic as parse
 from argparse import ArgumentParser
-from os import getcwd, environ
+from os import getcwd, mkdir, environ, path
 from importlib import import_module
 
 cwd = getcwd()
@@ -106,8 +106,7 @@ def build_layout(data, info):
             ))
         elif e['gtype'] == 'RADIO':
             # number of options is not predetermined, so can't use regex
-            options = e['gparams'].split(',')
-            for o in options:
+            for o in e['gparams'].split(','):
                 row.append(sg.Radio(o, k, key=k+o, default= o == e['value']))
         else:
             print('GUI type %s not implemented' % e['gtype'])
@@ -120,6 +119,8 @@ def build_layout(data, info):
 # collects the values from the GUI and builds the athena command
 # returns a string
 def run(input_file, output_dir, data, values):
+    if not path.exists(output_dir) and not display_conf_dir(output_dir):
+        return
     global cwd
     p = environ['AGUI'] if 'AGUI' in environ else cwd
     cmd = f'{p}/athena/bin/athena -i {input_file} -d {output_dir} '
@@ -128,8 +129,7 @@ def run(input_file, output_dir, data, values):
         # radio buttons are a special case
         # we have to loop through each button to see which is selected
         if e['gtype'] == 'RADIO':
-            options = e['gparams'].split(',')
-            for o in options:
+            for o in e['gparams'].split(','):
                 if values[k+o]:
                     cmd += f'{k}={o} '
                     break
@@ -143,12 +143,13 @@ def run(input_file, output_dir, data, values):
 
 # builds and displays a new window containing only the athena command
 def display_output(s):
-    window = sg.Window('Athena Output', [[sg.Text(s)]], font=fstd)
-    while True:
-        event, _ = window.read()
-        if event == sg.WIN_CLOSED:
-            break
-    window.close()
+    if s:
+        window = sg.Window('Athena Output', [[sg.Text(s)]], font=fstd)
+        while True:
+            event, _ = window.read()
+            if event == sg.WIN_CLOSED:
+                break
+        window.close()
 
 # builds and displays a new window containing the help information
 def display_help(data):
@@ -161,6 +162,19 @@ def display_help(data):
         if event == sg.WIN_CLOSED:
             break
     window.close()
+
+def display_conf_dir(dir_path):
+    layout = [[sg.Text(f'Directory {dir_path} does not exist. Create it?')], [sg.Button('Yes', key='yes'), sg.Button('No', key='no')]]
+    window = sg.Window('Directory Not Found', layout, font=fstd)
+    while True:
+        event, _ = window.read()
+        if event == 'no':
+            break
+        elif event == 'yes':
+            mkdir(dir_path)
+            break
+    window.close()
+    return event == 'yes'
 
 # parse the input files
 data, info, type = parse(args.file)
