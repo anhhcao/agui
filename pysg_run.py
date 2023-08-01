@@ -52,13 +52,13 @@ def rm_dot(x):
 
 def build_layout(data, info):
     global cwd
-    layout = [[sg.Text('Problem:', font=fstd_bold, background_color=bgstd), sg.Stretch(), sg.Text(info['problem'], background_color=bgstd)]]
+    layout = [[sg.Text('Problem:', font=fstd_bold, background_color=bgstd), sg.Stretch(background_color=bgstd), sg.Text(info['problem'], background_color=bgstd)]]
     reference = info['reference']
     if reference: # empty strings are falsy
         # in the future, go to the link and get the abstract if possible
-        layout.append([sg.Text('Reference:', font=fstd_bold, background_color=bgstd), sg.Stretch(), sg.Text(info['reference'], background_color=bgstd)])
+        layout.append([sg.Text('Reference:', font=fstd_bold, background_color=bgstd), sg.Stretch(background_color=bgstd), sg.Text(info['reference'], background_color=bgstd)])
     else:
-        layout.append([sg.Text('Reference:', font=fstd_bold, background_color=bgstd), sg.Stretch(), sg.Text('N/A', background_color=bgstd)])
+        layout.append([sg.Text('Reference:', font=fstd_bold, background_color=bgstd), sg.Stretch(background_color=bgstd), sg.Text('N/A', background_color=bgstd)])
     layout.extend([[sg.Text('Output directory:', font=fstd_bold, tooltip='The directory where the output files will be dumped', background_color=bgstd), 
                         sg.In(size=(25, 0.75), 
                             enable_events=True, 
@@ -73,7 +73,7 @@ def build_layout(data, info):
         # use this if removing the prefix and underscore is desired
         # row = [sg.Text(match('.*_(.+)', k).group(1))] 
         # otherwise use
-        row = [sg.Text(k, tooltip=e['help'][1:].strip(), background_color=bgstd), sg.Stretch()] # push to align right
+        row = [sg.Text(k, tooltip=e['help'][1:].strip(), background_color=bgstd), sg.Stretch(background_color=bgstd)] # push to align right
         if e['gtype'] == 'SCALE':
             # getting scale params
             # min:max:increment?
@@ -160,9 +160,9 @@ def display_output(s):
 
 # builds and displays a new window containing the help information
 def display_help(data):
-    layout = [[sg.Text('Output directory:', font=fstd_bold, background_color=bgstd), sg.Text('The directory where the output files will be dumped', background_color=bgstd), sg.Stretch()]]
+    layout = [[sg.Text('Output directory:', font=fstd_bold, background_color=bgstd), sg.Text('The directory where the output files will be dumped', background_color=bgstd), sg.Stretch(background_color=bgstd)]]
     for k in data:
-        layout.append([sg.Text(k + ':', font=fstd_bold, background_color=bgstd), sg.Text(data[k]['help'][1:].strip(), background_color=bgstd), sg.Stretch()])
+        layout.append([sg.Text(k + ':', font=fstd_bold, background_color=bgstd), sg.Text(data[k]['help'][1:].strip(), background_color=bgstd), sg.Stretch(background_color=bgstd)])
     window = sg.Window('Help', layout, font=fstd, background_color=bgstd)
     while True:
         event, _ = window.read()
