@@ -19,7 +19,10 @@ sliders = {}
 
 # parse arguments
 argparser = ArgumentParser(description='Runs the GUI for configuring an athinput file')
-argparser.add_argument('--tk', action='store_true', help='uses PYSimpleGUI (tkinter) instead of PySimpleGUIQt', default=False)
+argparser.add_argument('--tk', 
+                       action='store_true', 
+                       help='uses PYSimpleGUI (tkinter) instead of PySimpleGUIQt', 
+                       default=False)
 argparser.add_argument('file', help='the athinput file to configure')
 args = argparser.parse_args()
 
@@ -52,14 +55,23 @@ def rm_dot(x):
 
 def build_layout(data, info):
     global cwd
-    layout = [[sg.Text('Problem:', font=fstd_bold, background_color=bgstd), sg.Stretch(background_color=bgstd), sg.Text(info['problem'], background_color=bgstd)]]
+    layout = [[sg.Text('Problem:', font=fstd_bold, background_color=bgstd), 
+               sg.Stretch(background_color=bgstd), 
+               sg.Text(info['problem'], background_color=bgstd)]]
     reference = info['reference']
     if reference: # empty strings are falsy
         # in the future, go to the link and get the abstract if possible
-        layout.append([sg.Text('Reference:', font=fstd_bold, background_color=bgstd), sg.Stretch(background_color=bgstd), sg.Text(info['reference'], background_color=bgstd)])
+        layout.append([sg.Text('Reference:', font=fstd_bold, background_color=bgstd), 
+                       sg.Stretch(background_color=bgstd), 
+                       sg.Text(info['reference'], background_color=bgstd)])
     else:
-        layout.append([sg.Text('Reference:', font=fstd_bold, background_color=bgstd), sg.Stretch(background_color=bgstd), sg.Text('N/A', background_color=bgstd)])
-    layout.extend([[sg.Text('Output directory:', font=fstd_bold, tooltip='The directory where the output files will be dumped', background_color=bgstd), 
+        layout.append([sg.Text('Reference:', font=fstd_bold, background_color=bgstd), 
+                       sg.Stretch(background_color=bgstd), 
+                       sg.Text('N/A', background_color=bgstd)])
+    layout.extend([[sg.Text('Output directory:', 
+                            font=fstd_bold, 
+                            tooltip='The directory where the output files will be dumped', 
+                            background_color=bgstd), 
                         sg.In(size=(25, 0.75), 
                             enable_events=True, 
                             default_text=cwd, 
@@ -73,7 +85,8 @@ def build_layout(data, info):
         # use this if removing the prefix and underscore is desired
         # row = [sg.Text(match('.*_(.+)', k).group(1))] 
         # otherwise use
-        row = [sg.Text(k, tooltip=e['help'][1:].strip(), background_color=bgstd), sg.Stretch(background_color=bgstd)] # push to align right
+        row = [sg.Text(k, tooltip=e['help'][1:].strip(), background_color=bgstd), 
+               sg.Stretch(background_color=bgstd)]
         if e['gtype'] == 'SCALE':
             # getting scale params
             # min:max:increment?
@@ -120,7 +133,12 @@ def build_layout(data, info):
             exit()
         layout.append(row)
     # add buttons to run/quit/help
-    layout.extend([[sg.Text(background_color=bgstd)], [sg.Button('Run', key='run', button_color=('white', bgstd2)), sg.Button('Quit', key='quit', button_color=('white', bgstd2)), sg.Button('Help', key='help', button_color=('white', bgstd2))]])
+    layout.extend([[sg.Text(background_color=bgstd)], 
+                   [
+                        sg.Button('Run', key='run', button_color=('white', bgstd2)), 
+                        sg.Button('Quit', key='quit', button_color=('white', bgstd2)), 
+                        sg.Button('Help', key='help', button_color=('white', bgstd2))
+                    ]])
     return layout
 
 # collects the values from the GUI and builds the athena command
@@ -151,7 +169,10 @@ def run(input_file, output_dir, data, values):
 # builds and displays a new window containing only the athena command
 def display_output(s):
     if s:
-        window = sg.Window('Athena Output', [[sg.Text(s, background_color=bgstd)]], font=fstd, background_color=bgstd)
+        window = sg.Window('Athena Output', 
+                           [[sg.Text(s, background_color=bgstd)]], 
+                           font=fstd, 
+                           background_color=bgstd)
         while True:
             event, _ = window.read()
             if event == sg.WIN_CLOSED:
@@ -160,9 +181,16 @@ def display_output(s):
 
 # builds and displays a new window containing the help information
 def display_help(data):
-    layout = [[sg.Text('Output directory:', font=fstd_bold, background_color=bgstd), sg.Text('The directory where the output files will be dumped', background_color=bgstd), sg.Stretch(background_color=bgstd)]]
+    layout = [[ sg.Text('Output directory:', 
+                        font=fstd_bold, 
+                        background_color=bgstd), 
+                sg.Text('The directory where the output files will be dumped', 
+                        background_color=bgstd), 
+                        sg.Stretch(background_color=bgstd)]]
     for k in data:
-        layout.append([sg.Text(k + ':', font=fstd_bold, background_color=bgstd), sg.Text(data[k]['help'][1:].strip(), background_color=bgstd), sg.Stretch(background_color=bgstd)])
+        layout.append([sg.Text(k + ':', font=fstd_bold, background_color=bgstd), 
+                       sg.Text(data[k]['help'][1:].strip(), background_color=bgstd), 
+                       sg.Stretch(background_color=bgstd)])
     window = sg.Window('Help', layout, font=fstd, background_color=bgstd)
     while True:
         event, _ = window.read()
@@ -171,7 +199,8 @@ def display_help(data):
     window.close()
 
 def display_conf_dir(dir_path):
-    layout = [[sg.Text(f'Directory {dir_path} does not exist. Create it?', background_color=bgstd)], [sg.Button('Yes', key='yes', button_color=('white', bgstd2)), sg.Button('No', key='no', button_color=('white', bgstd2))]]
+    layout = [[sg.Text(f'Directory {dir_path} does not exist. Create it?', background_color=bgstd)], 
+              [sg.Button('Yes', key='yes', button_color=('white', bgstd2)), sg.Button('No', key='no', button_color=('white', bgstd2))]]
     window = sg.Window('Directory Not Found', layout, font=fstd, background_color=bgstd)
     while True:
         event, _ = window.read()
