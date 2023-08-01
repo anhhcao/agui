@@ -3,6 +3,7 @@ from re import match
 from aparser import parse_generic as parse
 from argparse import ArgumentParser
 from os import getcwd, mkdir, environ, path
+from subprocess import Popen, PIPE
 from importlib import import_module
 
 cwd = getcwd()
@@ -22,6 +23,10 @@ argparser = ArgumentParser(description='Runs the GUI for configuring an athinput
 argparser.add_argument('--tk', 
                        action='store_true', 
                        help='uses PYSimpleGUI (tkinter) instead of PySimpleGUIQt', 
+                       default=False)
+argparser.add_argument('-r', '--run',
+                       action='store_true',
+                       help='executes the athena command on run',
                        default=False)
 argparser.add_argument('file', help='the athinput file to configure')
 args = argparser.parse_args()
@@ -167,17 +172,33 @@ def run(input_file, output_dir, data, values):
     return cmd
 
 # builds and displays a new window containing only the athena command
-def display_output(s):
-    if s:
-        window = sg.Window('Athena Output', 
-                           [[sg.Text(s, background_color=bgstd)]], 
-                           font=fstd, 
-                           background_color=bgstd)
-        while True:
-            event, _ = window.read()
-            if event == sg.WIN_CLOSED:
-                break
-        window.close()
+def display_cmd(s):
+    window = sg.Window('Athena Output', 
+                        [[sg.Text(s, background_color=bgstd)]], 
+                        font=fstd, 
+                        background_color=bgstd)
+    while True:
+        event, _ = window.read()
+        if event == sg.WIN_CLOSED:
+            break
+    window.close()
+
+# builds and displays a new window with a progress bar tracking the process of athena's output
+def display_pbar(s, time):
+    window = sg.Window('Athena Output', 
+                        [[sg.ProgressBar(100, orientation='h', size=(20, 20), key='pbar')]], 
+                        font=fstd, 
+                        background_color=bgstd)
+    p = Popen(s.split(), stdout=PIPE)
+    while True:
+        event, _ = window.Read(timeout=0)
+        line = p.stdout.readline()
+        if event == sg.WIN_CLOSED or not line:
+            break
+        m = match('.*cycle=.* time=(.*) dt=.*', str(line))
+        if m:
+            window['pbar'].UpdateBar(100 * float(m.group(1)) / time, 100)
+    window.close()
 
 # builds and displays a new window containing the help information
 def display_help(data):
@@ -229,7 +250,7 @@ if args.tk:
     layout[0][0].VerticalScrollOnly = True
 
 # create the main window
-window = sg.Window('pysg_run', layout, size=win_size, font=fstd, background_color=bgstd2)
+window = sg.Window('pysg_run', layout, size=win_size, font=fstd, background_color='#777777')
 
 # primary event loop
 while True:
@@ -237,7 +258,12 @@ while True:
     if event == sg.WIN_CLOSED or event == 'quit':
         break
     elif event == 'run':
-        display_output(run(args.file, values['output-dir'], data, values))
+        cmd = run(args.file, values['output-dir'], data, values)
+        if cmd and args.run:
+            # will the tlim variable always be like this?
+            display_pbar(cmd, values['time/tlim'])
+        elif cmd:
+            display_cmd(cmd)
     elif event == 'help':
         display_help(data)
     # update slider displays if using qt
