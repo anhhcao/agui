@@ -133,6 +133,8 @@ def run(input_file, output_dir, data, values):
                 if values[k+o]:
                     cmd += f'{k}={o} '
                     break
+        elif not args.tk and e['gtype'] == 'SCALE':
+            cmd += '%s=%s ' % (k, values[k] / sliders[k]['factor'])
         else:
             cmd += f'{k}={values[k]} '
     # also print it since its easier to copy the text that way
@@ -152,8 +154,7 @@ def display_output(s):
 def display_help(data):
     layout = [[sg.Text('Output directory:', font=fstd_bold), sg.Text('The directory where the output files will be dumped'), sg.Stretch()]]
     for k in data:
-        e = data[k]
-        layout.append([sg.Text(k + ':', font=fstd_bold), sg.Text(e['help'][1:].strip()), sg.Stretch()])
+        layout.append([sg.Text(k + ':', font=fstd_bold), sg.Text(data[k]['help'][1:].strip()), sg.Stretch()])
     window = sg.Window('Help', layout, font=fstd)
     while True:
         event, _ = window.read()
