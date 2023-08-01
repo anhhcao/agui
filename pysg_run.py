@@ -32,13 +32,11 @@ if args.tk:
     primary = 'PySimpleGUI'
     backup = 'PySimpleGUIQt'
 
-'''try:
+try:
     sg = import_module(primary)
 except:
     sg = import_module(backup)
 
-'''
-import PySimpleGUIQt as sg
 # removes the trailing zeroes then the dot from a string float x, then returns an int
 # utility function used by buidd_layout
 def rm_dot(x):
