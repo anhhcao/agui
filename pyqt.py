@@ -9,6 +9,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
 
         self.groups = groups
+        self.radio_groups = []
 
         self.initUI()
     
@@ -80,12 +81,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if group_type == "RADIO":
                 print("radio button created")
+                new_group = QtWidgets.QButtonGroup()
+                self.radio_groups.append(new_group)
                 group_layout = QtWidgets.QHBoxLayout()
                 label = QtWidgets.QLabel(group_name+":")
                 group_layout.addWidget(label)
                 for option in options:
                     option = option.strip()
-                    radio_button = QtWidgets.QRadioButton(option, self)
+                    radio_button = QtWidgets.QRadioButton(option)
+                    new_group.addButton(radio_button)
                     group_layout.addWidget(radio_button)
                     if option in default_option:
                         radio_button.setChecked(True)
