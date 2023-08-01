@@ -6,6 +6,7 @@ from os import getcwd, environ
 
 cwd = getcwd()
 
+# fonts used in the GUI
 fstd = ('arial', 10)
 fstd_bold = ('arial', 10, 'bold')
 
@@ -24,13 +25,17 @@ else:
     import PySimpleGUIQt as sg
 
 # removes the trailing zeroes then the dot from a string float x, then returns an int
+# utility function used by buidd_layout
 def rm_dot(x):
+    if args.tk:
+        return float(x)
+    # being too precise causes problems, but hopefully this is enough
     s = '%.8g' % float(x)
     dot_pos = s.rfind('.')
     if dot_pos < 0:
-        return int(s)
+        return float(s)
     s = s.replace('.', '')
-    return int(s)
+    return float(s)
 
 def build_layout(data, info):
     global cwd
@@ -40,7 +45,7 @@ def build_layout(data, info):
         # in the future, go to the link and get the abstract if possible
         layout.append([sg.Text('Reference:', font=fstd_bold), sg.Stretch(), sg.Text(info['reference'])])
     else:
-        layout.append([sg.Text('Reference:', font=fstd_bold), sg.Text('N/A')])
+        layout.append([sg.Text('Reference:', font=fstd_bold), sg.Stretch(), sg.Text('N/A')])
     layout.extend([[sg.Text('Output directory:', font=fstd_bold, tooltip='The directory where the output files will be dumped'), 
                         sg.In(size=(25, 0.75), 
                             enable_events=True, 
@@ -61,34 +66,23 @@ def build_layout(data, info):
             m = match('(\d*\.?\d*):(\d*\.?\d*):(\d*\.?\d*)', e['gparams'])
             # scale = slider
             # build sliders differently depending on whether tk or qt is used
-            if args.tk:
-                slider = sg.Slider(
-                    range=(float(m.group(1)), float(m.group(2))),
-                    resolution=float(m.group(3)),
-                    default_value=e['value'],
-                    #expand_x=True,
-                    enable_events=True,
-                    key=k,
-                    orientation='horizontal'
-                )
-            else:
+            scaled_default = rm_dot(e['value'])
+            if not args.tk:
                 # if using qt, we need to prepare our own number display since one is not available by default
-                scaled_default = rm_dot(e['value'])
                 sliders[k] = {
                     'key':e['value']+'_display',
                     'factor':round(scaled_default / float(e['value']))
                 }
                 row.append(sg.Text(float(e['value']), key=sliders[k]['key']))
-                slider = sg.Slider(
-                    range=(rm_dot(m.group(1)), rm_dot(m.group(2))),
-                    resolution=rm_dot(m.group(3)),
-                    default_value=scaled_default,
-                    #expand_x=True,
-                    enable_events=True,
-                    key=k,
-                    orientation='horizontal'
-                )
-            row.append(slider)
+            # rm_dot only does anything significant if we are using qt
+            row.append(sg.Slider(
+                range=(rm_dot(m.group(1)), rm_dot(m.group(2))),
+                resolution=rm_dot(m.group(3)),
+                default_value=scaled_default,
+                enable_events=True,
+                key=k,
+                orientation='horizontal'
+            ))
         elif e['gtype'] == 'ENTRY':
             # entry = text box
             # size of textboxes seem ok by default when right justified
@@ -177,7 +171,7 @@ if args.tk:
 sg.theme('DarkBlue13')
 
 # create the main window
-window = sg.Window('pysgqt_run', layout, size=win_size, font=fstd)
+window = sg.Window('pysg_run', layout, size=win_size, font=fstd)
 
 # primary event loop
 while True:
