@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RadioButtons, Button
@@ -63,9 +64,9 @@ def play(self=None):
             current_frame += 1
             fig.canvas.draw_idle()
             fig.canvas.start_event_loop(delay)
+        is_playing = False
         if loop:
-            current_frame = 0
-            play()
+            restart()
 
 # loops the animation
 def loopf(self=None):
@@ -112,6 +113,7 @@ iycol = 0
 fig, ax = plt.subplots()
 fig.subplots_adjust(left=0.33, bottom=0.2)
 # pause on close otherwise we might freeze
+# i wonder if this actually works
 fig.canvas.mpl_connect('close_event', lambda _: pause())
 
 rax = fig.add_axes([0.05, 0.7, 0.15, 0.15])
