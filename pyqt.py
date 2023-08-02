@@ -10,6 +10,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.groups = groups
         self.radio_groups = []
+        self.sliderlabels = []
 
         self.initUI()
     
@@ -77,7 +78,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def createWidgetsFromGroups(self):
         for group in self.groups:
-            group_type, group_name, options, default_option = group
+            group_type, group_name, options, default_option, help = group
 
             if group_type == "RADIO":
                 print("radio button created")
@@ -130,7 +131,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 label = QtWidgets.QLabel(group_name+":")
                 group_layout.addWidget(label)
                 txt = QtWidgets.QLineEdit(self)
-                txt.setText(options[0])
+                txt.setText(default_option)
                 group_layout.addWidget(txt)
                 self.elmtlayout.addLayout(group_layout)
             
@@ -144,24 +145,21 @@ class MainWindow(QtWidgets.QMainWindow):
                 print("slider created")
                 #creates a horizontal slider
                 slider = QtWidgets.QSlider(self)
-                label = QtWidgets.QLabel(self)
                 slider.setOrientation(QtCore.Qt.Horizontal)
                 slider.setSingleStep(int(float(options[2])*100))
                 slider.setPageStep(int(float(options[2])*100))       #moves the slider when clicking or up/down
                 slider.setRange(int(options[0])*100, int(options[1])*100)
                 slider.setValue(int(float(default_option[0])*100))
 
-                #shows the current position and updates when slider moves
-                label.setText(str(slider.value()/100))
-
-                def changeValue(value):
-                    label.setNum(value/100)
-
-                slider.valueChanged.connect(changeValue)
+                label_slider = QtWidgets.QLabel(str(default_option[0]))
+                slider.valueChanged.connect(lambda value, lbl=label_slider: self.updateLabel(lbl, value))
                 
+                group_layout.addWidget(label_slider)
                 group_layout.addWidget(slider)
-                group_layout.addWidget(label)
                 self.elmtlayout.addLayout(group_layout)
+
+    def updateLabel(self, label, value):
+        label.setText(str(value/100))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Dynamic GUI Builder")
@@ -169,20 +167,30 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     with open(args.param_file, "r") as file:
-        content = file.read()
+        # content = file.read()
+        lines = file.readlines()
 
     groups = []
-    matches = re.findall(r'#>\s+(\w+)\s+(\w+)=(.+?)(?:\n|#>|$)', content, re.DOTALL)
-    print(matches)
-    for match in matches:
-        group_type = match[0]
-        group_name = match[1]
-        options = match[2].split(' ', 1)
-        default_option = []
-        if len(options) > 1: 
-            default_option = options[0].split(',')
-            options = options[1].split(',')
-        groups.append((group_type, group_name, options, default_option))
+    # matches = re.findall(r'#>\s+(\w+)\s+(\w+)=(.+?)(?:\n|#>|$)', content, re.DOTALL)
+    # for match in matches:
+        # group_type = match[0]
+        # group_name = match[1]
+        # options = match[2].split(' ', 1)
+        # default_option = []
+        # if len(options) > 1: 
+        #     default_option = options[0].split(',')
+        #     options = options[1].split(',')
+    pattern = r"\s*(\w+)\s*=\s*([^\s#]+)\s*#\s*([^\#]+)\s*#\s*>\s*(\w+)(?:\s+(\S+))?"
+    for line in lines:
+        match = re.match(pattern, line)
+        if match:
+            group_type = match.group(4)
+            group_name = match.group(1)
+            default_option = match.group(2)
+            options = match.group(5).split(',') if match.group(5) else ""
+            help = match.group(3)
+
+            groups.append((group_type, group_name, options, default_option, help))
 
     app = QtWidgets.QApplication(sys.argv)
     w = MainWindow(groups)

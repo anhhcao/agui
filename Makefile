@@ -138,7 +138,7 @@ test4:
 	python pysimplegui.py
 
 test5:
-	python pyqt.py pyqttest5
+	python pyqt.py testfile
 
 test6:
-	python pyqt.py pyqttest6
+	python pyqt.py testfile2
