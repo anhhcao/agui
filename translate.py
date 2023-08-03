@@ -32,7 +32,7 @@ for k in data:
         except:
             isnum = False
         value = value if isnum else f'\"{value}\"'
-    s += '%s=%s %s #> %s %s=%s %s\n' % (k, value, e['help'], e['gtype'], k, e['value'], e['gparams'])
+    s += '%s=%s %s #> %s %s\n' % (k, value, e['help'], e['gtype'], e['gparams'])
     file.write(s)
 
 file.close()
