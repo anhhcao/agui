@@ -19,6 +19,9 @@ URL1  = https://github.com/PrincetonUniversity/athena
 URL2  = https://gitlab.com/theias/hpc/jmstone/athena-parthenon/athenak
 URL3  = https://github.com/teuben/nemo
 URL4  = https://github.com/teuben/tkrun
+URL5a = https://github.com/teuben/agui
+URL5b = https://github.com/anhhcao/agui
+URL5c = https://github.com/KylieGong/agui
 
 # the ATHENA executable (from athena or athenak)
 # ATHENA = athena/bin/athena
@@ -146,3 +149,14 @@ test2:
 test3:
 	pyuic5 -x test3.ui  -o test3.py
 	python test3.py
+
+
+# collaborations
+agui_t:
+	git clone $(URL5a) agui_t
+
+agui_a:
+	git clone $(URL5b) agui_a
+
+agui_k:
+	git clone $(URL5c) agui_k
