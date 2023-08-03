@@ -245,11 +245,11 @@ scale_factor = 30
 if args.tk:
     scale_factor = 40
 win_size = (500, len(inner_layout) * scale_factor)
-layout = [[sg.Column(inner_layout, size=win_size, scrollable=True, background_color=bgstd)]]
+layout = [[sg.Column(inner_layout, size=win_size, scrollable=False, background_color=bgstd)]]
 
 # only allow verticle scroll for the tk version, otherwise a horizontal scroll bar will show up
-if args.tk:
-    layout[0][0].VerticalScrollOnly = True
+#if args.tk:
+#    layout[0][0].VerticalScrollOnly = True
 
 # create the main window
 window = sg.Window('pysg_run', layout, size=win_size, font=fstd, background_color='#777777')
