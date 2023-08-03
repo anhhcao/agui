@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import RadioButtons, Button
+from matplotlib.widgets import RadioButtons, Button, Slider
 from argparse import ArgumentParser
 import glob
 
@@ -84,6 +84,10 @@ def update_cols(x, y):
     ixcol = variables.index(x)
     iycol = variables.index(y)
 
+def update_delay(x):
+    global delay
+    delay = x / 1000
+
 argparser = ArgumentParser(description='plots the athena tab files specified')
 argparser.add_argument('path', help='the path to the athena tab files')
 args = argparser.parse_args()
@@ -99,7 +103,8 @@ current_frame = 0
 is_playing = False
 loop = False
 
-delay= 10 / 1000
+# the time in seconds between frames
+delay= 100 / 1000
 
 # getting the variable names
 file = open(f[0]) # just use the first file
@@ -115,10 +120,10 @@ iycol = 0
 
 # plotting configuration
 fig, ax = plt.subplots()
-fig.subplots_adjust(left=0.33, bottom=0.2)
+fig.subplots_adjust(left=0.34, bottom=0.34)
 # pause on close otherwise we might freeze
 # i wonder if this actually works
-fig.canvas.mpl_connect('close_event', lambda _: pause())
+fig.canvas.mpl_connect('close_event', pause)
 
 rax = fig.add_axes([0.05, 0.7, 0.15, 0.15])
 radio = RadioButtons(rax, tuple(variables))
@@ -134,16 +139,26 @@ radio2.on_clicked(select_v)
 # button shift
 lshift = 0.65
 
-bloop = Button(fig.add_axes([1.028 - lshift, 0.05, 0.1, 0.075]), 'Loop')
+bloop = Button(fig.add_axes([1.028 - lshift, 0.125, 0.1, 0.075]), 'Loop')
 bloop.on_clicked(loopf)
 
-brestart = Button(fig.add_axes([0.919 - lshift, 0.05, 0.1, 0.075]), 'Restart')
+brestart = Button(fig.add_axes([0.919 - lshift, 0.125, 0.1, 0.075]), 'Restart')
 brestart.on_clicked(restart)
 
-bres = Button(fig.add_axes([0.81 - lshift, 0.05, 0.1, 0.075]), 'Play')
+bres = Button(fig.add_axes([0.81 - lshift, 0.125, 0.1, 0.075]), 'Play')
 bres.on_clicked(play)
 
-bpause = Button(fig.add_axes([0.7 - lshift, 0.05, 0.1, 0.075]), 'Pause')
+bpause = Button(fig.add_axes([0.7 - lshift, 0.125, 0.1, 0.075]), 'Pause')
 bpause.on_clicked(pause)
+
+amp_slider = Slider(
+    ax=fig.add_axes([0.18, 0.05, 0.65, 0.03]),
+    label='Delay (ms)',
+    valmin=10,
+    valmax=1000,
+    valinit=100,
+)
+
+amp_slider.on_changed(update_delay)
 
 plt.show()

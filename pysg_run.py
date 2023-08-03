@@ -18,6 +18,8 @@ bgstd2 = '#23272b'
 
 sliders = {}
 
+athena = (environ['AGUI'] if 'AGUI' in environ else cwd) + '/athena/bin/athena'
+
 # parse arguments
 argparser = ArgumentParser(description='Runs the GUI for configuring an athinput file')
 argparser.add_argument('--tk', 
@@ -151,11 +153,9 @@ def build_layout(data, info):
 def run(input_file, output_dir, data, values):
     if not path.exists(output_dir) and not display_conf_dir(output_dir):
         return
-    global cwd
-    p = environ['AGUI'] if 'AGUI' in environ else cwd
     # added output2/file_type=tab
     # necessary?
-    cmd = f'{p}/athena/bin/athena -i {input_file} -d {output_dir} output2/file_type=tab '
+    cmd = f'{athena} -i {input_file} -d {output_dir} output2/file_type=tab '
     for k in data:
         e = data[k]
         # radio buttons are a special case
@@ -252,7 +252,7 @@ if args.tk:
     layout[0][0].VerticalScrollOnly = True
 
 # create the main window
-window = sg.Window('pysg_run', layout, size=win_size, font=fstd, background_color='#777777', grab_anywhere=True)
+window = sg.Window('pysg_run', layout, size=win_size, font=fstd, background_color='#777777')
 
 # primary event loop
 while True:
@@ -262,6 +262,9 @@ while True:
     elif event == 'run':
         cmd = run(args.file, values['output-dir'], data, values)
         if cmd and args.run:
+            if not path.exists(athena):
+                print('Athena not found\nExiting')
+                exit()
             # will the tlim variable always be like this?
             display_pbar(cmd, values['time/tlim'])
             # open the plot in a subprocess
