@@ -45,6 +45,9 @@ if args.tk:
 try:
     sg = import_module(primary)
 except:
+    print(f'Falied to import {primary}. Falling back to {backup}')
+    if (args.tk):
+        args.tk = False
     sg = import_module(backup)
 
 # removes the trailing zeroes then the dot from a string float x, then returns an int
@@ -268,7 +271,11 @@ while True:
             # will the tlim variable always be like this?
             display_pbar(cmd, values['time/tlim'])
             # open the plot in a subprocess
-            Popen(['python', 'plot.py', '%s/%s*tab' % (values['output-dir'], info['problem_id'])])
+            # remove the forward slash at the end if there is one
+            odir = values['output-dir']
+            if odir[-1] == '/':
+                odir = odir[:-1]
+            Popen(['python', 'plot1d.py', '-d', values['output-dir']])
         elif cmd:
             display_cmd(cmd)
     elif event == 'help':

@@ -76,7 +76,7 @@ def parse_generic(filename):
             continue
  
         # only need to build the info dictionary for athinput files
-        if type == 'athinput' and (block == 'comment/' or block == 'job/'):
+        if type == 'athinput' and block == 'comment/':
             # this regex matches the name / abstract
             m = match('^([^#]+)\s*=\s*([^#]+).*$', line)
             if m: # probably definitely matches, but just a formality
