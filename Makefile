@@ -34,16 +34,16 @@ install: help
 	@echo "These are some make targets we advertise. See Makefile for details"
 
 help:
-## help:        This Help
+## help:          This Help
 help : Makefile
 	@sed -n 's/^##//p' $<
 
 
-## git:         Get all git repos for this install
+## git:           Get all git repos for this install
 git:  $(GIT_DIRS)
 	@echo Last git: `date` >> git.log
 
-## pull:        Update all git repos
+## pull:          Update all git repos
 pull:
 	@echo -n "lmtoy: "; git pull
 	-@for dir in $(GIT_DIRS); do\
@@ -73,23 +73,27 @@ nemo:
 tkrun:
 	git clone $(URL4)
 
-## build:       build athenak
+## build:         build athenak
 build:	athenak
 	(mkdir -p athenak/build; cd athenak/build; cmake ..; make -j 4)
 
-## build_nemo:  build nemo
+## build_athena   build athena++ for the linear_wave problem
+build_athena: athena
+	(cd athena; ./configure.py --prob linear_wave; make clean; make -j)
+
+## build_nemo:    build nemo
 build_nemo:	nemo
 	(cd nemo; ./configure ; make build check bench5)
 
 # a few sample runs
 
-## run1:        example linear_wave_hydro
+## run1:          example linear_wave_hydro
 run1:
 	$(ATHENA) -i athenak/inputs/tests/linear_wave_hydro.athinput -d run1
 	@echo ./animate1 base=run1/tab/LinWave xcol=x1v ycol=velx
 	# -> LinWave.hydro_w.00000.tab
 
-## run1:        example advect_hyd
+## run1:          example advect_hyd
 run2:
 	$(ATHENA) -i athenak/inputs/tests/advect_hyd.athinput        -d run2
 	@echo ./animate1 base=run2/tab/Advect xcol=x1v ycol=dens
@@ -123,6 +127,15 @@ run8:
 	$(ATHENA) -i athenak/inputs/hydro/viscosity.athinput         -d run8
 	#   ViscTest.hydro_w.00000.tab 
 	#   base=run8/tab/ViscTest xcol=3 ycol=6
+
+
+ran1: athena
+	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ran1)
+	@echo Results in athena/ran1
+
+ran2: athena
+	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ran2 output2/file_type=tab)
+	@echo Results in athena/ran2
 
 
 test1:
