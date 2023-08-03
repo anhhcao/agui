@@ -2,29 +2,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RadioButtons, Button
-# from matplotlib.animation import FuncAnimation
+from argparse import ArgumentParser
 import glob
 
 # IMPORTING FROM ANIMATE2
-# get the filenames, make sure they are sorted in time
-fnames='run1/tab/LinWave*tab'
-f = glob.glob(fnames)
-f.sort()
-length = len(f)
-#print('DEBUG: %s has %d files' % (fnames,len(f)))
-
-# global vars
-current_frame = 0
-is_playing = False
-loop = False
-
-delay= 10 / 1000
-
-# getting the variable names
-file = open(f[0]) # just use the first file
-file.readline()
-variables = file.readline().split()[2:]
-file.close()
 
 # function that draws each frame of the animation
 def animate(i):
@@ -42,14 +23,14 @@ def animate(i):
     ax.plot(x, y)
     #ax.set_xlim([0,20])
     #ax.set_ylim([0,10])
-    ax.set_title(f'Frame: {current_frame} / {length}\nTime: {time}')
+    ax.set_title(f'Frame: {current_frame + 1} / {length}\nTime: {time}')
     ax.set_xlabel(xcol)
     ax.set_ylabel(ycol)  
 # END IMPORT
 
 # pauses the animation
 def pause(self=None):
-    global is_playing
+    global is_playing, fig
     if is_playing:
         fig.canvas.stop_event_loop()
         is_playing = False
@@ -65,7 +46,7 @@ def play(self=None):
             fig.canvas.draw_idle()
             fig.canvas.start_event_loop(delay)
         is_playing = False
-        if loop:
+        if loop and current_frame == length:
             restart()
 
 # loops the animation
@@ -102,6 +83,29 @@ def update_cols(x, y):
     ycol=y
     ixcol = variables.index(x)
     iycol = variables.index(y)
+
+argparser = ArgumentParser(description='plots the athena tab files specified')
+argparser.add_argument('path', help='the path to the athena tab files')
+args = argparser.parse_args()
+
+# fnames='run1/tab/LinWave*tab'
+f = glob.glob(args.path)
+f.sort()
+length = len(f)
+#print('DEBUG: %s has %d files' % (fnames,len(f)))
+
+# global vars
+current_frame = 0
+is_playing = False
+loop = False
+
+delay= 10 / 1000
+
+# getting the variable names
+file = open(f[0]) # just use the first file
+file.readline()
+variables = file.readline().split()[2:]
+file.close()
 
 # 0-based, change from animate2
 xcol=variables[0]

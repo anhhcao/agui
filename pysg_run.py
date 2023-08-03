@@ -26,7 +26,7 @@ argparser.add_argument('--tk',
                        default=False)
 argparser.add_argument('-r', '--run',
                        action='store_true',
-                       help='executes the athena command on run',
+                       help='executes the athena command and plots the tab files on run',
                        default=False)
 argparser.add_argument('file', help='the athinput file to configure')
 args = argparser.parse_args()
@@ -153,7 +153,9 @@ def run(input_file, output_dir, data, values):
         return
     global cwd
     p = environ['AGUI'] if 'AGUI' in environ else cwd
-    cmd = f'{p}/athena/bin/athena -i {input_file} -d {output_dir} '
+    # added output2/file_type=tab
+    # necessary?
+    cmd = f'{p}/athena/bin/athena -i {input_file} -d {output_dir} output2/file_type=tab '
     for k in data:
         e = data[k]
         # radio buttons are a special case
@@ -250,7 +252,7 @@ if args.tk:
     layout[0][0].VerticalScrollOnly = True
 
 # create the main window
-window = sg.Window('pysg_run', layout, size=win_size, font=fstd, background_color='#777777')
+window = sg.Window('pysg_run', layout, size=win_size, font=fstd, background_color='#777777', grab_anywhere=True)
 
 # primary event loop
 while True:
@@ -262,6 +264,8 @@ while True:
         if cmd and args.run:
             # will the tlim variable always be like this?
             display_pbar(cmd, values['time/tlim'])
+            # open the plot in a subprocess
+            Popen(['python', 'plot.py', '%s/%s*tab' % (values['output-dir'], info['problem_id'])])
         elif cmd:
             display_cmd(cmd)
     elif event == 'help':
