@@ -93,7 +93,7 @@ argparser.add_argument('path', help='the path to the athena tab files')
 args = argparser.parse_args()
 
 # fnames='run1/tab/LinWave*tab'
-f = glob.glob(args.path)
+f = glob.glob(args.path + '/*tab')
 f.sort()
 length = len(f)
 #print('DEBUG: %s has %d files' % (fnames,len(f)))
