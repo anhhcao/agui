@@ -38,7 +38,9 @@ args = argparser.parse_args()
 primary = 'PySimpleGUIQt'
 backup = 'PySimpleGUI'
 
-if args.tk:
+using_tk = args.tk
+
+if using_tk:
     primary = 'PySimpleGUI'
     backup = 'PySimpleGUIQt'
 
@@ -46,14 +48,13 @@ try:
     sg = import_module(primary)
 except:
     print(f'Falied to import {primary}. Falling back to {backup}')
-    if (args.tk):
-        args.tk = False
+    using_tk = not using_tk
     sg = import_module(backup)
 
 # removes the trailing zeroes then the dot from a string float x, then returns an int
 # utility function used by buidd_layout
 def rm_dot(x):
-    if args.tk:
+    if using_tk:
         return float(x)
     # being too precise causes problems, but hopefully this is enough
     s = '%.8g' % float(x)
@@ -97,7 +98,7 @@ def build_layout(data, info):
         # otherwise use
         row = [sg.Text(k, tooltip=e['help'][1:].strip(), background_color=bgstd), 
                sg.Stretch(background_color=bgstd)]
-        if e['gtype'] == 'SCALE':
+        if e['gtype'] == 'SCALE': # TODO add textbox for custom values
             # getting scale params
             # min:max:increment?
             # (\d*\.?\d*) also accepts just dots, so beware
@@ -105,7 +106,7 @@ def build_layout(data, info):
             # scale = slider
             # build sliders differently depending on whether tk or qt is used
             scaled_default = rm_dot(e['value'])
-            if not args.tk:
+            if not using_tk:
                 # if using qt, we need to prepare our own number display since one is not available by default
                 sliders[k] = {
                     'key':e['value']+'_display',
@@ -168,7 +169,7 @@ def run(input_file, output_dir, data, values):
                 if values[k+o]:
                     cmd += f'{k}={o} '
                     break
-        elif not args.tk and e['gtype'] == 'SCALE':
+        elif not using_tk and e['gtype'] == 'SCALE':
             cmd += '%s=%s ' % (k, values[k] / sliders[k]['factor'])
         else:
             cmd += f'{k}={values[k]} '
@@ -245,13 +246,13 @@ data, info, type = parse(args.file)
 inner_layout = build_layout(data, info)
 # pysgqt elements seem to be smaller than their tkinter counterparts, so it might be better to reduce the width scaling
 scale_factor = 30
-if args.tk:
+if using_tk:
     scale_factor = 40
 win_size = (500, len(inner_layout) * scale_factor)
 layout = [[sg.Column(inner_layout, size=win_size, scrollable=False, background_color=bgstd)]]
 
 # only allow verticle scroll for the tk version, otherwise a horizontal scroll bar will show up
-#if args.tk:
+#if using_tk:
 #    layout[0][0].VerticalScrollOnly = True
 
 # create the main window
@@ -281,7 +282,7 @@ while True:
     elif event == 'help':
         display_help(data)
     # update slider displays if using qt
-    elif not args.tk and event in sliders:
+    elif not using_tk and event in sliders:
         info = sliders[event]
         window[info['key']].update(values[event] / info['factor'])
 
