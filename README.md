@@ -1,14 +1,16 @@
 # Testing an Athena* GUI
 
-We show some examples of executing *athena* using a dynamic GUI.  In theory
-could apply to any of the athena family (athena [AC], athena++ [AX], or
-athenak [AK]). It is easiest to work with **athenak**, since all the
-problems are compiled into one executable. We cover some examples of
-athena++ below as well.
+We show some examples of executing *athena* using a dynamic GUI.  In
+theory could apply to any of the
+[Athena](https://www.athena-astro.app/) family (athena [AC], athena++
+[AX], or athenak [AK]). It is easiest to work with **athenak**, since
+all the problems are compiled into one executable. We cover some
+examples of athena++ below as well, since at the moment athenak is not
+yet public.
 
 
-Related (inspired?) code is NEMO's **tkrun** and **run** frontends, but we aim to use
-python based software.
+Related and inspired by is NEMO's **tkrun** and **run** frontends,
+but we aim to use python based software here.
 
 
 ## Example (athenak) 
@@ -149,6 +151,44 @@ min:    -1.72989     -22.3607    -nan   -3.28599     -nan    -nan    -1.75681   
 max:    1.72732      0.0447214   -nan   4.07715      -nan    -nan    1.68025     -nan    -nan    inf       -nan
 median: 2.50312      0.003125    1      -3.21566e-23 0       0       2.49757e-13 0       0       0.9       0
 ```
+
+# TKRUN format
+
+Old style V1 (the parameter setting and GUI specifications were separated):
+
+       #>  RADIO   mode=gauss              gauss,newton,leibniz
+
+new style V2 will allow us to mix the GUI specifications with
+the (language dependent) key=val construct that gives it
+a default value, e.g.
+
+bash/csh:
+
+       mode=gauss       # specify the integration method      #> RADIO   gauss,newton,leibniz
+       set mode = gauss # specify the integration method      #> RADIO   gauss,newton,leibniz
+       
+python:
+
+       mode="gauss"     # specify the integration method      #> RADIO   gauss,newton,leibniz
+
+athinput:
+
+       <integration>
+       mode = gauss     # specify the integration method      #> RADIO   gauss,newton,leibniz
+
+
+but will still  leave open the option to build an executionar.
+
+# Which GUI builder?
+
+We explored gooey and psg (pySimpleGui):
+
+     python gooey_run.py         linear_wave_hydro.athinput 
+     python gooey_special_run.py linear_wave_hydro.athinput 
+
+     python pysg_run.py          linear_wave_hydro.athinput
+     python pysg_special_run.py  linear_wave_hydro.athinput
+
 
 
 # References
