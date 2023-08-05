@@ -150,6 +150,14 @@ test3:
 	pyuic5 -x test3.ui  -o test3.py
 	python test3.py
 
+test4:
+	python pysimplegui.py
+
+test5:
+	python pyqt.py testfile
+
+test6:
+	python pyqt.py testfile2
 
 # collaborations
 agui_t:
