@@ -150,6 +150,14 @@ test3:
 	pyuic5 -x test3.ui  -o test3.py
 	python test3.py
 
+dump1:
+	athena/bin/athena -i athinput.linear_wave1d -d dump output2/file_type=tab
+
+test_pysg1:
+	python pysg_run.py athinput.linear_wave1d
+
+test_plot1:
+	python plot.py dump
 
 # collaborations
 agui_t:
