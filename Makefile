@@ -154,10 +154,10 @@ dump1:
 	athena/bin/athena -i athinput.linear_wave1d -d dump output2/file_type=tab
 
 test_pysg1:
-	python pysg_run.py athinput.linear_wave1d
+	python pysg_run.py athinput.linear_wave1d -r
 
 test_plot1:
-	python plot.py dump
+	python plot.py -d dump
 
 # collaborations
 agui_t:
