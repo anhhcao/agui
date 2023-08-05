@@ -1,28 +1,39 @@
 #! /usr/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import RadioButtons, Button, Slider
+from matplotlib.widgets import RadioButtons, Button, Slider, CheckButtons
 from argparse import ArgumentParser
 import glob
+
+# TODO list
+# round buttons
+# round check boxes
+# nonlinear (logarithmic?) slider
 
 # IMPORTING FROM ANIMATE2
 # function that draws each frame of the animation
 def animate(i):
-    global xcol, ycol, current_frame
+    global xcol, ycol, current_frame, xlim, ylim
     # print(f[i])
     d = np.loadtxt(f[i]).T
     x = d[ixcol]
     y = d[iycol]
-    file = open(f[i]) # open file to retreive time information
-    # first line is target
-    # terribly lazy but it works, maybe just use regex
-    time = file.readline().split('=')[1].split(' ')[0]
-    file.close()
+    if not args.hst:
+        file = open(f[i]) # open file to retreive time information
+        # first line is target
+        # terribly lazy but it works, maybe just use regex
+        time = file.readline().split('=')[1].split(' ')[0]
+        file.close()
     ax.clear()
+    if xlim:
+        ax.set_xlim(xlim)
+    if ylim:
+        ax.set_ylim(ylim)
     ax.plot(x, y)
-    #ax.set_xlim([0,20])
-    #ax.set_ylim([0,10])
-    ax.set_title(f'Time: {float(time)}', loc='left')
+    if not args.hst:
+        ax.set_title(f'Time: {float(time)}', loc='left')
+    else:
+        ax.set_title(f'History', loc='left')
     ax.set_xlabel(xcol)
     ax.set_ylabel(ycol)  
 # END IMPORT
@@ -36,7 +47,7 @@ def hpause(self=None):
     pause()
 
 # pauses the animation
-def pause():
+def pause(self=None):
     global is_playing, fig
     if is_playing:
         fig.canvas.stop_event_loop()
@@ -104,7 +115,6 @@ def update_cols(x, y):
     ixcol = variables.index(x)
     iycol = variables.index(y)
 
-# TODO logarithmic delay slider
 def update_delay(x):
     global delay
     delay = x / 1000
@@ -115,21 +125,28 @@ def update_fslider(n):
     animate(current_frame - 1)
     fig.canvas.draw_idle()
 
-def entered_fslider(e):
+def fix_axes(v):
+    global xlim, ylim
+    if v == 'Fix X':
+        xlim = ax.get_xlim() if not xlim else None
+    else:
+        ylim = ax.get_ylim() if not ylim else None
+
+def mouse_moved(e):
     if e.inaxes == fax:
         pause()
-
-# BUG: if mouse moves off slider and directly onto something else too fast it might not play
-def left_fslider(e):
-    if e.inaxes == fax and not hard_paused:
+    elif not hard_paused:
         play()
 
 argparser = ArgumentParser(description='plots the athena tab files specified')
-argparser.add_argument('-d', '--dir', help='the directory containing the tab files')
+argparser.add_argument('-d', '--dir', help='the directory containing the tab files', required=True)
+argparser.add_argument('--hst', action='store_true', help='plots the hst file rather animating the tab files')
+argparser.add_argument('-n', '--name', help='name of the problem being plotted')
 args = argparser.parse_args()
 
 # fnames='run1/tab/LinWave*tab'
-f = glob.glob(args.dir + '/*tab')
+t = '/*hst' if args.hst else '/*tab' 
+f = glob.glob(args.dir + t)
 f.sort()
 length = len(f)
 #print('DEBUG: %s has %d files' % (fnames,len(f)))
@@ -140,6 +157,18 @@ is_playing = False
 hard_paused = True
 loop = False
 frame_sliding = False
+xlim = None
+ylim = None
+
+# plot settings
+left = 0.34
+bottom = 0.32
+top = 0.85
+
+# change plot settings if plotting a hst file
+if args.hst:
+    top = 0.9
+    bottom = 0.1
 
 # the time in seconds between frames
 delay= 100 / 1000
@@ -148,7 +177,11 @@ delay= 100 / 1000
 file = open(f[0]) # just use the first file
 file.readline()
 variables = file.readline().split()[2:]
+if args.hst:
+    variables = [v.split('=')[1] for v in variables]
 file.close()
+
+var_len = len(variables)
 
 # 0-based, change from animate2
 xcol=variables[0]
@@ -158,63 +191,87 @@ iycol = 0
 
 # plotting configuration
 fig, ax = plt.subplots()
-fig.subplots_adjust(left=0.34, bottom=0.32, top=0.85) # old bottom was 0.34
+fig.subplots_adjust(left=left, bottom=bottom, top=top) # old bottom was 0.34
+# plt.rcParams['font.family'] = 'Arial'
 # pause on close otherwise we might freeze
-# i wonder if this actually works
-# i think it does
-fig.canvas.mpl_connect('close_event', hpause)
+fig.canvas.mpl_connect('close_event', pause)
+# fig.set_size_inches(10, 10)
 
-rax = fig.add_axes([0.05, 0.7, 0.15, 0.15])
-radio = RadioButtons(rax, tuple(variables))
-rax.text(-0.055, 0.07, 'Horizontal Axis')
-    
+plt.get_current_fig_manager().set_window_title(args.name if args.name else f[0].split('.')[0])
+
+rheight = var_len / 25
+rwidth = 0.045
+rdleft = 0.03
+
+rax = fig.add_axes([rdleft, top - rheight, rwidth, rheight])
+
+radio = RadioButtons(rax, 
+                     tuple(variables), 
+                     label_props={'color': ['white' for _ in variables]},
+                     radio_props={'color': ['#1f77b4' for _ in variables], 'edgecolor': ['black' for _ in variables]})
+rax.axis('off') # removes the border around the radio buttons
 radio.on_clicked(select_h)
-rax = fig.add_axes([0.05, 0.4, 0.15, 0.15])
 
-radio2 = RadioButtons(rax, tuple(variables))
-rax.text(-0.055, 0.07, 'Vertical Axis')
+# use same axes to add text in order to make it easier to adjust
+rax.text(-0.055, 0.05, 'X')
+rax.text(0.055, 0.05, 'Y')
+
+rax = fig.add_axes([rdleft + 0.015, top - rheight, 0.25, rheight])
+radio2 = RadioButtons(rax, 
+                      tuple(variables), 
+                      radio_props={'color': ['#1f77b4' for _ in variables], 'edgecolor': ['black' for _ in variables]})
+rax.axis('off')
 radio2.on_clicked(select_v)
 
-# button shift
-lshift = 0.65
+if not args.hst:
 
-bloop = Button(fig.add_axes([1.028 - lshift, 0.125, 0.1, 0.075]), 'Loop')
-bloop.on_clicked(loopf)
+    # button shift
+    lshift = 0.65
 
-brestart = Button(fig.add_axes([0.919 - lshift, 0.125, 0.1, 0.075]), 'Restart')
-brestart.on_clicked(restart)
+    bloop = Button(fig.add_axes([1.028 - lshift, 0.125, 0.1, 0.075]), 'Loop')
+    bloop.on_clicked(loopf)
 
-bres = Button(fig.add_axes([0.81 - lshift, 0.125, 0.1, 0.075]), 'Play')
-bres.on_clicked(play)
+    brestart = Button(fig.add_axes([0.919 - lshift, 0.125, 0.1, 0.075]), 'Restart')
+    brestart.on_clicked(restart)
 
-bpause = Button(fig.add_axes([0.7 - lshift, 0.125, 0.1, 0.075]), 'Pause', color='0.5') # by default it is paused
-bpause.on_clicked(hpause)
+    bres = Button(fig.add_axes([0.81 - lshift, 0.125, 0.1, 0.075]), 'Play')
+    bres.on_clicked(play)
 
-# make slider nonlinear
-delay_slider = Slider(
-    ax=fig.add_axes([0.18, 0.05, 0.65, 0.03]),
-    label='Delay (ms)',
-    valmin=1,
-    valmax=1000,
-    valinit=2,
-)
+    bpause = Button(fig.add_axes([0.7 - lshift, 0.125, 0.1, 0.075]), 'Pause', color='0.5') # by default it is paused
+    bpause.on_clicked(hpause)
 
-delay_slider.on_changed(update_delay)
+    # make slider nonlinear
+    delay_slider = Slider(
+        ax=fig.add_axes([0.18, 0.05, 0.65, 0.03]),
+        label='Delay (ms)',
+        valmin=1,
+        valmax=1000,
+        valinit=100,
+    )
 
-fax = fig.add_axes([0.18, 0.95, 0.65, 0.03])
-fslider = Slider(
-    ax=fax,
-    label='Frame',
-    valmin=1,
-    valmax=length,
-    valinit=1,
-    valstep=1
-)
+    delay_slider.on_changed(update_delay)
 
-fslider.on_changed(update_fslider)
+    fax = fig.add_axes([0.18, 0.95, 0.65, 0.03])
+    fslider = Slider(
+        ax=fax,
+        label='Frame',
+        valmin=1,
+        valmax=length,
+        valinit=1,
+        valstep=1
+    )
 
-# in order to pause the animation when using the frame slider
-fig.canvas.mpl_connect('axes_enter_event', entered_fslider)
-fig.canvas.mpl_connect('axes_leave_event', left_fslider)
+    fslider.on_changed(update_fslider)
+
+    cbax = fig.add_axes([1.15 - lshift, 0.1, 0.1, 0.125])
+    fix_cbox = CheckButtons(
+    ax=cbax,
+    labels=[' Fix X', ' Fix Y']
+    )
+    cbax.axis('off')
+    # in order to pause the animation when using the frame slider
+    fig.canvas.mpl_connect('motion_notify_event', mouse_moved)
+
+    fix_cbox.on_clicked(fix_axes)
 
 plt.show()
