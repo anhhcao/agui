@@ -18,6 +18,7 @@ bgstd = 'white'
 bgstd2 = 'gray'
 
 sliders = {}
+checks = {}
 
 athena = (environ['AGUI'] if 'AGUI' in environ else cwd) + '/athena/bin/athena'
 
@@ -66,6 +67,14 @@ def rm_dot(x):
     return float(s)
 
 # TODO implement the rest of the tkrun gui markers
+#>  IFILE   in=
+#>  OFILE   out=
+#>  IDIR    indir=
+#>  ODIR    odir=
+#>  ENTRY   eps=0.01
+#>  RADIO   mode=gauss              gauss,newton,leibniz
+#>  CHECK   options=mean,sigma      sum,mean,sigma,skewness,kurtosis
+#>  SCALE   n=3.141592              0:10:0.01
 def build_layout(data, info):
     global cwd
     layout = [[sg.Text('Problem:', font=fstd_bold), 
@@ -88,18 +97,18 @@ def build_layout(data, info):
                         sg.In(size=(25, 0.75), 
                             enable_events=True, 
                             default_text=cwd, 
-                            key='output-dir',
-                            background_color='#eeeeee'),
+                            key='output-dir'),
                         sg.FolderBrowse(initial_folder=cwd)],
                   [sg.Text('Parameters:', font=fstd_bold)]])
     for k in data:
         e = data[k]
+        t = e['gtype']
         # use this if removing the prefix and underscore is desired
         # row = [sg.Text(match('.*_(.+)', k).group(1))] 
         # otherwise use
         row = [sg.Text(f'     {k}', tooltip=e['help'][1:].strip()), 
                sg.Stretch()]
-        if e['gtype'] == 'SCALE': # TODO add textbox for custom values
+        if t == 'SCALE': # TODO add textbox for custom values
             # getting scale params
             # min:max:increment?
             # (\d*\.?\d*) also accepts just dots, so beware
@@ -113,7 +122,7 @@ def build_layout(data, info):
                 'factor':round(scaled_default / float(e['value']))
             }
             #row.append(sg.Text(float(e['value']), key=sliders[k]['key'], background_color=bgstd))
-            row.append(sg.InputText(default_text=float(e['value']), key=sliders[k]['key'], justification='right', size=(7, 0.75), background_color='#eeeeee'))
+            row.append(sg.InputText(default_text=float(e['value']), key=sliders[k]['key'], justification='right', size=(7, 0.75)))
             # rm_dot only does anything significant if we are using qt
             slider = sg.Slider(
                 range=(rm_dot(m.group(1)), rm_dot(m.group(2))),
@@ -126,7 +135,7 @@ def build_layout(data, info):
             if using_tk:
                 slider.DisableNumericDisplay = True
             row.append(slider)
-        elif e['gtype'] == 'ENTRY':
+        elif t == 'ENTRY':
             # entry = text box
             # size of textboxes seem ok by default when right justified
             # however, if changing the size is desired later, then remember that it is a pair not a single value like in the tkinter version
@@ -136,10 +145,30 @@ def build_layout(data, info):
                 key=k,
                 size=(20, 0.75)
             ))
-        elif e['gtype'] == 'RADIO':
+        elif t == 'RADIO':
             # number of options is not predetermined, so can't use regex
             for o in e['gparams'].split(','):
                 row.append(sg.Radio(o, k, key=k+o, default= o == e['value']))
+        elif t == 'CHECK':
+            values = e['value'].split(',')
+            checks[k] = {}
+            for o in e['gparams'].split(','):
+                # default value?
+                key = k+o
+                checks[k][key] = o
+                row.append(sg.Checkbox(o, key=key, default= o in values))
+        elif t == 'IFILE' or t == 'OFILE':
+            row.extend([sg.In(size=(25, 0.75), 
+                            enable_events=True, 
+                            default_text=e['value'], 
+                            key=k),
+                        sg.FileBrowse(initial_folder=e['value'])])
+        elif t == 'IDIR' or t == 'ODIR':
+            row.extend([sg.In(size=(25, 0.75), 
+                            enable_events=True, 
+                            default_text=e['value'], 
+                            key=k),
+                        sg.FileBrowse(initial_folder=e['value'])])
         else:
             print('GUI type %s not implemented' % e['gtype'])
             exit()
@@ -163,15 +192,23 @@ def run(input_file, output_dir, data, values):
     cmd = f'{athena} -i {input_file} -d {output_dir} output2/file_type=tab '
     for k in data:
         e = data[k]
+        t = e['gtype']
         # radio buttons are a special case
         # we have to loop through each button to see which is selected
-        if e['gtype'] == 'RADIO':
+        if t == 'RADIO':
             for o in e['gparams'].split(','):
                 if values[k+o]:
                     cmd += f'{k}={o} '
                     break
         elif not using_tk and e['gtype'] == 'SCALE':
             cmd += '%s=%s ' % (k, values[sliders[k]['key']])
+        elif t == 'CHECK' and checks[k]:
+            cmd += f'{k}='
+            cs = checks[k]
+            for ck in cs:
+                if values[ck]:
+                    cmd += f'{cs[ck]},'
+            cmd = cmd[:-1] + ' '
         else:
             cmd += f'{k}={values[k]} '
     # also print it since its easier to copy the text that way
@@ -181,7 +218,7 @@ def run(input_file, output_dir, data, values):
 # builds and displays a new window containing only the athena command
 def display_cmd(s):
     window = sg.Window('Athena Output', 
-                        [[sg.Text(s)]], 
+                        [[sg.Multiline(s)]], 
                         font=fstd)
     while True:
         event, _ = window.read()
@@ -241,17 +278,14 @@ data, info, type = parse(args.file)
 
 sg.theme('Default1')
 
-sg.SetOptions(background_color='white',
-              text_element_background_color='white',
-              element_background_color='white',
-              slider_border_width=0)
+sg.SetOptions(slider_border_width=0)
 
 # start building gui
 inner_layout = build_layout(data, info)
 # pysgqt elements seem to be smaller than their tkinter counterparts, so it might be better to reduce the width scaling
 scale_factor = 27
 if using_tk:
-    scale_factor = 30
+    scale_factor = 33
 win_size = (500, len(inner_layout) * scale_factor)
 #layout = [[sg.Column(inner_layout, size=win_size, scrollable=False, background_color=bgstd)]]
 # only allow verticle scroll for the tk version, otherwise a horizontal scroll bar will show up
@@ -278,7 +312,9 @@ while True:
                 odir = odir[:-1]
             # remove the hst file since it always gets appended to
             # intentional?
-            remove(glob(odir + '/*.hst')[0])
+            h = glob(odir + '/*.hst')
+            if len(h) > 0:
+                remove(h[0])
             # will the tlim variable always be like this?
             display_pbar(cmd, values['time/tlim'])
             Popen(['python', 'plot1d.py', '-d', values['output-dir'], '-n', info['problem']])

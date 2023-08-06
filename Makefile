@@ -171,14 +171,9 @@ test8:
 
 test9: 	ran2
 	./plot1d.py -d ran2
-dump1:
-	athena/bin/athena -i athinput.linear_wave1d -d dump output2/file_type=tab
 
-test_pysg1:
-	python pysg_run.py athinput.linear_wave1d -r
-
-test_plot1:
-	python plot.py -d dump
+test10:
+	./pysg_run.py test.athinput
 
 # collaborations
 agui_t:
