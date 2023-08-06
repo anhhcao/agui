@@ -63,6 +63,7 @@ branch:
 
 athena:
 	git clone $(URL1)
+	$(MAKE) build_athena
 
 athenak:
 	git clone --recursive $(URL2)
@@ -129,13 +130,15 @@ run8:
 	#   base=run8/tab/ViscTest xcol=3 ycol=6
 
 
+
+#  ran1 and ran2 are made by ATHENA++
 ran1: athena
-	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ran1)
-	@echo Results in athena/ran1
+	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ../ran1)
+	@echo Results in ran1
 
 ran2: athena
-	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ran2 output2/file_type=tab)
-	@echo Results in athena/ran2
+	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ../ran2 output2/file_type=tab)
+	@echo Results in ran2
 
 
 test1:
@@ -158,6 +161,16 @@ test5:
 
 test6:
 	python pyqt.py testfile2
+
+test7:
+	./gooey_run2.py linear_wave_hydro.athinput
+
+# will try Qt first, else fall back to tkinter
+test8:
+	./pysg_run.py linear_wave_hydro.athinput
+
+test9: 	ran2
+	./plot1d.py -d ran2
 
 # collaborations
 agui_t:
