@@ -66,7 +66,6 @@ def rm_dot(x):
     s = s.replace('.', '')
     return float(s)
 
-# TODO implement the rest of the tkrun gui markers
 #>  IFILE   in=
 #>  OFILE   out=
 #>  IDIR    indir=
@@ -110,9 +109,8 @@ def build_layout(data, info):
                sg.Stretch()]
         if t == 'SCALE': # TODO add textbox for custom values
             # getting scale params
-            # min:max:increment?
-            # (\d*\.?\d*) also accepts just dots, so beware
-            m = match('(\d*\.?\d*):(\d*\.?\d*):(\d*\.?\d*)', e['gparams'])
+            # min:max:increment
+            [minimum, maximum, increment] = e['gparams'].split(':')
             # scale = slider
             # build sliders differently depending on whether tk or qt is used
             scaled_default = rm_dot(e['value'])
@@ -125,8 +123,8 @@ def build_layout(data, info):
             row.append(sg.InputText(default_text=float(e['value']), key=sliders[k]['key'], justification='right', size=(7, 0.75)))
             # rm_dot only does anything significant if we are using qt
             slider = sg.Slider(
-                range=(rm_dot(m.group(1)), rm_dot(m.group(2))),
-                resolution=rm_dot(m.group(3)),
+                range=(rm_dot(minimum), rm_dot(maximum)),
+                resolution=rm_dot(increment),
                 default_value=scaled_default,
                 enable_events=True,
                 key=k,
