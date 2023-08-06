@@ -1,3 +1,4 @@
 # for python
 PySimpleGUI
+PySimpleGUIQt
 gooey
