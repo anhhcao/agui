@@ -1,4 +1,6 @@
 # for python
+numpy
+matplotlib
 PySimpleGUI
 PySimpleGUIQt
 gooey
