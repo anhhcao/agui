@@ -1,3 +1,6 @@
 # for python
+numpy
+matplotlib
 PySimpleGUI
+PySimpleGUIqt
 gooey
