@@ -316,6 +316,7 @@ while True:
                 remove(h[0])
             # will the tlim variable always be like this?
             display_pbar(cmd, values['time/tlim'])
+            print(info)
             Popen(['python', 'plot1d.py', '-d', values['output-dir'], '-n', info['problem']])
             Popen(['python', 'plot1d.py', '-d', values['output-dir'], '--hst', '-n', info['problem'] + ' history'])
         elif cmd:
@@ -324,7 +325,7 @@ while True:
         display_help(data)
     # update slider displays if using qt
     elif event in sliders:
-        info = sliders[event]
-        window[info['key']].update(values[event] / info['factor'])
+        slider_info = sliders[event]
+        window[slider_info['key']].update(values[event] / slider_info['factor'])
 
 window.close()
