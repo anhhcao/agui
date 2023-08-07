@@ -16,6 +16,8 @@ def rm_dot(x):
 
 cwd = getcwd()
 
+options = {}
+
 # parsing arguments
 argparser = ArgumentParser(description='Creates a GUI script, then runs it. The GUI will allow for configuring the provided athinput file')
 argparser.add_argument('file', help='the athinput file to configure')
@@ -48,24 +50,28 @@ def main():\n\
 #>  RADIO   mode=gauss              gauss,newton,leibniz
 #>  CHECK   options=mean,sigma      sum,mean,sigma,skewness,kurtosis
 #>  SCALE   n=3.141592              0:10:0.01
+i = 0
 for k in data:
     e = data[k]
     t = e['gtype']
     if t == 'ENTRY':
         # entry = text box
         file.write('\tparser.add_argument(\'--%s\', help=\'%s\', metavar=\'%s\', default=\'%s\')\n' % (k, e['help'][1:].strip(), k, e['value']))
-    elif t == 'RADIO': # currently dropdown menus and not radio buttons
+    elif t == 'RADIO': # currently dropdown menus and not radio buttons, radio buttons seem to be a massive pain
         # number of options is not predetermined, so can't use regex
         options = e['gparams'].split(',')
-        '''# create string list
+        # create string list
         c = '['
         for o in options:
             c += f'\'{o}\',' # not wrapping o in quotes causes an error
         c += ']'
-        file.write('\tparser.add_argument(\'--%s\', help=\'%s\', metavar=\'%s\', choices=%s, default=\'%s\')\n' % (k, e['help'][1:].strip(), k, c, e['value']))'''
-        file.write('\tgroup = parser.add_mutually_exclusive_group(gooey_options={\'initial_selection\': %s})\n' % e['value'])
+        file.write('\tparser.add_argument(\'--%s\', help=\'%s\', metavar=\'%s\', choices=%s, default=\'%s\')\n' % (k, e['help'][1:].strip(), k, c, e['value']))
+        '''file.write('\tgroup = parser.add_argument_group()\n')
+        file.write('\trgroup = group.add_mutually_exclusive_group()\n')
         for o in options:
-            file.write('\tgroup.add_argument(\'--%s\', action=\'store_true\')\n' % k+o)
+            if o in options:
+                
+            file.write('\trgroup.add_argument(\'--%s\', action=\'store_true\')\n' % ('option', i))'''
     elif t == 'SCALE':
         [minimum, maximum, increment] = e['gparams'].split(':')
         # scale = slider

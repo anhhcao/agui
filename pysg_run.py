@@ -128,7 +128,8 @@ def build_layout(data, info):
                 default_value=scaled_default,
                 enable_events=True,
                 key=k,
-                orientation='horizontal'
+                orientation='horizontal',
+                
             )
             if using_tk:
                 slider.DisableNumericDisplay = True
@@ -166,7 +167,7 @@ def build_layout(data, info):
                             enable_events=True, 
                             default_text=e['value'], 
                             key=k),
-                        sg.FileBrowse(initial_folder=e['value'])])
+                        sg.FolderBrowse(initial_folder=e['value'])])
         else:
             print('GUI type %s not implemented' % e['gtype'])
             exit()
@@ -216,7 +217,7 @@ def run(input_file, output_dir, data, values):
 # builds and displays a new window containing only the athena command
 def display_cmd(s):
     window = sg.Window('Athena Output', 
-                        [[sg.Multiline(s)]], 
+                        [[sg.Multiline(s, size=(100, round(len(s) / 100)))]], 
                         font=fstd)
     while True:
         event, _ = window.read()
@@ -284,7 +285,7 @@ inner_layout = build_layout(data, info)
 scale_factor = 27
 if using_tk:
     scale_factor = 33
-win_size = (500, len(inner_layout) * scale_factor)
+win_size = (600, len(inner_layout) * scale_factor)
 #layout = [[sg.Column(inner_layout, size=win_size, scrollable=False, background_color=bgstd)]]
 # only allow verticle scroll for the tk version, otherwise a horizontal scroll bar will show up
 #if using_tk:

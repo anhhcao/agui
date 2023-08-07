@@ -1,9 +1,11 @@
 #! /usr/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import RadioButtons, Button, Slider, CheckButtons
+from matplotlib.widgets import RadioButtons, Button, Slider, CheckButtons, TextBox
 from argparse import ArgumentParser
 import glob
+import matplotlib.style as mplstyle
+mplstyle.use(['ggplot', 'fast'])
 
 # TODO list
 # round buttons
@@ -41,10 +43,19 @@ def animate(i):
 # hard-pauses the animation
 # that is, the only way to unpause is by using the play or restart button
 def hpause(self=None):
-    global hard_paused
+    global hard_paused, is_playing
     hard_paused = True
-    bpause.color = '0.5'
+    is_playing = False
+    #bpause.color = '0.5'
+    bplay.label.set_text('$\u25B6$')
     pause()
+
+def play(self=None):
+    global is_playing
+    if is_playing:
+        hpause()
+    else:
+        resume()
 
 # pauses the animation
 def pause(self=None):
@@ -54,12 +65,13 @@ def pause(self=None):
         is_playing = False
 
 # plays the animation (either starts or resumes)
-def play(self=None):
+def resume(self=None):
     global is_playing, current_frame, ax, length, frame_sliding, hard_paused
     if not is_playing:
+        bplay.label.set_text('$\u25A0$')
         is_playing = True
         hard_paused = False
-        bpause.color = '0.85'
+        #bpause.color = '0.85'
         while current_frame < length and is_playing:
             animate(current_frame)
             current_frame += 1
@@ -85,7 +97,7 @@ def restart(self=None):
     global current_frame
     pause()
     current_frame=0
-    play()
+    resume()
 
 # select the horizontal variable
 def select_h(label):
@@ -136,7 +148,7 @@ def mouse_moved(e):
     if e.inaxes == fax:
         pause()
     elif not hard_paused:
-        play()
+        resume()
 
 argparser = ArgumentParser(description='plots the athena tab files specified')
 argparser.add_argument('-d', '--dir', help='the directory containing the tab files', required=True)
@@ -202,8 +214,9 @@ plt.get_current_fig_manager().set_window_title(args.name if args.name else f[0].
 rheight = var_len / 25
 rwidth = 0.045
 rdleft = 0.03
+rbot = (bottom + top - rheight) / 2
 
-rax = fig.add_axes([rdleft, top - rheight, rwidth, rheight])
+rax = fig.add_axes([rdleft, rbot, rwidth, rheight])
 
 radio = RadioButtons(rax, 
                      tuple(variables), 
@@ -216,7 +229,7 @@ radio.on_clicked(select_h)
 rax.text(-0.055, 0.05, 'X')
 rax.text(0.055, 0.05, 'Y')
 
-rax = fig.add_axes([rdleft + 0.015, top - rheight, 0.25, rheight])
+rax = fig.add_axes([rdleft + 0.015, rbot, 0.25, rheight])
 radio2 = RadioButtons(rax, 
                       tuple(variables), 
                       radio_props={'color': ['#1f77b4' for _ in variables], 'edgecolor': ['black' for _ in variables]})
@@ -225,20 +238,19 @@ radio2.on_clicked(select_v)
 
 if not args.hst:
 
-    # button shift
-    lshift = 0.65
+    bwidth = 0.04
+    bheight = 0.05
+    bspace = 0.02
+    bstart = 0.05
 
-    bloop = Button(fig.add_axes([1.028 - lshift, 0.125, 0.1, 0.075]), 'Loop')
-    bloop.on_clicked(loopf)
-
-    brestart = Button(fig.add_axes([0.919 - lshift, 0.125, 0.1, 0.075]), 'Restart')
+    brestart = Button(fig.add_axes([bstart, 0.125, bwidth, bheight]), '$\u21A9$')
     brestart.on_clicked(restart)
 
-    bres = Button(fig.add_axes([0.81 - lshift, 0.125, 0.1, 0.075]), 'Play')
-    bres.on_clicked(play)
+    bplay = Button(fig.add_axes([bstart + bwidth + bspace, 0.125, bwidth, bheight]), '$\u25B6$')
+    bplay.on_clicked(play)
 
-    bpause = Button(fig.add_axes([0.7 - lshift, 0.125, 0.1, 0.075]), 'Pause', color='0.5') # by default it is paused
-    bpause.on_clicked(hpause)
+    bloop = Button(fig.add_axes([bstart + 2 * bwidth + 2 * bspace, 0.125, bwidth, bheight]), '$\u27F3$')
+    bloop.on_clicked(loopf)
 
     # make slider nonlinear
     delay_slider = Slider(
@@ -263,15 +275,59 @@ if not args.hst:
 
     fslider.on_changed(update_fslider)
 
-    cbax = fig.add_axes([1.15 - lshift, 0.1, 0.1, 0.125])
+    cbax = fig.add_axes([bstart + 3 * bwidth + 3 * bspace, 0.09, 0.1, 0.125])
     fix_cbox = CheckButtons(
     ax=cbax,
     labels=[' Fix X', ' Fix Y']
     )
     cbax.axis('off')
-    # in order to pause the animation when using the frame slider
-    fig.canvas.mpl_connect('motion_notify_event', mouse_moved)
 
     fix_cbox.on_clicked(fix_axes)
+
+    '''twidth = 0.1
+    theight = 0.04
+    txstart=0.35
+    tspace = 0.075
+    tystart1 = 0.11
+    tystart2 = tystart1 + 0.05
+    
+    xmin_ax = fig.add_axes([txstart, tystart1, twidth, theight])
+    xmin_box = TextBox(
+        ax=xmin_ax,
+        label='min '
+    )
+
+    xmin_ax.text(-0.9, 0.25, 'X:')
+
+    xmax_box = TextBox(
+        ax=fig.add_axes([txstart + twidth + tspace, tystart1, twidth, theight]),
+        label='max '
+    )
+
+    xscale_box = TextBox(
+        ax=fig.add_axes([txstart + 2*twidth + 2*tspace, tystart1, twidth, theight]),
+        label='scale '
+    )
+
+    ymin_ax = fig.add_axes([txstart, tystart2, twidth, theight])
+    ymin_box = TextBox(
+        ax=ymin_ax,
+        label='min '
+    )
+
+    ymin_ax.text(-0.9, 0.25, 'Y:')
+
+    ymax_box = TextBox(
+        ax=fig.add_axes([txstart + twidth + tspace, tystart2, twidth, theight]),
+        label='max '
+    )
+
+    yscale_box = TextBox(
+        ax=fig.add_axes([txstart + 2*twidth + 2*tspace, tystart2, twidth, theight]),
+        label='scale '
+    )'''
+
+    # in order to pause the animation when using the frame slider
+    fig.canvas.mpl_connect('motion_notify_event', mouse_moved)
 
 plt.show()
