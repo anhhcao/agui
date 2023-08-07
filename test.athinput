@@ -80,5 +80,5 @@ input_field = 3.14     # test input button field #> ENTRY
 check_field = op1,op3  # test check button field #> CHECK op1,op2,op3,op4,op5
 in_file_field = ~/in.txt     # test input file field #> IFILE
 out_file_field = ~/out.txt   # test output file field #> OFILE
-in_dir_field = ~/     # test input file field #> IDIR
-out_dir_field = ~/   # test output file field #> ODIR
+in_dir_field = ~/     # test input dir field #> IDIR
+out_dir_field = ~/   # test output dir field #> ODIR

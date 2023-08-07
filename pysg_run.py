@@ -97,7 +97,7 @@ def build_layout(data, info):
                             enable_events=True, 
                             default_text=cwd, 
                             key='output-dir'),
-                        sg.FolderBrowse(initial_folder=cwd)],
+                        sg.FolderBrowse(initial_folder=cwd, size = (6, 1) if using_tk else (75, 25))],
                   [sg.Text('Parameters:', font=fstd_bold)]])
     for k in data:
         e = data[k]
@@ -161,13 +161,13 @@ def build_layout(data, info):
                             enable_events=True, 
                             default_text=e['value'], 
                             key=k),
-                        sg.FileBrowse(initial_folder=e['value'])])
+                        sg.FileBrowse(initial_folder=e['value'], size = (6, 1) if using_tk else (75, 25))])
         elif t == 'IDIR' or t == 'ODIR':
             row.extend([sg.In(size=(25, 0.75), 
                             enable_events=True, 
                             default_text=e['value'], 
                             key=k),
-                        sg.FolderBrowse(initial_folder=e['value'])])
+                        sg.FolderBrowse(initial_folder=e['value'], size = (6, 1) if using_tk else (75, 25))])
         else:
             print('GUI type %s not implemented' % e['gtype'])
             exit()
@@ -285,7 +285,7 @@ inner_layout = build_layout(data, info)
 scale_factor = 27
 if using_tk:
     scale_factor = 33
-win_size = (600, len(inner_layout) * scale_factor)
+win_size = (550, len(inner_layout) * scale_factor)
 #layout = [[sg.Column(inner_layout, size=win_size, scrollable=False, background_color=bgstd)]]
 # only allow verticle scroll for the tk version, otherwise a horizontal scroll bar will show up
 #if using_tk:
