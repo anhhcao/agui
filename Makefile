@@ -15,6 +15,7 @@ GIT_DIRS = athena athenak
 
 # URLs that we'll need
 
+URL0  = https://github.com/teuben/Athena-Cversion
 URL1  = https://github.com/PrincetonUniversity/athena
 URL2  = https://gitlab.com/theias/hpc/jmstone/athena-parthenon/athenak
 URL3  = https://github.com/teuben/nemo
@@ -60,6 +61,8 @@ branch:
 	-@for dir in $(GIT_DIRS); do\
 	(echo -n "$$dir: " ;cd $$dir; git branch --show-current); done
 
+athenac:
+	git clone $(URL0) athenac
 
 athena:
 	git clone $(URL1)
