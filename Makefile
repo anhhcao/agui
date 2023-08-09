@@ -62,7 +62,8 @@ branch:
 	(echo -n "$$dir: " ;cd $$dir; git branch --show-current); done
 
 athenac:
-	git clone $(URL0) athenac
+	git clone $(URL0) -b teuben1 athenac
+	$(MAKE) build_athenac
 
 athena:
 	git clone $(URL1)
@@ -84,6 +85,10 @@ build:	athenak
 ## build_athena   build athena++ for the linear_wave problem
 build_athena: athena
 	(cd athena; ./configure.py --prob linear_wave; make clean; make -j)
+
+## build_athenac  build AthenaC for the linear_wave problem
+build_athenac: athenac
+	(cd athenac; autoconf;  ./configure; make all)
 
 ## build_nemo:    build nemo - will build tkrun
 build_nemo:	nemo
@@ -133,8 +138,9 @@ run8:
 	#   base=run8/tab/ViscTest xcol=3 ycol=6
 
 
-
+#  We use past tense for old versions of athena :-)
 #  ran1 and ran2 are made by ATHENA++
+#  ran3 by good old AthenaC
 ran1: athena
 	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ../ran1)
 	@echo Results in ran1
@@ -143,6 +149,10 @@ ran1: athena
 ran2: athena
 	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ../ran2 output2/file_type=tab)
 	@echo Results in ran2
+
+## ran3:          example AthenaC linear_wave1d needed by some tests - will also build athenac
+ran3: athenac
+	athenac/bin/athena  -i athenac/tst/1D-hydro/athinput.linear_wave1d  -d ran3
 
 test0:
 	./z1.sh
