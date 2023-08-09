@@ -10,6 +10,5 @@ if [  $? = 0 ]; then
 elif [ $? -gt 0 ]; then
     echo Cancel
 else
-    
     echo Bad too
 fi
