@@ -1,4 +1,4 @@
-# See the INSTALL.md notes on how to use this Makefile
+# See the README.md notes on how to use this Makefile
 
 #
 SHELL = /bin/bash
@@ -82,7 +82,7 @@ build:	athenak
 build_athena: athena
 	(cd athena; ./configure.py --prob linear_wave; make clean; make -j)
 
-## build_nemo:    build nemo
+## build_nemo:    build nemo - will build tkrun
 build_nemo:	nemo
 	(cd nemo; ./configure ; make build check bench5)
 
@@ -136,10 +136,13 @@ ran1: athena
 	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ../ran1)
 	@echo Results in ran1
 
+## ran2:          example athena++ linear_wave1d needed by some tests - will also build athena++
 ran2: athena
 	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ../ran2 output2/file_type=tab)
 	@echo Results in ran2
 
+test0:
+	./z1.sh
 
 test1:
 	./arun1.py athinput.linear_wave1d > test1.sh
