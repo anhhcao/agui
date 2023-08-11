@@ -2,7 +2,7 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 import argparse
 import re
-import aparser
+import subprocess
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -11,7 +11,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.groups = groups
         self.radio_groups = []
-        self.inputFile = None
+        self.loadFile = None
         self.ofile = None
         self.saveFile = None
         self.contents = None
@@ -20,38 +20,31 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def initUI(self):
         self.pagelayout = QtWidgets.QVBoxLayout()       #page layout
-        self.dbtnlayout = QtWidgets.QHBoxLayout()       #layout for the default buttons
-        self.elmtlayout = QtWidgets.QVBoxLayout()       #layout for the added widgets, stacks elements
-        
-        #add layouts to the page
-        self.pagelayout.addLayout(self.dbtnlayout) 
-        self.pagelayout.addLayout(self.elmtlayout)
 
-        #run, save, load, quit, help button
-        btn = QtWidgets.QPushButton(self)
-        btn.setText("run")
-        btn.clicked.connect(self.run)
-        self.dbtnlayout.addWidget(btn)
+        #run, save, load, quit, help buttons -> located in a toolbar
+        toolbar = self.addToolBar("ToolBar")
 
-        btn = QtWidgets.QPushButton(self)
-        btn.setText("save")
-        btn.clicked.connect(self.save)
-        self.dbtnlayout.addWidget(btn)
+        run_action = QtWidgets.QAction('Run', self)
+        save_action = QtWidgets.QAction('Save', self)
+        load_action = QtWidgets.QAction('Load', self)
+        quit_action = QtWidgets.QAction('Quit', self)
+        help_action = QtWidgets.QAction('Help', self)
 
-        btn = QtWidgets.QPushButton(self)
-        btn.setText("load")
-        btn.clicked.connect(self.load)
-        self.dbtnlayout.addWidget(btn)
+        toolbar.addAction(run_action)
+        toolbar.addSeparator()
+        toolbar.addAction(save_action)
+        toolbar.addSeparator()
+        toolbar.addAction(load_action)
+        toolbar.addSeparator()
+        toolbar.addAction(quit_action)
+        toolbar.addSeparator()
+        toolbar.addAction(help_action)
 
-        btn = QtWidgets.QPushButton(self)
-        btn.setText("quit")
-        btn.clicked.connect(self.quit)
-        self.dbtnlayout.addWidget(btn)
-
-        btn = QtWidgets.QPushButton(self)
-        btn.setText("help")
-        btn.clicked.connect(self.help)
-        self.dbtnlayout.addWidget(btn)
+        run_action.triggered.connect(self.run)
+        save_action.triggered.connect(self.save)
+        load_action.triggered.connect(self.load)
+        quit_action.triggered.connect(self.quit)
+        help_action.triggered.connect(self.help)
         
         #set the main page layout
         widget = QtWidgets.QWidget()
@@ -59,7 +52,6 @@ class MainWindow(QtWidgets.QMainWindow):
         scroll = QtWidgets.QScrollArea()    #add scrollbar
         scroll.setWidgetResizable(True)
         scroll.setWidget(widget)
-        self.setGeometry(500, 100, 700, 500)
         self.setCentralWidget(scroll)
 
         self.createWidgetsFromGroups()
@@ -68,24 +60,19 @@ class MainWindow(QtWidgets.QMainWindow):
         print('run')
     
     def save(self):
-        # if self.saveFile:
-        #     try:
-        #         with open(self.saveFile, 'w') as file:
-        #             text = self.text_edit.toPlainText()
-        #             file.write(text)
-        #             print(f"Saved to {self.saveFile}")
-        #     except Exception as e:
-        #         print(f"Error saving file: {e}")
-        # else:
-        #     print("no file to save to")
         self.contents = self.gatherData()
         for i in self.contents:
             if i['name'] == self.ofile+":":
                 self.saveFile = ''.join(i['default'])
         self.update_and_save(self.inputFile, self.saveFile)
+        print("saved")
     
     def load(self):
-        print('load')
+        options = QtWidgets.QFileDialog.Options()
+        file, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose a File", "", "All Files (*)", options=options)
+        if file:
+            self.close()
+            subprocess.call(["python", "pyqt.py", file])
     
     def quit(self):
         self.close()
@@ -113,7 +100,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     group_layout.addWidget(radio_button)
                     if option in default_option:
                         radio_button.setChecked(True)
-                self.elmtlayout.addLayout(group_layout)
+                self.pagelayout.addLayout(group_layout)
 
             elif group_type == "IFILE" or group_type == "OFILE" or group_type == "IDIR" or group_type == "ODIR":
                 print("browse files button created")
@@ -133,7 +120,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     btn.clicked.connect(lambda checked, edit=txt: self.browse(None, edit))
                 group_layout.addWidget(btn)
                 group_layout.addWidget(txt)
-                self.elmtlayout.addLayout(group_layout)
+                self.pagelayout.addLayout(group_layout)
 
             elif group_type == "CHECK":
                 print("checkbox created")
@@ -147,7 +134,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     group_layout.addWidget(checkbox)
                     if option in default_option:
                         checkbox.setChecked(True)
-                self.elmtlayout.addLayout(group_layout)
+                self.pagelayout.addLayout(group_layout)
 
             elif group_type == "ENTRY":
                 print("textbox created")
@@ -158,7 +145,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 txt = QtWidgets.QLineEdit(self)
                 txt.setText(default_option)
                 group_layout.addWidget(txt)
-                self.elmtlayout.addLayout(group_layout)
+                self.pagelayout.addLayout(group_layout)
             
             elif group_type == "SCALE":
                 group_layout = QtWidgets.QHBoxLayout()
@@ -182,7 +169,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 
                 group_layout.addWidget(label_slider)
                 group_layout.addWidget(slider)
-                self.elmtlayout.addLayout(group_layout)
+                self.pagelayout.addLayout(group_layout)
+
+            # Create a visual separator (horizontal line)
+            separator = QtWidgets.QFrame()
+            separator.setFrameShape(QtWidgets.QFrame.HLine)
+            separator.setFrameShadow(QtWidgets.QFrame.Sunken)
+            separator.setFixedHeight(1)  # Set a fixed height for the separator
+            self.pagelayout.addWidget(separator)
 
     def updateLabel(self, label, value):
         label.setText(str(value/100))
@@ -201,10 +195,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def gatherData(self):
         layout_data = []
 
-        print(self.elmtlayout.count())
-
-        for hbox_layout_index in range(self.elmtlayout.count()):
-            hbox_layout = self.elmtlayout.itemAt(hbox_layout_index).layout()
+        for hbox_layout_index in range(1, self.pagelayout.count()):
+            hbox_layout = self.pagelayout.itemAt(hbox_layout_index).layout()
             
             if hbox_layout is not None:
                 defaults = {'name': '',
@@ -274,19 +266,19 @@ if __name__ == '__main__':
             help = match.group(3)
 
             groups.append((group_type, group_name, options, default_option, help))
-    # print(aparser.parse_generic(args.param_file)) #not used, format into fields later
 
     app = QtWidgets.QApplication(sys.argv)
     w = MainWindow(groups)
-    print(w.saveFile)
     w.inputFile = args.param_file
-    w.show()
+    w.adjustSize()  #adjust to fit elements accordingly
 
-    print(args.param_file + " argsss")
+    #sets a minimum window size
+    w.setMinimumWidth(500) 
+    w.setMinimumHeight(200)
+    w.show()
 
     try:
         print('opening window')
         sys.exit(app.exec())
     except SystemExit:
-        print(w.saveFile)
         print('closing window')
