@@ -13,10 +13,6 @@ cwd = getcwd()
 fstd = ('Helvetica', 10)
 fstd_bold = ('Helvetica', 10, 'bold')
 
-# background colors used in the GUI
-bgstd = 'white'
-bgstd2 = 'gray'
-
 sliders = {}
 checks = {}
 
@@ -54,7 +50,7 @@ except:
     sg = import_module(backup)
 
 # removes the trailing zeroes then the dot from a string float x, then returns an int
-# utility function used by buidd_layout
+# utility function used by build_layout
 def rm_dot(x):
     if using_tk:
         return float(x)
@@ -292,7 +288,8 @@ win_size = (550, len(inner_layout) * scale_factor)
 #    layout[0][0].VerticalScrollOnly = True
 # create the main window '#777777'
 # already resizable by default?
-window = sg.Window('pysg_run', inner_layout, size=win_size, font=fstd, resizable=True)
+import PySimpleGUIQt as sg
+window = sg.Window('pysg_run', inner_layout, size=win_size, font=fstd, resizable=True, grab_anywhere=True)
 # primary event loop
 while True:
     event, values = window.read()
