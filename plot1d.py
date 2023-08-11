@@ -29,15 +29,17 @@ def animate(i):
     ax.clear()
     if xlim:
         ax.set_xlim(xlim)
-    if ylim:
         ax.set_ylim(ylim)
     ax.plot(x, y)
+    if not xlim and args.fix: # just need to check one since its either both or none
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
     if not args.hst:
         ax.set_title(f'Time: {float(time)}', loc='left')
     else:
         ax.set_title(f'History', loc='left')
     ax.set_xlabel(xcol)
-    ax.set_ylabel(ycol)  
+    ax.set_ylabel(ycol)
 # END IMPORT
 
 # hard-pauses the animation
@@ -94,29 +96,31 @@ def loopf(self=None):
 
 # restarts the animation from the beginning
 def restart(self=None):
-    global current_frame
+    global current_frame, xlim
+    xlim = None
     pause()
     current_frame=0
     resume()
 
 # select the horizontal variable
 def select_h(label):
-    global current_frame, ycol
+    global current_frame, ycol, xlim
     update_cols(label, ycol)
     if not hard_paused:
         restart()
     else:
+        xlim = None
         animate(current_frame)
         fig.canvas.draw_idle()
 
-
 # select the verticle variable
 def select_v(label):
-    global current_frame, xcol
+    global current_frame, xcol, xlim
     update_cols(xcol, label)
     if not hard_paused:
         restart()
     else:
+        xlim = None
         animate(current_frame)
         fig.canvas.draw_idle()
 
@@ -137,12 +141,12 @@ def update_fslider(n):
     animate(current_frame - 1)
     fig.canvas.draw_idle()
 
-def fix_axes(v):
+'''def fix_axes(v):
     global xlim, ylim
     if v == 'Fix X':
         xlim = ax.get_xlim() if not xlim else None
     else:
-        ylim = ax.get_ylim() if not ylim else None
+        ylim = ax.get_ylim() if not ylim else None'''
 
 def mouse_moved(e):
     if e.inaxes == fax:
@@ -153,7 +157,8 @@ def mouse_moved(e):
 argparser = ArgumentParser(description='plots the athena tab files specified')
 argparser.add_argument('-d', '--dir', help='the directory containing the tab files', required=True)
 argparser.add_argument('--hst', action='store_true', help='plots the hst file rather animating the tab files')
-argparser.add_argument('-n', '--name', help='name of the problem being plotted')
+argparser.add_argument('-n', '--name', help='name of the problem being plotted') # primarily just used by the other gui
+argparser.add_argument('-f', '--fix', action='store_true', help='fixes the x and y axes of the animation based on the animation\'s first frame')
 args = argparser.parse_args()
 
 # fnames='run1/tab/LinWave*tab'
@@ -174,7 +179,7 @@ ylim = None
 
 # plot settings
 left = 0.34
-bottom = 0.32
+bottom = 0.25
 top = 0.85
 
 # change plot settings if plotting a hst file
@@ -275,14 +280,14 @@ if not args.hst:
 
     fslider.on_changed(update_fslider)
 
-    cbax = fig.add_axes([bstart + 3 * bwidth + 3 * bspace, 0.09, 0.1, 0.125])
+    '''cbax = fig.add_axes([bstart + 3 * bwidth + 3 * bspace, 0.09, 0.1, 0.125])
     fix_cbox = CheckButtons(
     ax=cbax,
     labels=[' Fix X', ' Fix Y']
     )
     cbax.axis('off')
 
-    fix_cbox.on_clicked(fix_axes)
+    fix_cbox.on_clicked(fix_axes)'''
 
     '''twidth = 0.1
     theight = 0.04
