@@ -182,6 +182,9 @@ test11:
 test12:
 	./pyqt_run.py athinput.linear_wave1d -r
 
+test13:
+	./pysg_menu.py -r
+
 # collaborations
 agui_t:
 	git clone $(URL5a) agui_t

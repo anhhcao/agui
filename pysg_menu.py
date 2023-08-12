@@ -1,50 +1,126 @@
-import PySimpleGUI as sg
+#! /usr/bin/env python
+from argparse import ArgumentParser
+from importlib import import_module
+from json import load
+from subprocess import Popen
 
-problems = [['Linear wave propagation', 1],
-            ['Riemann problems', 1],
-            ['Rayleigh–Taylor instability', 1],
-            ['Kelvin–Helmholtz instability', 1]]
+# parse arguments
+argparser = ArgumentParser(description='Runs the GUI for configuring an athinput file')
+argparser.add_argument('--tk', 
+                       action='store_true', 
+                       help='uses PYSimpleGUI (tkinter) instead of PySimpleGUIQt', 
+                       default=False)
+argparser.add_argument('-r', '--run',
+                       action='store_true',
+                       help='executes the athena command and plots the tab files on run',
+                       default=False)
+args = argparser.parse_args()
 
-def new_problem_tab():
-    global problems
-    # find which of the problems was selected
-    for p in problems:
-        if values[p[0]] == True:
+# import a version of PySimpleGUI
+# if the selected one doesn't work, try the other
+primary = 'PySimpleGUIQt'
+backup = 'PySimpleGUI'
+
+fstd_bold = ('Helvetica', 10, 'bold')
+
+using_tk = args.tk
+
+if using_tk:
+    primary = 'PySimpleGUI'
+    backup = 'PySimpleGUIQt'
+
+try:
+    sg = import_module(primary)
+except:
+    print(f'Falied to import {primary}. Falling back to {backup}')
+    using_tk = not using_tk
+    sg = import_module(backup)
+
+# builds and displays a new window containing the help information
+def display_help():
+    layout = [
+        [ 
+            sg.Text('Athena Version:', font=fstd_bold)
+        ],
+        [
+            sg.Text('\tThe version of Athena (must match the version of the executable) to be used.')
+        ],
+        [
+            sg.Text('Athena Executable:', font=fstd_bold)
+        ],
+        [
+            sg.Text('\tEither the path or the name of the Athena executable. \
+if only a name is given, then it is assumed that the executable is in /usr/bin.')
+        ],
+        [
+            sg.Text('Selecting Problems:', font=fstd_bold)
+        ],
+        [
+            sg.Text('\tA problem can either be selected from the list of predefined problems \
+or a custom problem can be chosen. Use the radio buttons to choose which method to use.')
+        ]
+    ]
+    window = sg.Window('Help', layout)
+    while True:
+        event, _ = window.read()
+        if event == sg.WIN_CLOSED:
             break
-    tab_id = f'{p[0]} {p[1]}'
-    new_tab = sg.Tab(tab_id, [[sg.Text(f'This is a problem tab for {tab_id}')]], key=tab_id)
-    # prase, fill the tab, etc, here
-    window['tabs'].add_tab(new_tab)
-    # auto-select new tab
-    p[1] += 1
-    window[tab_id].select()
+    window.close()
 
-# returns the main tab
-def mainTab():
-    elements = [[sg.Text('Choose a problem to run:')]]
-    for p in problems:
-        elements.append([sg.Radio(p[0], 'problems', key=p[0])])
-    elements.append([sg.Button('Configure')])
-    return sg.Tab('Choose Problem', elements)
+with open('athena_problems.json') as problems_json:
+    problems = {'linear wave 1d (TEST)':'athinput.linear_wave1d'}
+    problems.update(load(problems_json))
 
-# just for aesthetics
-sg.theme('DarkBlue13')
+sg.theme('Default1')
 
-# format is as follows:
-# [[row1Stuff, moreRow1Stuff], [row2Stuff, moreRow2Stuff], [row3Stuff, ,preRow3Stuff]]
-layout = [[
-    sg.TabGroup([[mainTab()]], key='tabs', size=(500, 500)) # everything happens in this tab group
-]]
+layout = [
+    [
+        sg.Text('Athena Version:', font=fstd_bold),
+        sg.Stretch(), 
+        sg.Radio('AthenaX', 'versions', default=True), 
+        sg.Radio('AthenaK', 'versions'), 
+        sg.Radio('AthenaC', 'versions')
+    ],
+    [
+        sg.Text('Athena Executable:', font=fstd_bold), 
+        sg.Stretch(), 
+        sg.Input(size=(17.5, 0.75), default_text='./athena/bin/athena', key='exe'), 
+        sg.FileBrowse(size = (6, 1) if using_tk else (75, 25))
+    ],
+    [
+        sg.Radio('Load Problem:', 'origin', key='load_radio', font=fstd_bold),
+        sg.Stretch(),
+        sg.Input(size=(17.5, 0.75), key='load'),
+        sg.FileBrowse(size = (6, 1) if using_tk else (75, 25))
+    ],
+    [
+        sg.Radio('Predefined Problem:', 'origin', key='predefined_radio', font=fstd_bold, default=True),
+        sg.Stretch(), 
+        sg.Combo(list(problems), default_value='linear wave 1d (TEST)', size=(25, 0.75), key='predefined_dropdown')
+    ],
+    [sg.Text()], # buffer
+    [
+        sg.Button('Configure'), 
+        sg.Button('Quit'), 
+        sg.Button('Help')
+    ]
+]
 
 # create the main window
-window = sg.Window('pysg test', layout, size=(500, 500))
+window = sg.Window('pysg test', layout, size=(500, 180))
 
 # primary event loop
 while True:
     event, values = window.read()
-    if event == 'Configure':
-        new_problem_tab()
-    if event == sg.WIN_CLOSED:
+    if event == sg.WIN_CLOSED or event == 'Quit':
         break
+    elif event == 'Configure':
+        cmd = './pysg_run.py %s -x %s -r' % (problems[values['predefined_dropdown']] if values['predefined_radio'] else values['load'], values['exe'])
+        print(cmd)
+        if args.run:
+            Popen(cmd.split())
+    elif event == 'Help':
+        print('help')
+        display_help()
 
 window.close()
