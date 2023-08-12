@@ -175,6 +175,13 @@ test9: 	ran2
 test10:
 	./pysg_run.py test.athinput
 
+test11:
+	./pyqt_run.py test.athinput
+
+# will run the plot when run is clicked
+test12:
+	./pyqt_run.py athinput.linear_wave1d -r
+
 # collaborations
 agui_t:
 	git clone $(URL5a) agui_t
