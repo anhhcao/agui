@@ -110,26 +110,27 @@ def build_layout(data, info):
         if t == 'SCALE': # TODO add textbox for custom values
             # getting scale params
             # min:max:increment
-            [minimum, maximum, increment] = e['gparams'].split(':')
+            params = e['gparams'].split(':')
             # scale = slider
             # build sliders differently depending on whether tk or qt is used
-            scaled_increment = rm_dot(increment)
             # if using qt, we need to prepare our own number display since one is not available by default
-            factor = round(scaled_increment / float(increment))
+            factor = max([1 if float(x) == 0 else round(rm_dot(x) / float(x)) for x in params])
             sliders[k] = {
                 'key':k+'_display',
-                'factor':factor
+                'factor':factor,
+                'is_int':params[0].isdigit() and params[1].isdigit() and params[2].isdigit()
             }
             #row.append(sg.Text(float(e['value']), key=sliders[k]['key'], background_color=bgstd))
-            row.append(sg.InputText(default_text=float(e['value']), key=sliders[k]['key'], justification='right', size=(7, 0.75)))
+            [minimum, maximum, increment, init] = [float(x) for x in params + [e['value']]]
+            row.append(sg.InputText(default_text=int(init) if sliders[k]['is_int'] else init, key=sliders[k]['key'], justification='right', size=(7, 0.75)))
             # rm_dot only does anything significant if we are using qt
             slider = sg.Slider(
-                range=(int(factor * float(minimum)), int(factor * float(maximum))),
-                resolution=scaled_increment,
-                default_value=int(factor * float(e['value'])),
+                range=(int(factor * minimum), int(factor * maximum)),
+                resolution=int(factor * increment),
+                default_value=int(factor * init),
                 enable_events=True,
                 key=k,
-                orientation='horizontal',
+                orientation='horizontal'
             )
             if using_tk:
                 slider.DisableNumericDisplay = True
@@ -326,6 +327,7 @@ while True:
     # update slider displays if using qt
     elif event in sliders:
         slider_info = sliders[event]
-        window[slider_info['key']].update(values[event] / slider_info['factor'])
+        value = values[event] / slider_info['factor']
+        window[slider_info['key']].update(int(value) if slider_info['is_int'] else value)
 
 window.close()
