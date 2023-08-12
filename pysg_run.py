@@ -288,7 +288,6 @@ win_size = (550, len(inner_layout) * scale_factor)
 #    layout[0][0].VerticalScrollOnly = True
 # create the main window '#777777'
 # already resizable by default?
-import PySimpleGUIQt as sg
 window = sg.Window('pysg_run', inner_layout, size=win_size, font=fstd, resizable=True, grab_anywhere=True)
 # primary event loop
 while True:
