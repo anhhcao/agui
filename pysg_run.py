@@ -16,8 +16,6 @@ fstd_bold = ('Helvetica', 10, 'bold')
 sliders = {}
 checks = {}
 
-athena = (environ['AGUI'] if 'AGUI' in environ else cwd) + '/athena/bin/athena'
-
 # parse arguments
 argparser = ArgumentParser(description='Runs the GUI for configuring an athinput file')
 argparser.add_argument('--tk', 
@@ -29,7 +27,13 @@ argparser.add_argument('-r', '--run',
                        help='executes the athena command and plots the tab files on run',
                        default=False)
 argparser.add_argument('file', help='the athinput file to configure')
+argparser.add_argument('-x', '--exe', help='the path to the athena executable')
 args = argparser.parse_args()
+
+if args.exe:
+    athena = args.exe
+else:
+    athena = (environ['AGUI'] if 'AGUI' in environ else cwd) + '/athena/bin/athena'
 
 # import a version of PySimpleGUI
 # if the selected one doesn't work, try the other
@@ -109,23 +113,23 @@ def build_layout(data, info):
             [minimum, maximum, increment] = e['gparams'].split(':')
             # scale = slider
             # build sliders differently depending on whether tk or qt is used
-            scaled_default = rm_dot(e['value'])
+            scaled_increment = rm_dot(increment)
             # if using qt, we need to prepare our own number display since one is not available by default
+            factor = round(scaled_increment / float(increment))
             sliders[k] = {
-                'key':e['value']+'_display',
-                'factor':round(scaled_default / float(e['value']))
+                'key':k+'_display',
+                'factor':factor
             }
             #row.append(sg.Text(float(e['value']), key=sliders[k]['key'], background_color=bgstd))
             row.append(sg.InputText(default_text=float(e['value']), key=sliders[k]['key'], justification='right', size=(7, 0.75)))
             # rm_dot only does anything significant if we are using qt
             slider = sg.Slider(
-                range=(rm_dot(minimum), rm_dot(maximum)),
-                resolution=rm_dot(increment),
-                default_value=scaled_default,
+                range=(int(factor * float(minimum)), int(factor * float(maximum))),
+                resolution=scaled_increment,
+                default_value=int(factor * float(e['value'])),
                 enable_events=True,
                 key=k,
                 orientation='horizontal',
-                
             )
             if using_tk:
                 slider.DisableNumericDisplay = True

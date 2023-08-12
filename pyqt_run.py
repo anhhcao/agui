@@ -27,8 +27,6 @@ class MainWindow(QtWidgets.QMainWindow):
     # removes the trailing zeroes then the dot from a string float x, then returns an int
     # utility function used by build_layout
     def rm_dot(self, x):
-        '''if using_tk:
-            return float(x)'''
         # being too precise causes problems, but hopefully this is enough
         s = '%.8g' % float(x)
         dot_pos = s.rfind('.')
@@ -79,11 +77,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.outdirlayout.addStretch()
         btn = QtWidgets.QPushButton(self)
         btn.setText("browse")
-        def browse(t):
+        def browse_dir(t):
             file = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory", "")
             t.setText(file)
         txt = QtWidgets.QLineEdit(self)
-        btn.clicked.connect(lambda: browse(txt))
+        btn.clicked.connect(lambda: browse_dir(txt))
         txt.setFixedWidth(250)
         txt.setText(cwd)
         self.outdirlayout.addWidget(btn)
@@ -230,11 +228,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 group_layout.addStretch()
                 btn = QtWidgets.QPushButton(self)
                 btn.setText("browse")
-                def browse(t):
-                    file = QtWidgets.QFileDialog.getOpenFileNames(self, "Select File", "")
-                    print(file)
                 txt = QtWidgets.QLineEdit(self)
-                btn.clicked.connect(lambda: browse(txt))
+                def browse_file(t):
+                    file = QtWidgets.QFileDialog.getOpenFileName(self, "Select File", "")[0]
+                    t.setText(file)
+                btn.clicked.connect(lambda _, t=txt: browse_file(t))
                 txt.setFixedWidth(250)
                 txt.setText(e['value'])
                 group_layout.addWidget(btn)
@@ -251,11 +249,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 group_layout.addStretch()
                 btn = QtWidgets.QPushButton(self)
                 btn.setText("browse")
-                def browse(t):
+                def browse_dir(t):
                     file = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory", "")
                     t.setText(file)
                 txt = QtWidgets.QLineEdit(self)
-                btn.clicked.connect(lambda: browse(txt))
+                btn.clicked.connect(lambda _, t=txt: browse_dir(t))
                 txt.setFixedWidth(250)
                 txt.setText(e['value'])
                 group_layout.addWidget(btn)
@@ -363,6 +361,7 @@ argparser.add_argument('-r', '--run',
                        action='store_true',
                        help='executes the athena command and plots the tab files on run',
                        default=False)
+argparser.add_argument('-x', '--exe', help='the path to the athena executable')
 argparser.add_argument('file', help='the athinput file to configure')
 args = argparser.parse_args()
 

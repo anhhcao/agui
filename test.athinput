@@ -82,3 +82,4 @@ in_file_field = ~/in.txt     # test input file field #> IFILE
 out_file_field = ~/out.txt   # test output file field #> OFILE
 in_dir_field = ~/     # test input dir field #> IDIR
 out_dir_field = ~/   # test output dir field #> ODIR
+nx1       = 64         # test slider    #> SCALE 1:100:0.1
