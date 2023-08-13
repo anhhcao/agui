@@ -186,28 +186,20 @@ athinput:
 
 but will still leave open the option to build an executionar.
 
-# Which GUI builder?
-
-We explored gooey and psg (pySimpleGui):
-
-     python gooey_run.py         linear_wave_hydro.athinput 
-     python gooey_special_run.py linear_wave_hydro.athinput 
-
-     python pysg_run.py          linear_wave_hydro.athinput
-     python pysg_special_run.py  linear_wave_hydro.athinput
-
 
 # How to run AGUI
 
 This is how we envision running **agui**:
 
 ```text
-     agui [-i athinput] [-x athena]
+     agui [-i athinput] [-x athena] [-s scriptfile]
 
-     -i     optional athinput file. If not provided, a filebrowser will let you select one
+     -i     optional athinput file. If not provided, a filebrowser will let you search for and select one
             Default:  athinput
-     -x     the name (and or location) of the athena executable to use.
+     -x     name (and or location) of the athena executable to use.
             Default: athena
+     -s     name of a script file where run commands will be appended to. This can act like a logfile
+            Default: agui.log
 ```
 
 This will bring up a succession of 3 GUI's:
@@ -218,7 +210,9 @@ This will bring up a succession of 3 GUI's:
     1. The "-d" run directory
     2. parameters parsed from the athinput file (with or without the "#> GUI" specifications
 
-    The user can then run the simulation. When the run is finished two separate GUI's will show up:
+    The user can then run the simulation. This should probably detach from this GUI, maybe
+    bring up a progress bar in a new window, which will then morph into the results browser(s)
+    as described in the next two steps:
 
 3. History (.hst) file browser.  This is a file that as function of simulation time has stored a number
    of variables. This GUI will allow you to plot any column vs. any other column using a standard
@@ -230,7 +224,8 @@ This will bring up a succession of 3 GUI's:
    time, as well as select two variables from the results table.
 
 This will of course fine for 1D problems, for 2D problems the last GUI ("plot1D") will be a "plot2D"
-widget that shows an image with a color-bar instead of a 1D plot. This has not been implemented.
+widget that shows an image with a color-bar instead of a 1D plot. This has not been implemented yet.
+Also to be determined is the allowed format?  FITS and HDF ?
 
 # References
 
