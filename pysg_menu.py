@@ -68,8 +68,11 @@ or a custom problem can be chosen. Use the radio buttons to choose which method 
     window.close()
 
 with open('athena_problems.json') as problems_json:
-    problems = {'linear wave 1d (TEST)':'athinput.linear_wave1d'}
-    problems.update(load(problems_json))
+    problems = load(problems_json)
+
+athena_problems = list(problems['athena'])
+athenac_problems = list(problems['athenac'])
+athenak_problems = list(problems['athenak'])
 
 sg.theme('Default1')
 
@@ -77,26 +80,26 @@ layout = [
     [
         sg.Text('Athena Version:', font=fstd_bold),
         sg.Stretch(), 
-        sg.Radio('AthenaX', 'versions', default=True), 
-        sg.Radio('AthenaK', 'versions'), 
-        sg.Radio('AthenaC', 'versions')
+        sg.Radio('Athena', 'versions', default=True, key='athena', enable_events=True), 
+        sg.Radio('AthenaK', 'versions', key='athenak', enable_events=True), 
+        sg.Radio('AthenaC', 'versions', key='athenac', enable_events=True)
     ],
     [
         sg.Text('Athena Executable:', font=fstd_bold), 
         sg.Stretch(), 
         sg.Input(size=(17.5, 0.75), default_text='./athena/bin/athena', key='exe'), 
-        sg.FileBrowse(size = (6, 1) if using_tk else (75, 25))
+        sg.FileBrowse(size = (6, 1) if using_tk else (125, 25))
     ],
     [
-        sg.Radio('Load Problem:', 'origin', key='load_radio', font=fstd_bold),
+        sg.Radio('Load Problem:', 'origin', key='load_radio', font=fstd_bold, default=True),
         sg.Stretch(),
-        sg.Input(size=(17.5, 0.75), key='load'),
-        sg.FileBrowse(size = (6, 1) if using_tk else (75, 25))
+        sg.Input(size=(17.5, 0.75), key='load', default_text='./athinput.linear_wave1d'),
+        sg.FileBrowse(size = (6, 1) if using_tk else (125, 25))
     ],
     [
-        sg.Radio('Predefined Problem:', 'origin', key='predefined_radio', font=fstd_bold, default=True),
+        sg.Radio('Predefined Problem:', 'origin', key='predefined_radio', font=fstd_bold),
         sg.Stretch(), 
-        sg.Combo(list(problems), default_value='linear wave 1d (TEST)', size=(25, 0.75), key='predefined_dropdown')
+        sg.Combo(list(problems['athena']), default_value='linear wave 1d (TEST)', size=(30, 0.75), key='predefined_dropdown')
     ],
     [sg.Text()], # buffer
     [
@@ -108,7 +111,6 @@ layout = [
 
 # create the main window
 window = sg.Window('pysg test', layout, size=(500, 180))
-
 # primary event loop
 while True:
     event, values = window.read()
@@ -122,5 +124,11 @@ while True:
     elif event == 'Help':
         print('help')
         display_help()
+    elif event == 'athena':
+        window['predefined_dropdown'].update(value=athena_problems[0], values=athena_problems)
+    elif event == 'athenac':
+        window['predefined_dropdown'].update(value=athenac_problems[0], values=athenac_problems)
+    elif event == 'athenak':
+        window['predefined_dropdown'].update(value=athenak_problems[0], values=athenak_problems)
 
 window.close()

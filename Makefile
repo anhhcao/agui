@@ -198,8 +198,11 @@ test11:
 test12:
 	./pyqt_run.py athinput.linear_wave1d -r
 
-test13:
+test13: athena_problems.json
 	./pysg_menu.py -r
+
+athena_problems.json:
+	./write_problems.py
 
 # collaborations
 agui_t:

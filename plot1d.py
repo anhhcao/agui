@@ -21,11 +21,10 @@ def animate(i):
     x = d[ixcol]
     y = d[iycol]
     if not args.hst:
-        file = open(f[i]) # open file to retreive time information
-        # first line is target
-        # terribly lazy but it works, maybe just use regex
-        time = file.readline().split('=')[1].split(' ')[0]
-        file.close()
+        with open(f[i]) as file:
+            # first line is target
+            # terribly lazy but it works, maybe just use regex
+            time = file.readline().split('=')[1].split(' ')[0]
     ax.clear()
     if xlim:
         ax.set_xlim(xlim)
@@ -191,12 +190,11 @@ if args.hst:
 delay= 100 / 1000
 
 # getting the variable names
-file = open(f[0]) # just use the first file
-file.readline()
-variables = file.readline().split()[2:]
-if args.hst:
-    variables = [v.split('=')[1] for v in variables]
-file.close()
+with open(f[0]) as file:
+    file.readline()
+    variables = file.readline().split()[2:]
+    if args.hst:
+        variables = [v.split('=')[1] for v in variables]
 
 var_len = len(variables)
 
