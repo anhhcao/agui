@@ -199,7 +199,7 @@ test12:
 	./pyqt_run.py athinput.linear_wave1d -r
 
 test13: athena_problems.json
-	./pysg_menu.py -r
+	./pysg_menu.py
 
 athena_problems.json:
 	./write_problems.py
