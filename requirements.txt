@@ -1,4 +1,6 @@
-# for python
+# for python:   pip install -r requirements.txt
+numpy
+matplotlib
 PySimpleGUI
 PySimpleGUIQt
 gooey
