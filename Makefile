@@ -183,7 +183,7 @@ test7:
 
 # will try Qt first, else fall back to tkinter
 test8:
-	./pysg_run.py linear_wave_hydro.athinput
+	./pysg_run.py athinput.linear_wave1d
 
 test9: 	ran2
 	./plot1d.py -d ran2
