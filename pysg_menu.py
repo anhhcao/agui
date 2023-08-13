@@ -146,7 +146,7 @@ layout = [
 ]
 
 # create the main window
-window = sg.Window('pysg menu', layout, size=(500, 180))
+window = sg.Window('pysg menu', layout)
 # primary event loop
 while True:
     event, values = window.read()
