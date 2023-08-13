@@ -323,7 +323,7 @@ def view_file(values=None):
         else:
             row = [sg.Text(line[:-1])]
         layout.append(row)
-    window = sg.Window('View Problem File', [[sg.Column(layout, scrollable=True, size=(650, 500))], 
+    window = sg.Window(args.file + (' (Edited)' if values else ''), [[sg.Column(layout, scrollable=True, size=(650, 500))], 
                                              [sg.Text()], # buffer
                                              [sg.Button('Save'), sg.Button('Quit')]])
     while True:
@@ -380,7 +380,7 @@ win_size = (550, len(inner_layout) * scale_factor)
 #    layout[0][0].VerticalScrollOnly = True
 # create the main window '#777777'
 # already resizable by default?
-window = sg.Window('pysg_run', inner_layout, size=win_size, font=fstd, resizable=True, grab_anywhere=True)
+window = sg.Window('pysg run', inner_layout, size=win_size, font=fstd, resizable=True, grab_anywhere=True)
 # primary event loop
 while True:
     event, values = window.read()

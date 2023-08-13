@@ -154,19 +154,18 @@ while True:
                                                         values['exe'],
                                                         '--tk' if args.tk else '') 
         print(cmd)
-        if args.run:
-            try:
-                if values['rebuild']:
-                    if current_athena == 'athenac':
-                        raise Exception('Athena C reconfigure not yet implemented')
-                    # otherwise it is athena++
-                    print(problem)
-                    rebuild(problem)
-                if not path.exists(problem):
-                    raise FileNotFoundError
-                Popen(cmd.split())
-            except Exception as e:
-                print(e)
+        try:
+            if values['rebuild']:
+                if current_athena == 'athenac':
+                    raise Exception('Athena C reconfigure not yet implemented')
+                # otherwise it is athena++
+                print(problem)
+                rebuild(problem)
+            if not path.exists(problem):
+                raise FileNotFoundError
+            Popen(cmd.split())
+        except Exception as e:
+            print(e)
     elif event == 'Help':
         print('help')
         display_help()
