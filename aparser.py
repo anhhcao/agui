@@ -2,7 +2,7 @@ from re import match
 
 # ^\s*((?:set)\s+)?([^#]+)\s*=([^#]+)(#.*)?#>\s+([^\s]+)(.*=[^\s]*)?(.+)?$
 # requires that each line has a #>
-def parse_generic(filename):
+def parse_generic(filename, silent=False):
 
     #lines = file.readlines()
     recognized = ['.sh', '.csh', '.py', '.athinput'] # recognized filetypes
@@ -12,6 +12,10 @@ def parse_generic(filename):
     type = '' # the type of the file (sh, csh, etc.)
     block = '' # keeps track of the current block (athinput files only)
     
+    def sprint(s):
+        if not silent:
+            print(s)
+
     # check if filename has an extension
     m = match('^([^\.]+)(..*)?$', filename)
     if m:
@@ -21,7 +25,7 @@ def parse_generic(filename):
         elif ext in recognized:
             type = ext[1:] # remove the dot
         else:
-            print('File type not recognized, trying to determine from file content')
+            sprint('File type not recognized, trying to determine from file content')
 
     # file.readlines() is only called once (i think)
     for line in file.readlines():
@@ -31,7 +35,7 @@ def parse_generic(filename):
         if m:
             block = m.group(1).strip() + '/'
             if not type:
-                print('File type deduced to be athinput')
+                sprint('File type deduced to be athinput')
                 type = 'athinput'
             continue
 
@@ -49,7 +53,7 @@ def parse_generic(filename):
             if not type:
                 # if the set keyword is used, then its a csh file
                 if m.group(1):
-                    print('File type deduced to be csh')
+                    sprint('File type deduced to be csh')
                     type = 'csh'
                 # else still undetermined
             
@@ -62,7 +66,7 @@ def parse_generic(filename):
             if match('^\'.*\'|\".*\"$', value):
                 # for now, assume that quotes => python, otherwise impossible to deduce python code
                 if not type:
-                    print('File type deduced to be python')
+                    sprint('File type deduced to be python')
                     type = 'python'
                 value = value[1:-1]
 
@@ -85,8 +89,10 @@ def parse_generic(filename):
     
     # default to sh if a type was not deduced
     if not type:
-        print('Unable to deduce file type from content, defaulting to sh')
+        sprint('Unable to deduce file type from content, defaulting to sh')
         type = 'sh'
+
+    file.close()
 
     # for athinput files, info should be empty
     return data, info, type
