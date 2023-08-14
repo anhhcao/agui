@@ -60,8 +60,6 @@ except:
 # removes the trailing zeroes then the dot from a string float x, then returns an int
 # utility function used by build_layout
 def rm_dot(x):
-    if using_tk:
-        return float(x)
     # being too precise causes problems, but hopefully this is enough
     s = '%.8g' % float(x)
     dot_pos = s.rfind('.')
@@ -358,8 +356,8 @@ while current_path:
     inner_layout = build_layout(data, info)
     # pysgqt elements seem to be smaller than their tkinter counterparts, so it might be better to reduce the width scaling
     scale_factor = 27
-    if using_tk:
-        scale_factor = 33
+    '''if using_tk:
+        scale_factor = 33'''
     win_size = (550, len(inner_layout) * scale_factor)
     #layout = [[sg.Column(inner_layout, size=win_size, scrollable=False, background_color=bgstd)]]
     # only allow verticle scroll for the tk version, otherwise a horizontal scroll bar will show up
@@ -367,10 +365,40 @@ while current_path:
     #    layout[0][0].VerticalScrollOnly = True
     # create the main window '#777777'
     # already resizable by default?
-    window = sg.Window('pysg run', inner_layout, size=win_size, font=fstd, resizable=True, grab_anywhere=False)
+    window = sg.Window('pysg run', inner_layout, size=win_size, font=fstd, resizable=True, grab_anywhere=False, return_keyboard_events=using_tk)
+    window.read(timeout=0)
+
+    if using_tk: # won't work in qt, though it doesn't need to
+        for slider in sliders:
+            window[slider].bind('<Enter>', '+c_etr')
+        window.bind('<Leave>', 'cursor leave')
+        focus = None
+        first = False
+        def update_tk_sliders(f):
+            # update the slider position
+            slider_key = focus.split('+')[0]
+            slider = window[slider_key]
+            slider.update(f(values[slider_key], slider.Resolution))
+            # update the slider display
+            slider_info = sliders[slider_key]
+            value = values[slider_key] / slider_info['factor']
+            window[slider_info['key']].update(int(value) if slider_info['is_int'] else value)
+
     # primary event loop
     while True:
         event, values = window.read()
+
+        # this allows the tk slider to work with the mouse wheel
+        if using_tk:
+            if '+c_etr' in event:
+                focus = event
+            elif event == 'cursor leave':
+                focus = None
+            elif event == 'MouseWheel:Up' and focus and 'c_etr' in focus:
+                update_tk_sliders(lambda x, y: x + y)
+            elif event == 'MouseWheel:Down' and focus and 'c_etr' in focus:
+                update_tk_sliders(lambda x, y: x - y)
+
         if event == sg.WIN_CLOSED or event == 'Close' or event == 'Close All Plots':
             if event == 'Close All Plots':
                 for plot in plots: # inefficient
