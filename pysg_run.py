@@ -78,13 +78,14 @@ def rm_dot(x):
 #>  SCALE   n=3.141592              0:10:0.01
 def build_layout(data, info):
     global cwd
-    menu = [
+    '''menu = [
         ['Run', ['Print Only', 'Plot']],
         ['Options', ['Help', 'Reset']],
         ['View', ['Input File']],
         ['Exit', ['Close All Plots', 'Close']]
-    ]
-    layout = [[sg.Menu(menu, tearoff=True)], [sg.Text('Problem:', font=fstd_bold), 
+    ]'''
+    '''[sg.Menu(menu, tearoff=True)],'''
+    layout = [ [sg.Text('Problem:', font=fstd_bold), 
                sg.Stretch(), 
                sg.Text(info['problem'])]]
     reference = info['reference']
@@ -191,7 +192,14 @@ def build_layout(data, info):
                         sg.Button('View File')
                     ]'''
     # add buttons to run/quit/help
-    layout.extend([[sg.Text()]])
+    layout.extend([[sg.Text()], 
+                   [
+                        sg.Button('Run'), 
+                        sg.Button('View File'),
+                        sg.Button('Help'),
+                        sg.Button('Reset'),
+                        sg.Button('Quit')
+                    ]])
     return layout
 
 # collects the values from the GUI and builds the athena command
@@ -435,7 +443,7 @@ while current_path:
             slider_info = sliders[event]
             value = values[event] / slider_info['factor']
             window[slider_info['key']].update(int(value) if slider_info['is_int'] else value)
-        elif event == 'Input File':
+        elif event == 'View File':
             new_path = view_file()
             if new_path:
                 current_path = new_path
