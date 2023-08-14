@@ -6,7 +6,7 @@ from os import getcwd, remove, mkdir, environ, path
 from subprocess import Popen, PIPE
 from importlib import import_module
 from glob import glob
-from copy import deepcopy
+from tempfile import mkstemp
 
 cwd = getcwd()
 
@@ -18,6 +18,7 @@ sliders = {}
 checks = {}
 
 plots = []
+temp_path = None
 
 # parse arguments
 argparser = ArgumentParser(description='Runs the GUI for configuring an athinput file')
@@ -82,7 +83,7 @@ def build_layout(data, info):
     menu = [
         ['Run', ['Print Only', 'Plot']],
         ['Options', ['Help', 'Reset']],
-        ['File', ['View Original', 'View']],
+        ['View', ['Input File']],
         ['Exit', ['Close All Plots', 'Close']]
     ]
     layout = [[sg.Menu(menu, tearoff=True)], [sg.Text('Problem:', font=fstd_bold), 
@@ -286,57 +287,40 @@ def display_conf_dir(dir_path):
     window.close()
     return event == 'yes'
 
-def view_file(values=None):
-    new_data = None
-    key_iter = iter(data)
-    layout = []
-    r = None
-    with open(args.file) as file:
-        lines = file.readlines()
-    for line in lines:
-        if '#>' in line:
-            k = next(key_iter)
-            e = data[k]
-            value = e['value']
-            if values:
-                t = e['gtype']
-                if t == 'RADIO':
-                    for o in e['gparams'].split(','):
-                        if values[k+o]:
-                            value = o
-                            break
-                elif not using_tk and e['gtype'] == 'SCALE':
-                    value = values[sliders[k]['key']]
-                elif t == 'CHECK' and checks[k]:
-                    value = ''
-                    cs = checks[k]
-                    for ck in cs:
-                        if values[ck]:
-                            value += f'{cs[ck]},'
-                    value = value[:-1] + ' '
-                else:
-                    value = values[k]
-            row = [sg.Text(k + ' = '),
-                   sg.Input(default_text=value, size=(100, None), key=k),
-                   sg.Text(e['help'] + ((' #> ' + e['gparams']) if e['gparams'] else '')),
-                   sg.Stretch()]
-        else:
-            row = [sg.Text(line[:-1])]
-        layout.append(row)
-    window = sg.Window(args.file + (' (Edited)' if values else ''), [[sg.Column(layout, scrollable=True, size=(650, 500))], 
-                                             [sg.Text()], # buffer
-                                             [sg.Button('Save'), sg.Button('Quit')]])
+def view_file():
+    global current_path
+    new_path = None
+    dummy = sg.Input(visible=False, enable_events=True, key='dummy')
+    with open(current_path) as file:
+        window = sg.Window(current_path.split('/')[-1], 
+            [[sg.Multiline(default_text=file.read(), size=(75, 35), key='text')],
+            [
+                sg.Button('Load'), dummy, 
+                sg.FileSaveAs('Save As', file_types=(('All Files', '*.*'), 
+                                                    ('Text File', '*.txt'), 
+                                                    ('Athena Input', 'athinput.*'), 
+                                                    ('AthenaK Input', '*.athinput'))), 
+                sg.Button('Save'),
+                sg.Button('Quit')]], return_keyboard_events=True)
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED or event == 'Quit':
             break
-        elif event == 'Save':
-            new_data = deepcopy(data)
-            for k in new_data:
-                new_data[k]['value'] = values[k]
+        elif event == 'Load':
+            _, new_path = mkstemp('pysg')
+            with open(new_path, 'w') as file:
+                file.write(values['text'])
             break
+        elif event == 'dummy':
+            with open(values['dummy'], 'w') as dfile:
+                dfile.write(values['text'])
+        elif event == 'Save':
+            choice = sg.popup_ok_cancel('WARNING: You are about to override', current_path)
+            if choice == 'OK':
+                with open(current_path, 'w') as overriden_file:
+                    overriden_file.write(values['text'])
     window.close()
-    return new_data
+    return new_path
 
 def update(dat, window):
     for k in dat:
@@ -360,72 +344,80 @@ def update(dat, window):
         else:
             window[k].update(value=e['value'])
 
-# parse the input files
-data, info, type = parse(args.file)
+current_path = args.file
 
-sg.theme('Default1')
+while current_path:
+    # parse the input files
+    data, info, type = parse(current_path, silent=True)
 
-sg.SetOptions(slider_border_width=0)
+    sg.theme('Default1')
 
-# start building gui
-inner_layout = build_layout(data, info)
-# pysgqt elements seem to be smaller than their tkinter counterparts, so it might be better to reduce the width scaling
-scale_factor = 27
-if using_tk:
-    scale_factor = 33
-win_size = (550, len(inner_layout) * scale_factor)
-#layout = [[sg.Column(inner_layout, size=win_size, scrollable=False, background_color=bgstd)]]
-# only allow verticle scroll for the tk version, otherwise a horizontal scroll bar will show up
-#if using_tk:
-#    layout[0][0].VerticalScrollOnly = True
-# create the main window '#777777'
-# already resizable by default?
-window = sg.Window('pysg run', inner_layout, size=win_size, font=fstd, resizable=True, grab_anywhere=True)
-# primary event loop
-while True:
-    event, values = window.read()
-    if event == sg.WIN_CLOSED or event == 'Close' or event == 'Close All Plots':
-        if event == 'Close All Plots':
-            for plot in plots: # inefficient
-                plot.kill()
-        break
-    elif event == 'Plot' or event == 'Print Only':
-        cmd = run(args.file, values['output-dir'], data, values)
-        if cmd and event == 'Plot':
-            if not path.exists(athena):
-                print('Athena not found\nExiting')
-                exit()
-            # open the plot in a subprocess
-            # remove the forward slash at the end if there is one
-            odir = values['output-dir']
-            if odir[-1] == '/':
-                odir = odir[:-1]
-            # remove the hst file since it always gets appended to
-            # intentional?
-            h = glob(odir + '/*.hst')
-            if len(h) > 0:
-                remove(h[0])
-            # will the tlim variable always be like this?
-            display_pbar(cmd, values['time/tlim'])
-            print(info)
-            plots.append(Popen(['python', 'plot1d.py', '-d', values['output-dir'], '-n', info['problem']]))
-            plots.append(Popen(['python', 'plot1d.py', '-d', values['output-dir'], '--hst', '-n', info['problem'] + ' history']))
-        elif cmd:
-            display_cmd(cmd)
-    elif event == 'Help':
-        display_help(data)
-    # update slider displays if using qt
-    elif event in sliders:
-        slider_info = sliders[event]
-        value = values[event] / slider_info['factor']
-        window[slider_info['key']].update(int(value) if slider_info['is_int'] else value)
-    elif event == 'View':
-        new_data = view_file(values)
-        if new_data:
-            update(new_data, window)
-    elif event == 'View Original':
-        view_file()
-    elif event == 'Reset':
-        update(data, window)
+    sg.SetOptions(slider_border_width=0)
 
-window.close()
+    # start building gui
+    inner_layout = build_layout(data, info)
+    # pysgqt elements seem to be smaller than their tkinter counterparts, so it might be better to reduce the width scaling
+    scale_factor = 27
+    if using_tk:
+        scale_factor = 33
+    win_size = (550, len(inner_layout) * scale_factor)
+    #layout = [[sg.Column(inner_layout, size=win_size, scrollable=False, background_color=bgstd)]]
+    # only allow verticle scroll for the tk version, otherwise a horizontal scroll bar will show up
+    #if using_tk:
+    #    layout[0][0].VerticalScrollOnly = True
+    # create the main window '#777777'
+    # already resizable by default?
+    window = sg.Window('pysg run', inner_layout, size=win_size, font=fstd, resizable=True, grab_anywhere=False)
+    # primary event loop
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == 'Close' or event == 'Close All Plots':
+            if event == 'Close All Plots':
+                for plot in plots: # inefficient
+                    plot.kill()
+            current_path = None
+            break
+        elif event == 'Plot' or event == 'Print Only':
+            cmd = run(args.file, values['output-dir'], data, values)
+            if cmd and event == 'Plot':
+                if not path.exists(athena):
+                    print('Athena not found\nExiting')
+                    exit()
+                # open the plot in a subprocess
+                # remove the forward slash at the end if there is one
+                odir = values['output-dir']
+                if odir[-1] == '/':
+                    odir = odir[:-1]
+                # remove the hst file since it always gets appended to
+                # intentional?
+                h = glob(odir + '/*.hst')
+                if len(h) > 0:
+                    remove(h[0])
+                # will the tlim variable always be like this?
+                display_pbar(cmd, values['time/tlim'])
+                print(info)
+                plots.append(Popen(['python', 'plot1d.py', '-d', values['output-dir'], '-n', info['problem']]))
+                plots.append(Popen(['python', 'plot1d.py', '-d', values['output-dir'], '--hst', '-n', info['problem'] + ' history']))
+            elif cmd:
+                display_cmd(cmd)
+        elif event == 'Help':
+            display_help(data)
+        # update slider displays if using qt
+        elif event in sliders:
+            slider_info = sliders[event]
+            value = values[event] / slider_info['factor']
+            window[slider_info['key']].update(int(value) if slider_info['is_int'] else value)
+        elif event == 'Input File':
+            new_path = view_file()
+            if new_path:
+                current_path = new_path
+                break
+        elif event == 'Reset':
+            update(data, window)
+
+    if temp_path:
+        remove(temp_path)
+
+    temp_path = current_path
+
+    window.close()
