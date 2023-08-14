@@ -63,26 +63,17 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def save(self):
         contents = self.gatherData()
-        # for i in self.contents:
-        #     if i['name'] == self.ofile+":":
-        #         self.saveFile = ''.join(i['default'])
-        # self.update_and_save(self.inputFile, self.saveFile)
         default_file_path = self.param_file + ".key"
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save File", default_file_path, "All Files (*)")
         if file_path:
             with open(file_path, "w") as file:
                 for line in contents:
                     for key, value in line.items():
-                        file.write(f"{key}{','.join(value)}")
+                        file.write(f"{key}={','.join(value)}")
                     file.write("\n")
             print("saved to " + file_path)
     
     def load(self):
-        # options = QtWidgets.QFileDialog.Options()
-        # file, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose a File", "", "All Files (*)", options=options)
-        # if file:
-        #     self.close()
-        #     subprocess.call(["python", "pyqt.py", file])
         options = QtWidgets.QFileDialog.Options()
         load_file = self.param_file +".key" if os.path.exists(self.param_file +".key") else ""
         file, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose a File", load_file, "All Files (*)", options=options)
@@ -158,11 +149,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 txt = QtWidgets.QLineEdit(self)
                 txt.setText(default_option)
                 txt.setObjectName(group_name)
-                if group_type == "OFILE":
+                if group_type == "OFILE" or group_type == "IFILE":
                     self.ofile = group_name
-                    btn.clicked.connect(lambda checked, edit=txt: self.browse("OFILE", edit))
+                    btn.clicked.connect(lambda edit=txt: self.browse("FILE", edit))
                 else:
-                    btn.clicked.connect(lambda checked, edit=txt: self.browse(None, edit))
+                    btn.clicked.connect(lambda edit=txt: self.browse("DIR", edit))
                 group_layout.addWidget(btn)
                 group_layout.addWidget(txt)
                 self.pagelayout.addLayout(group_layout)
@@ -214,7 +205,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 slider.setValue(int(float(default_option[0])*multiplier))
 
                 slider_label = QtWidgets.QLabel(f"{slider.value()/multiplier}", self)
-                slider.valueChanged.connect(lambda value, lbl=slider_label: self.updateLabel(lbl, value, multiplier))
+                slider.valueChanged.connect(lambda: self.updateLabel())
                 slider.setObjectName(group_name)
                 self.sliderMultiplier.append(multiplier)
                 self.sliders.append((slider, slider_label, multiplier))
@@ -229,20 +220,25 @@ class MainWindow(QtWidgets.QMainWindow):
             separator.setFixedHeight(1)  # Set a fixed height for the separator
             self.pagelayout.addWidget(separator)
 
-    def updateLabel(self, label, value, multiplier):
+    def updateLabel(self):
         for slider, label, multiplier in self.sliders:
             label.setText(f"{slider.value()/multiplier}")
 
     def browse(self, gtype, txt):
         options = QtWidgets.QFileDialog.Options()
-        file, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose a File", "", "All Files (*)", options=options)
-        
-        if file:
-           txt.setText(file)
-        if gtype == 'OFILE':
+        file = None
+        dir = None
+
+        if gtype == 'FILE':
+            file, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose a File", "", "All Files (*)", options=options)
             self.saveFile = file
-        
-        print(file + " selected")
+        if gtype == 'DIR':
+            dir = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
+        if file:
+            txt.setText(file)
+            print(file + " selected")
+        if dir:
+            print(f"{dir} selected")
 
     def gatherData(self):
         layout_data = []
@@ -251,8 +247,6 @@ class MainWindow(QtWidgets.QMainWindow):
             hbox_layout = self.pagelayout.itemAt(hbox_layout_index).layout()
             
             if hbox_layout is not None:
-                # defaults = {'name': '',
-                #             'default':[]}
                 defaults = {}
                 key = None
 
@@ -260,9 +254,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     widget = hbox_layout.itemAt(widget_index).widget()
                     
                     if widget_index == 0 and isinstance(widget, QtWidgets.QLabel):
-                        # defaults['name'] = widget.text()
-                        defaults[widget.text()] = []
-                        key = widget.text()
+                        key = widget.text().split(':')[0]
+                        defaults[key] = []
 
                     elif isinstance(widget, QtWidgets.QLineEdit):
                         defaults[key].append(widget.text())
@@ -278,30 +271,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 
                 layout_data.append(defaults)
         return layout_data
-
-    # def update_and_save(self, filepath):
-        # with open(input_file_path, 'r') as input_file:
-        #     lines = input_file.readlines()
-
-        # updated_lines = []
-        # for line in lines:
-        #     if '#>' in line:
-        #         parts = line.split('=')
-        #         if len(parts) == 2:
-        #             parts = line.split('=')
-        #             if len(parts) == 2:
-        #                     after = parts[1].split(' ', 1)
-        #                     updated_line = parts[0]+"="+','.join(self.contents.pop(0)['default'])+after[1]
-        #                     updated_lines.append(updated_line)
-        #             else:
-        #                 updated_lines.append(line)
-        #         else:
-        #             updated_lines.append(line)
-        #     else:
-        #         updated_lines.append(line)
-
-        # with open(output_file_path, 'w') as output_file:
-        #     output_file.writelines(updated_lines)
 
 def parsefile(file):
     with open(file, "r") as f:
