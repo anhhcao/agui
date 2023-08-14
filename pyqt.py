@@ -3,7 +3,6 @@ import os
 from PyQt5 import QtCore, QtWidgets
 import argparse
 import re
-import subprocess
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -106,18 +105,16 @@ class MainWindow(QtWidgets.QMainWindow):
                         widget = element.itemAt(widget_index).widget()
                         
                         if isinstance(widget, QtWidgets.QLineEdit):
-                            widget.setText(values[0])
+                            widget.setText(''.join(default_values[widget.objectName()]))
 
                         elif isinstance(widget, QtWidgets.QRadioButton) or isinstance(widget, QtWidgets.QCheckBox):
-                            if widget.text() == values[0]:
+                            if widget.text() in default_values[widget.objectName()]:
                                 widget.setChecked(True)
-                                values.pop(0)
 
                         elif isinstance(widget, QtWidgets.QSlider):
                             multiplier = self.sliderMultiplier.pop(0)
-                            defaults[key].append(str(widget.value()/multiplier))
+                            widget.setValue(int(float(''.join(default_values[widget.objectName()]))*multiplier))
                             self.sliderMultiplier.append(multiplier)
-                        
 
     
     def quit(self):
@@ -142,6 +139,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 for option in options:
                     option = option.strip()
                     radio_button = QtWidgets.QRadioButton(option)
+                    radio_button.setObjectName(group_name)
                     new_group.addButton(radio_button)
                     group_layout.addWidget(radio_button)
                     if option in default_option:
@@ -159,6 +157,7 @@ class MainWindow(QtWidgets.QMainWindow):
             
                 txt = QtWidgets.QLineEdit(self)
                 txt.setText(default_option)
+                txt.setObjectName(group_name)
                 if group_type == "OFILE":
                     self.ofile = group_name
                     btn.clicked.connect(lambda checked, edit=txt: self.browse("OFILE", edit))
@@ -177,6 +176,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 for option in options:
                     option = option.strip()
                     checkbox = QtWidgets.QCheckBox(option, self)
+                    checkbox.setObjectName(group_name)
                     group_layout.addWidget(checkbox)
                     if option in default_option:
                         checkbox.setChecked(True)
@@ -189,6 +189,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 label.setToolTip(help)
                 group_layout.addWidget(label)
                 txt = QtWidgets.QLineEdit(self)
+                txt.setObjectName(group_name)
                 txt.setText(default_option)
                 group_layout.addWidget(txt)
                 self.pagelayout.addLayout(group_layout)
@@ -214,7 +215,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 label_slider = QtWidgets.QLabel(str(default_option[0]))
                 slider.valueChanged.connect(lambda value, lbl=label_slider: self.updateLabel(lbl, value, multiplier))
-                
+                slider.setObjectName(group_name)
                 self.sliderMultiplier.append(multiplier)
                 group_layout.addWidget(label_slider)
                 group_layout.addWidget(slider)
