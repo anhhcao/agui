@@ -16,6 +16,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.saveFile = None
         self.param_file = param_file
         self.sliderMultiplier = []
+        self.sliders = []
 
         self.initUI()
     
@@ -116,7 +117,6 @@ class MainWindow(QtWidgets.QMainWindow):
                             widget.setValue(int(float(''.join(default_values[widget.objectName()]))*multiplier))
                             self.sliderMultiplier.append(multiplier)
 
-    
     def quit(self):
         self.close()
         print('quit')
@@ -213,11 +213,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 slider.setRange(int(options[0])*multiplier, int(options[1])*multiplier)
                 slider.setValue(int(float(default_option[0])*multiplier))
 
-                label_slider = QtWidgets.QLabel(str(default_option[0]))
-                slider.valueChanged.connect(lambda value, lbl=label_slider: self.updateLabel(lbl, value, multiplier))
+                slider_label = QtWidgets.QLabel(f"{slider.value()/multiplier}", self)
+                slider.valueChanged.connect(lambda value, lbl=slider_label: self.updateLabel(lbl, value, multiplier))
                 slider.setObjectName(group_name)
                 self.sliderMultiplier.append(multiplier)
-                group_layout.addWidget(label_slider)
+                self.sliders.append((slider, slider_label, multiplier))
+                group_layout.addWidget(slider_label)
                 group_layout.addWidget(slider)
                 self.pagelayout.addLayout(group_layout)
 
@@ -229,7 +230,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pagelayout.addWidget(separator)
 
     def updateLabel(self, label, value, multiplier):
-        label.setText(str(value/multiplier))
+        for slider, label, multiplier in self.sliders:
+            label.setText(f"{slider.value()/multiplier}")
 
     def browse(self, gtype, txt):
         options = QtWidgets.QFileDialog.Options()
