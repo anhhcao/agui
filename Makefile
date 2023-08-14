@@ -154,10 +154,10 @@ test4:
 	python pysimplegui.py
 
 test5:
-	python pyqt.py testfile
+	python pyqt.py testfile.sh
 
 test6:
-	python pyqt.py testfile2
+	python pyqt.py testfile2.sh
 
 # collaborations
 agui_t:
