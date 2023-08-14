@@ -299,7 +299,8 @@ def view_file():
     dummy = sg.Input(visible=False, enable_events=True, key='dummy')
     with open(current_path) as file:
         window = sg.Window(current_path.split('/')[-1], 
-            [[sg.Multiline(default_text=file.read(), size=(75, 35), key='text')],
+            [[sg.Multiline(default_text=file.read(), size=(75, 35), key='text', font=('Courier New', 10))],
+             [sg.Text()], # buffer
             [
                 sg.Button('Load'), dummy, 
                 sg.FileSaveAs('Save As', file_types=(('All Files', '*.*'), 
@@ -386,26 +387,18 @@ while current_path:
             # update the slider position
             slider_key = focus.split('+')[0]
             slider = window[slider_key]
-            slider.update(f(values[slider_key], slider.Resolution))
-            # update the slider display
-            slider_info = sliders[slider_key]
-            value = values[slider_key] / slider_info['factor']
-            window[slider_info['key']].update(int(value) if slider_info['is_int'] else value)
+            raw_value = f(values[slider_key], slider.Resolution)
+            slider.update(raw_value)
+            m, M = slider.Range
+            if m <= raw_value <= M:
+                # update the slider display
+                slider_info = sliders[slider_key]
+                value = raw_value / slider_info['factor']
+                window[slider_info['key']].update(int(value) if slider_info['is_int'] else value)
 
     # primary event loop
     while True:
         event, values = window.read()
-
-        # this allows the tk slider to work with the mouse wheel
-        if using_tk:
-            if '+c_etr' in event:
-                focus = event
-            elif event == 'cursor leave':
-                focus = None
-            elif event == 'MouseWheel:Up' and focus and 'c_etr' in focus:
-                update_tk_sliders(lambda x, y: x + y)
-            elif event == 'MouseWheel:Down' and focus and 'c_etr' in focus:
-                update_tk_sliders(lambda x, y: x - y)
 
         if event == sg.WIN_CLOSED or event == 'Close' or event == 'Close All Plots':
             if event == 'Close All Plots':
@@ -450,6 +443,17 @@ while current_path:
                 break
         elif event == 'Reset':
             update(data, window)
+
+        # this allows the tk slider to work with the mouse wheel
+        if using_tk:
+            if '+c_etr' in event:
+                focus = event
+            elif event == 'cursor leave':
+                focus = None
+            elif event == 'MouseWheel:Up' and focus and 'c_etr' in focus:
+                update_tk_sliders(lambda x, y: x + y)
+            elif event == 'MouseWheel:Down' and focus and 'c_etr' in focus:
+                update_tk_sliders(lambda x, y: x - y)
 
     if temp_path:
         remove(temp_path)
