@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 from re import match
-from aparser import parse_generic as parse
+from aparser import parse_s as parse
 from argparse import ArgumentParser
 from os import getcwd, remove, mkdir, environ, path
 from subprocess import Popen, PIPE
 from importlib import import_module
 from glob import glob
-from tempfile import mkstemp
 
 cwd = getcwd()
 
@@ -18,7 +17,6 @@ sliders = {}
 checks = {}
 
 plots = []
-temp_path = None
 
 # parse arguments
 argparser = ArgumentParser(description='Runs the GUI for configuring an athinput file')
@@ -238,7 +236,7 @@ def run(input_file, output_dir, data, values):
 # builds and displays a new window containing only the athena command
 def display_cmd(s):
     window = sg.Window('Athena Output', 
-                        [[sg.Multiline(s, size=(100, round(len(s) / 100)))]], 
+                        [[sg.Multiline(s, size=(100, round(len(s) / 100)), font=('Courier New', 10))]], 
                         font=fstd)
     while True:
         event, _ = window.read()
@@ -294,40 +292,38 @@ def display_conf_dir(dir_path):
     return event == 'yes'
 
 def view_file():
-    global current_path
-    new_path = None
+    global lines
+    joined = ''
+    for line in lines:
+        joined += line + ('' if not line or line[-1] == '\n' else '\n')
     dummy = sg.Input(visible=False, enable_events=True, key='dummy')
-    with open(current_path) as file:
-        window = sg.Window(current_path.split('/')[-1], 
-            [[sg.Multiline(default_text=file.read(), size=(75, 35), key='text', font=('Courier New', 10))],
-             [sg.Text()], # buffer
-            [
-                sg.Button('Load'), dummy, 
-                sg.FileSaveAs('Save As', file_types=(('All Files', '*.*'), 
-                                                    ('Text File', '*.txt'), 
-                                                    ('Athena Input', 'athinput.*'), 
-                                                    ('AthenaK Input', '*.athinput'))), 
-                sg.Button('Save'),
-                sg.Button('Quit')]], return_keyboard_events=True)
+    window = sg.Window(args.file, 
+        [[sg.Multiline(default_text=joined, size=(75, 35), key='text', font=('Courier New', 10))],
+            [sg.Text()], # buffer
+        [
+            sg.Button('Load'), dummy, 
+            sg.FileSaveAs('Save As', file_types=(('All Files', '*.*'), 
+                                                ('Text File', '*.txt'), 
+                                                ('Athena Input', 'athinput.*'), 
+                                                ('AthenaK Input', '*.athinput'))), 
+            sg.Button('Save'),
+            sg.Button('Quit')]], return_keyboard_events=True)
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED or event == 'Quit':
             break
         elif event == 'Load':
-            _, new_path = mkstemp('pysg')
-            with open(new_path, 'w') as file:
-                file.write(values['text'])
+            lines = values['text'].split('\n')
             break
-        elif event == 'dummy':
+        elif event == 'dummy' and values['dummy']:
             with open(values['dummy'], 'w') as dfile:
                 dfile.write(values['text'])
         elif event == 'Save':
-            choice = sg.popup_ok_cancel('WARNING: You are about to override', current_path)
+            choice = sg.popup_ok_cancel('WARNING: You are about to override', args.file)
             if choice == 'OK':
-                with open(current_path, 'w') as overriden_file:
+                with open(args.file, 'w') as overriden_file:
                     overriden_file.write(values['text'])
     window.close()
-    return new_path
 
 def update(dat, window):
     for k in dat:
@@ -351,11 +347,12 @@ def update(dat, window):
         else:
             window[k].update(value=e['value'])
 
-current_path = args.file
+with open(args.file) as file:
+    lines = file.readlines()
 
-while current_path:
+while lines:
     # parse the input files
-    data, info, type = parse(current_path, silent=True)
+    data, info, type = parse(lines, silent=True)
 
     sg.theme('Default1')
 
@@ -404,7 +401,7 @@ while current_path:
             if event == 'Close All Plots':
                 for plot in plots: # inefficient
                     plot.kill()
-            current_path = None
+            lines = None
             break
         elif event in ('Run', 'Plot', 'Print Only'):
             cmd = run(args.file, values['output-dir'], data, values)
@@ -437,9 +434,8 @@ while current_path:
             value = values[event] / slider_info['factor']
             window[slider_info['key']].update(int(value) if slider_info['is_int'] else value)
         elif event == 'View File':
-            new_path = view_file()
-            if new_path:
-                current_path = new_path
+            view_file()
+            if lines:
                 break
         elif event == 'Reset':
             update(data, window)
@@ -454,10 +450,5 @@ while current_path:
                 update_tk_sliders(lambda x, y: x + y)
             elif event == 'MouseWheel:Down' and focus and 'c_etr' in focus:
                 update_tk_sliders(lambda x, y: x - y)
-
-    if temp_path:
-        remove(temp_path)
-
-    temp_path = current_path
 
     window.close()

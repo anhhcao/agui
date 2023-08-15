@@ -3,13 +3,15 @@ from re import match
 # ^\s*((?:set)\s+)?([^#]+)\s*=([^#]+)(#.*)?#>\s+([^\s]+)(.*=[^\s]*)?(.+)?$
 # requires that each line has a #>
 def parse_generic(filename, silent=False):
+    with open(filename) as file:
+        return parse_s(file.readlines, filename=filename, silent=silent)
 
+def parse_s(lines, filename=None, silent=False):
     #lines = file.readlines()
     recognized = ['.sh', '.csh', '.py', '.athinput'] # recognized filetypes
-    file = open(filename, 'r')
     data = {} # data from the file
     info = {} # info about the file (if athinput, then from the comment block usually)
-    type = '' # the type of the file (sh, csh, etc.)
+    type = None # the type of the file (sh, csh, etc.)
     block = '' # keeps track of the current block (athinput files only)
     
     def sprint(s):
@@ -17,7 +19,7 @@ def parse_generic(filename, silent=False):
             print(s)
 
     # check if filename has an extension
-    m = match('^([^\.]+)(..*)?$', filename)
+    m = match('^([^\.]+)(..*)?$', filename) if filename else None
     if m:
         ext = m.group(2)
         if m.group(1) == 'athinput': # currently athinput.* is the only prefix file type
@@ -27,8 +29,7 @@ def parse_generic(filename, silent=False):
         else:
             sprint('File type not recognized, trying to determine from file content')
 
-    # file.readlines() is only called once (i think)
-    for line in file.readlines():
+    for line in lines:
 
         # check for block line
         m = match('^\s*<(.+)>.*', line)
@@ -91,8 +92,6 @@ def parse_generic(filename, silent=False):
     if not type:
         sprint('Unable to deduce file type from content, defaulting to sh')
         type = 'sh'
-
-    file.close()
 
     # for athinput files, info should be empty
     return data, info, type
