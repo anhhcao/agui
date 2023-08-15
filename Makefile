@@ -75,6 +75,11 @@ athenak:
 nemo:
 	git clone $(URL3)
 
+python: nemo anaconda3
+
+anaconda3:
+	nemo/src/script/install_anaconda3
+
 tkrun:
 	git clone $(URL4)
 
