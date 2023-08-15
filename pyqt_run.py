@@ -50,11 +50,22 @@ class MainWindow(qw.QMainWindow):
         toolbar = self.addToolBar("ToolBar")
 
         run_action = qw.QAction('Output', self)
+        run_action.setToolTip('Output the command the would be ran when plotted')
+
         plot_action = qw.QAction('Plot', self)
+        plot_action.setToolTip('Plot the output of the command ran under these configurations')
+
         edit_action = qw.QAction('Edit', self)
+        edit_action.setToolTip('Open the input file for editing')
+
         help_action = qw.QAction('Help', self)
+        help_action.setToolTip('Display details about each configuration field')
+
         reset_action = qw.QAction('Reset', self)
+        reset_action.setToolTip('Revert configuration options to default settings')
+
         quit_action = qw.QAction('Quit', self)
+        quit_action.setToolTip('Exits the application')
 
         toolbar.addAction(run_action)
         toolbar.addSeparator()
