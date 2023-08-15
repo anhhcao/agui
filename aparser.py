@@ -4,7 +4,7 @@ from re import match
 # requires that each line has a #>
 def parse_generic(filename, silent=False):
     with open(filename) as file:
-        return parse_s(file.readlines, filename=filename, silent=silent)
+        return parse_s(file.readlines(), filename=filename, silent=silent)
 
 def parse_s(lines, filename=None, silent=False):
     #lines = file.readlines()
