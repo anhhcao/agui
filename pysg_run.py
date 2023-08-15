@@ -293,12 +293,9 @@ def display_conf_dir(dir_path):
 
 def view_file():
     global lines
-    joined = ''
-    for line in lines:
-        joined += line + ('' if not line or line[-1] == '\n' else '\n')
     dummy = sg.Input(visible=False, enable_events=True, key='dummy')
     window = sg.Window(args.file, 
-        [[sg.Multiline(default_text=joined, size=(75, 35), key='text', font=('Courier New', 10))],
+        [[sg.Multiline(default_text=''.join(lines), size=(75, 35), key='text', font=('Courier New', 10))],
             [sg.Text()], # buffer
         [
             sg.Button('Load'), dummy, 
@@ -313,7 +310,7 @@ def view_file():
         if event == sg.WIN_CLOSED or event == 'Quit':
             break
         elif event == 'Load':
-            lines = values['text'].split('\n')
+            lines = [line + '\n' for line in values['text'].split('\n')]
             break
         elif event == 'dummy' and values['dummy']:
             with open(values['dummy'], 'w') as dfile:
