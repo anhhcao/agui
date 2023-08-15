@@ -46,11 +46,33 @@ class MainWindow(qw.QMainWindow):
         self.reflayout = qw.QHBoxLayout()
         self.outdirlayout = qw.QHBoxLayout()
 
+        #run, save, load, quit, help buttons -> located in a toolbar
+        toolbar = self.addToolBar("ToolBar")
+
+        run_action = qw.QAction('Output', self)
+        plot_action = qw.QAction('Plot', self)
+        edit_action = qw.QAction('Edit', self)
+        help_action = qw.QAction('Help', self)
+        reset_action = qw.QAction('Reset', self)
+        quit_action = qw.QAction('Quit', self)
+
+        toolbar.addAction(run_action)
+        toolbar.addSeparator()
+        toolbar.addAction(plot_action)
+        toolbar.addSeparator()
+        toolbar.addAction(edit_action)
+        toolbar.addSeparator()
+        toolbar.addAction(help_action)
+        toolbar.addSeparator()
+        toolbar.addAction(reset_action)
+        toolbar.addSeparator()
+        toolbar.addAction(quit_action)
+
         #add layouts to the page
         #self.pagelayout.addLayout(self.infolayout)
         self.pagelayout.addLayout(self.elmtlayout)
         #elf.pagelayout.addStretch()
-        self.pagelayout.addLayout(self.dbtnlayout) 
+        #self.pagelayout.addLayout(self.dbtnlayout) 
 
         # to set bold
         # self.label.setStyleSheet("font-weight: bold")
@@ -94,21 +116,18 @@ class MainWindow(qw.QMainWindow):
         self.elmtlayout.addLayout(self.reflayout)
         self.elmtlayout.addLayout(self.outdirlayout)
 
+        run_action.triggered.connect(lambda: self.run(txt, False))
+        plot_action.triggered.connect(lambda: self.run(txt, True))
+        edit_action.triggered.connect(self.view)
+        help_action.triggered.connect(self.help)
+        reset_action.triggered.connect(self.reset)
+        quit_action.triggered.connect(self.quit)
+
         #run, save, load, quit, help button
-        btn = qw.QPushButton(self)
-        btn.setText("Run")
-        btn.clicked.connect(lambda: self.run(txt))
-        self.dbtnlayout.addWidget(btn)
-
         '''btn = qw.QPushButton(self)
-        btn.setText("save")
-        btn.clicked.connect(self.save)
+        btn.setText("Run")
+        btn.clicked.connect(lambda: self.run(txt, args.run))
         self.dbtnlayout.addWidget(btn)
-
-        btn = qw.QPushButton(self)
-        btn.setText("load")
-        btn.clicked.connect(self.load)
-        self.dbtnlayout.addWidget(btn)'''
 
         btn = qw.QPushButton(self)
         btn.setText("View File")
@@ -128,7 +147,7 @@ class MainWindow(qw.QMainWindow):
         btn = qw.QPushButton(self)
         btn.setText("Quit")
         btn.clicked.connect(self.quit)
-        self.dbtnlayout.addWidget(btn)
+        self.dbtnlayout.addWidget(btn)'''
 
         #set the main page layout
         widget = qw.QWidget()
@@ -141,7 +160,7 @@ class MainWindow(qw.QMainWindow):
 
         self.createWidgetsFromGroups()
     
-    def run(self, odir_input):
+    def run(self, odir_input, plot):
         #print('run')
         cmd = f'{athena} -i {args.file} -d {odir_input.text()} output2/file_type=tab '
 
@@ -164,7 +183,7 @@ class MainWindow(qw.QMainWindow):
                 cmd += '%s=%s ' % (k, self.input[k].text())
 
         print(cmd)
-        if args.run:
+        if plot:
             if not path.exists(athena):
                 print('Athena not found\nExiting')
             # open the plot in a subprocess
@@ -521,7 +540,7 @@ def build_main(data, info):
     # additions to the hint are needed to prevent the scrollbar from showing up
     size = main.pagelayout.sizeHint()
     size.setWidth(size.width() + 100)
-    size.setHeight(size.height() + 10)
+    size.setHeight(size.height() + 50)
 
     main.resize(size)
     main.show()
@@ -551,14 +570,6 @@ app = qw.QApplication(argv)
 main = None
 
 build_main(data, info)
-
-# additions to the hint are needed to prevent the scrollbar from showing up
-size = main.pagelayout.sizeHint()
-size.setWidth(size.width() + 100)
-size.setHeight(size.height() + 10)
-
-main.resize(size)
-main.show()
 
 try:
     #print('opening window')
