@@ -75,6 +75,11 @@ athenak:
 nemo:
 	git clone $(URL3)
 
+python: nemo anaconda3
+
+anaconda3:
+	nemo/src/scripts/install_anaconda3
+
 tkrun:
 	git clone $(URL4)
 
@@ -183,10 +188,26 @@ test7:
 
 # will try Qt first, else fall back to tkinter
 test8:
-	./pysg_run.py linear_wave_hydro.athinput
+	./pysg_run.py athinput.linear_wave1d
 
 test9: 	ran2
 	./plot1d.py -d ran2
+
+test10:
+	./pysg_run.py test.athinput
+
+test11:
+	./pyqt_run.py test.athinput
+
+# will run the plot when run is clicked
+test12:
+	./pyqt_run.py athinput.linear_wave1d -r
+
+test13: athena_problems.json
+	./pysg_menu.py
+
+athena_problems.json:
+	./write_problems.py
 
 # collaborations
 agui_t:
