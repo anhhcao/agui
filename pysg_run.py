@@ -192,7 +192,8 @@ def build_layout(data, info):
     # add buttons to run/quit/help
     layout.extend([[sg.Text()], 
                    [
-                        sg.Button('Run'), 
+                        sg.Button('Output'),
+                        sg.Button('Plot'), 
                         sg.Button('View File'),
                         sg.Button('Help'),
                         sg.Button('Reset'),
@@ -400,9 +401,9 @@ while lines:
                     plot.kill()
             lines = None
             break
-        elif event in ('Run', 'Plot', 'Print Only'):
+        elif event in ('Output', 'Plot', 'Print Only'):
             cmd = run(args.file, values['output-dir'], data, values)
-            if cmd and event == 'Plot' or (event == 'Run' and args.run):
+            if cmd and event == 'Plot':
                 if not path.exists(athena):
                     print('Athena not found\nExiting')
                     exit()
@@ -418,7 +419,7 @@ while lines:
                     remove(h[0])
                 # will the tlim variable always be like this?
                 display_pbar(cmd, values['time/tlim'])
-                print(info)
+                #print(info)
                 plots.append(Popen(['python', 'plot1d.py', '-d', values['output-dir'], '-n', info['problem']]))
                 plots.append(Popen(['python', 'plot1d.py', '-d', values['output-dir'], '--hst', '-n', info['problem'] + ' history']))
             elif cmd:
