@@ -78,7 +78,7 @@ nemo:
 python: nemo anaconda3
 
 anaconda3:
-	nemo/src/script/install_anaconda3
+	nemo/src/scripts/install_anaconda3
 
 tkrun:
 	git clone $(URL4)
