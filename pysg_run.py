@@ -26,10 +26,10 @@ argparser.add_argument('--tk',
                        action='store_true', 
                        help='uses PYSimpleGUI (tkinter) instead of PySimpleGUIQt', 
                        default=False)
-'''argparser.add_argument('-r', '--run',
+argparser.add_argument('-r', '--run',
                        action='store_true',
                        help='executes the athena command and plots the tab files on run',
-                       default=False)'''
+                       default=False)
 argparser.add_argument('file', help='the athinput file to configure')
 argparser.add_argument('-x', '--exe', help='the path to the athena executable')
 args = argparser.parse_args()
@@ -78,14 +78,14 @@ def rm_dot(x):
 #>  SCALE   n=3.141592              0:10:0.01
 def build_layout(data, info):
     global cwd
-    '''menu = [
+    menu = [
         ['Run', ['Print Only', 'Plot']],
         ['Options', ['Help', 'Reset']],
         ['View', ['Input File']],
         ['Exit', ['Close All Plots', 'Close']]
-    ]'''
+    ]
     '''[sg.Menu(menu, tearoff=True)],'''
-    layout = [ [sg.Text('Problem:', font=fstd_bold), 
+    layout = [ [sg.Menu(menu, tearoff=True)],[sg.Text('Problem:', font=fstd_bold), 
                sg.Stretch(), 
                sg.Text(info['problem'])]]
     reference = info['reference']
@@ -400,15 +400,15 @@ while current_path:
     while True:
         event, values = window.read()
 
-        if event == sg.WIN_CLOSED or event == 'Close' or event == 'Close All Plots':
+        if event == sg.WIN_CLOSED or event in ('Quit', 'Close', 'Close All Plots'):
             if event == 'Close All Plots':
                 for plot in plots: # inefficient
                     plot.kill()
             current_path = None
             break
-        elif event == 'Plot' or event == 'Print Only':
+        elif event in ('Run', 'Plot', 'Print Only'):
             cmd = run(args.file, values['output-dir'], data, values)
-            if cmd and event == 'Plot':
+            if cmd and event == 'Plot' or (event == 'Run' and args.run):
                 if not path.exists(athena):
                     print('Athena not found\nExiting')
                     exit()
