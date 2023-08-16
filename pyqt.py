@@ -86,8 +86,7 @@ class MainWindow(QtWidgets.QMainWindow):
             default_values = {}
             with open(file, "r") as f:
                 for line in f:
-                    label, value = line.strip().split(":")
-                    label = label.split(":")[0]
+                    label, value = line.strip().split("=")
                     value = value.split(",") if "," in value else [value]
                     default_values[label] = value
             
