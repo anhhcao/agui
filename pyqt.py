@@ -59,7 +59,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.createWidgetsFromGroups()
     
     def run(self):
-        print('run')
+        contents = self.gatherData()
+        for line in contents:
+            for key, value in line.items():
+                print(f"{key}={','.join(value)}")
     
     def save(self):
         contents = self.gatherData()
@@ -87,7 +90,6 @@ class MainWindow(QtWidgets.QMainWindow):
                     label = label.split(":")[0]
                     value = value.split(",") if "," in value else [value]
                     default_values[label] = value
-            print(default_values)
             
             #go through the elements in the widget
             for elements in range(self.pagelayout.count()):
