@@ -201,6 +201,9 @@ test12:
 test13: athena_problems.json
 	./pysg_menu.py
 
+test14: athena_problems.json
+	./pyqt_menu.py
+
 athena_problems.json:
 	./write_problems.py
 
