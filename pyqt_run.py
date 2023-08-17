@@ -208,9 +208,13 @@ class MainWindow(qw.QMainWindow):
                 remove(h[0])
             # will the tlim variable always be like this?
             # display_pbar(cmd, values['time/tlim'])
-            p = Popen(cmd.split())
-            p.wait()
-            print(info)
+            '''p = Popen(cmd.split())
+            p.wait()'''
+            w = LoadingWindow(cmd, float(self.input['time/tlim'].text()))
+            self.windows.append(w)
+            w.show()
+            w.run()
+            w.close()
             Popen(['python', 'plot1d.py', '-d', odir, '-n', info['problem']])
             Popen(['python', 'plot1d.py', '-d', odir, '--hst', '-n', info['problem'] + ' history'])
         else:
@@ -405,6 +409,30 @@ class MainWindow(qw.QMainWindow):
         scaled = value/slider_info['factor']
         label.setText(str(int(scaled) if scaled.is_integer() else scaled))
 
+class LoadingWindow(qw.QMainWindow):
+    def __init__(self, cmd, tlim):
+        super().__init__()
+
+        self.setWindowTitle('Loading')
+        self.cmd = cmd
+        self.tlim = tlim
+        self.pbar = qw.QProgressBar(self)
+        self.setCentralWidget(self.pbar)
+
+    def run(self):
+        p = Popen(self.cmd.split(), stdout=PIPE)
+
+        line = p.stdout.readline()
+
+        while line:
+            m = match('.*cycle=.* time=(.*) dt=.*', line.decode())
+            if m:
+                i = int(100 * float(m.group(1)) / self.tlim)
+                self.pbar.setValue(i)
+                # print(i, self.pbar.value())
+                qg.QGuiApplication.processEvents()
+            line = p.stdout.readline()
+
 class ConfirmWindow(qw.QWidget):
     def __init__(self, parent):
         super().__init__()
@@ -595,10 +623,10 @@ cwd = getcwd()
 
 # parse arguments
 argparser = ArgumentParser(description='Runs the GUI for configuring an athinput file')
-argparser.add_argument('-r', '--run',
+'''argparser.add_argument('-r', '--run',
                        action='store_true',
                        help='executes the athena command and plots the tab files on run',
-                       default=False)
+                       default=False)'''
 argparser.add_argument('-x', '--exe', help='the path to the athena executable')
 argparser.add_argument('file', help='the athinput file to configure')
 args = argparser.parse_args()
