@@ -6,15 +6,13 @@ import re
 
 class MainWindow(QtWidgets.QMainWindow):
 
-    def __init__(self, parameters, param_file):
+    def __init__(self, parameters, param_file, filetype):
         super(MainWindow, self).__init__()
 
         self.groups = parameters
         self.radio_groups = []
-        self.loadFile = None
-        self.ofile = None
-        self.saveFile = None
         self.param_file = param_file
+        self.param_file_type = filetype
         self.sliderMultiplier = []
         self.sliders = []
 
@@ -72,7 +70,19 @@ class MainWindow(QtWidgets.QMainWindow):
             with open(file_path, "w") as file:
                 for line in contents:
                     for key, value in line.items():
-                        file.write(f"{key}={','.join(value)}")
+                        if self.param_file_type == 'csh':
+                            file.write("set ")
+
+                        file.write(f"{key}=")
+                        
+                        if self.param_file_type == 'py':
+                            file.write('"')
+
+                        file.write(f"{','.join(value)}")
+
+                        if self.param_file_type == 'py':
+                            file.write('"')
+
                     file.write("\n")
             print("saved to " + file_path)
     
@@ -80,17 +90,22 @@ class MainWindow(QtWidgets.QMainWindow):
         options = QtWidgets.QFileDialog.Options()
         load_file = self.param_file +".key" if os.path.exists(self.param_file +".key") else ""
         file, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose a File", load_file, "All Files (*)", options=options)
-        #alter the values of each option
+        
+        #parse the loaded file
         if file:
             #turn the parameters in the file into a dictionary
             default_values = {}
             with open(file, "r") as f:
                 for line in f:
+                    if self.param_file_type == 'csh':
+                        line = re.sub("set","",line,count=1)
                     label, value = line.strip().split("=")
+                    if value.startswith('"') and value.endswith('"'):
+                        value = value[1:-1]
                     value = value.split(",") if "," in value else [value]
                     default_values[label] = value
             
-            #go through the elements in the widget
+            #go through the elements in the widget and alter it to the values specified
             for elements in range(self.pagelayout.count()):
                 element = self.pagelayout.itemAt(elements).layout()
                 if element is not None:
@@ -151,7 +166,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 txt.setText(default_option)
                 txt.setObjectName(group_name)
                 if group_type == "OFILE" or group_type == "IFILE":
-                    self.ofile = group_name
                     btn.clicked.connect(lambda edit=txt: self.browse("FILE", edit))
                 else:
                     btn.clicked.connect(lambda edit=txt: self.browse("DIR", edit))
@@ -232,7 +246,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if gtype == 'FILE':
             file, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose a File", "", "All Files (*)", options=options)
-            self.saveFile = file
         if gtype == 'DIR':
             dir = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
         if file:
@@ -274,34 +287,47 @@ class MainWindow(QtWidgets.QMainWindow):
         return layout_data
 
 def parsefile(file):
+    filetype = "sh"
     with open(file, "r") as f:
         # content = file.read()
         lines = f.readlines()
 
     groups = []
-    pattern = r"\s*(\w+)\s*=\s*([^\s#]+)\s*#\s*([^\#]+)\s*#\s*>\s*(\w+)(?:\s+(\S+))?"
+    # group 1 = set or None
+    # group 2 = name of widget
+    # group 3 = default values, may have "" around
+    # group 4 = # help or None
+    # group 5 = widget type
+    # group 6 (unused) = name=value if old format, otherwise None
+    # group 7 = widget parameters or None
+    pattern = '^\s*(set\s+)?([^#]+)\s*=([^#]+)(#.*)?#>\s+([^\s]+)(.*=[^\s]*)?(.+)?$'
     for line in lines:
         match = re.match(pattern, line)
         if match:
-            group_type = match.group(4)
-            group_name = match.group(1)
-            default_option = match.group(2)
-            options = match.group(5).split(',') if match.group(5) else ""
-            help = match.group(3)
-
+            if match.group(1):
+                filetype = "csh"
+            group_type = match.group(5)
+            group_name = match.group(2)
+            default_option = match.group(3).strip()
+            #check for quotations
+            if default_option[0] == '"' and default_option[-1] == '"':
+                default_option = default_option[1:-1]
+                filetype = "py"
+            options = match.group(7).split(',') if match.group(7) else ""
+            help = match.group(4).split('#')[1].strip() if match.group(4) else ""
             groups.append((group_type, group_name, options, default_option, help))
     
-    return groups
+    return groups, filetype
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Dynamic GUI Builder")
     parser.add_argument("param_file", help="Path to the text file containing parameters")
     args = parser.parse_args()
 
-    groups = parsefile(args.param_file)    
+    groups, filetype = parsefile(args.param_file)    
 
     app = QtWidgets.QApplication(sys.argv)
-    w = MainWindow(groups, args.param_file)
+    w = MainWindow(groups, args.param_file, filetype)
     w.inputFile = args.param_file
     w.adjustSize()  #adjust to fit elements accordingly
 

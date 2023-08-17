@@ -153,11 +153,21 @@ test3:
 test4:
 	python pysimplegui.py
 
+#bash format
 test5:
 	python pyqt.py testfile.sh
 
+#bash format with more variables
 test6:
 	python pyqt.py testfile2.sh
+
+#python format
+test7:
+	python pyqt.py testfile3.py 
+
+#csh format
+test8:
+	python pyqt.py testfile4.csh
 
 # collaborations
 agui_t:
