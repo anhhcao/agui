@@ -403,7 +403,7 @@ class MainWindow(qw.QMainWindow):
     def updateLabel(self, key, label, value):
         slider_info = self.sliders[key]
         scaled = value/slider_info['factor']
-        label.setText(str(int(scaled) if (scaled).is_integer() else scaled))
+        label.setText(str(int(scaled) if scaled.is_integer() else scaled))
 
 class ConfirmWindow(qw.QWidget):
     def __init__(self, parent):
@@ -593,8 +593,6 @@ def build_main(data, info):
 
 cwd = getcwd()
 
-athena = (environ['AGUI'] if 'AGUI' in environ else cwd) + '/athena/bin/athena'
-
 # parse arguments
 argparser = ArgumentParser(description='Runs the GUI for configuring an athinput file')
 argparser.add_argument('-r', '--run',
@@ -604,6 +602,8 @@ argparser.add_argument('-r', '--run',
 argparser.add_argument('-x', '--exe', help='the path to the athena executable')
 argparser.add_argument('file', help='the athinput file to configure')
 args = argparser.parse_args()
+
+athena = args.exe if args.exe else (environ['AGUI'] if 'AGUI' in environ else cwd) + '/athena/bin/athena'
 
 # parse the input files
 with open(args.file) as file:
