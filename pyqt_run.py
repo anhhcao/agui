@@ -5,9 +5,8 @@ from PyQt5 import QtCore as qc, QtWidgets as qw, QtGui as qg
 from re import match
 from aparser import parse_s as parse
 from argparse import ArgumentParser
-from os import getcwd, remove, mkdir, environ, path
+from os import getcwd, remove, environ, path
 from subprocess import Popen, PIPE
-from importlib import import_module
 from glob import glob
 from sys import argv, exit
 
@@ -372,7 +371,8 @@ class MainWindow(qw.QMainWindow):
 
                 #print("slider created")
                 #creates a horizontal slider
-                label_slider = qw.QLineEdit(str(e['value']))
+                init = float(e['value'])
+                label_slider = qw.QLineEdit(str(int(init) if init.is_integer() else init))
                 label_slider.setAlignment(qc.Qt.AlignRight)
                 label_slider.setFixedWidth(85)
                 # the label slider is unique to this slider
@@ -381,10 +381,10 @@ class MainWindow(qw.QMainWindow):
                 slider = qw.QSlider(self)
                 self.sliders[k] = {
                     'key':slider,
-                    'factor':factor,
-                    'is_int':params[0].isdigit() and params[1].isdigit() and params[2].isdigit()
+                    'factor':factor
+                    #'is_int':params[0].isdigit() and params[1].isdigit() and params[2].isdigit()
                 }
-                [minimum, maximum, increment, init] = [float(x) for x in params + [e['value']]]
+                [minimum, maximum, increment] = [float(x) for x in params]
                 slider.setOrientation(qc.Qt.Horizontal)
                 slider.setSingleStep(int(factor * increment))
                 slider.setPageStep(int(factor * increment))       #moves the slider when clicking or up/down
@@ -403,7 +403,7 @@ class MainWindow(qw.QMainWindow):
     def updateLabel(self, key, label, value):
         slider_info = self.sliders[key]
         scaled = value/slider_info['factor']
-        label.setText(str(int(scaled) if slider_info['is_int'] else scaled))
+        label.setText(str(int(scaled) if (scaled).is_integer() else scaled))
 
 class ConfirmWindow(qw.QWidget):
     def __init__(self, parent):
@@ -441,7 +441,7 @@ class ConfirmWindow(qw.QWidget):
         self.par.ok = False
         self.close()
 
-class ViewerWindow(qw.QWidget):
+class ViewerWindow(qw.QMainWindow):
     def __init__(self):
         super().__init__()
         global lines
@@ -449,26 +449,63 @@ class ViewerWindow(qw.QWidget):
         self.windows = []
         self.setWindowTitle(args.file)
         self.resize(750, 750)
+
+        toolbar = self.addToolBar('ToolBar')
+
+        load_action = qw.QAction('Load', self)
+        load_action.setToolTip('Reload the GUI with this file')
+        load_action.triggered.connect(self.load)
+        toolbar.addAction(load_action)
+        toolbar.addSeparator()
+
+        save_as_action = qw.QAction('Save As', self)
+        save_as_action.setToolTip('Save as a new file (Ctrl+Shift+s)')
+        save_as_action.triggered.connect(self.save_as)
+        save_as_action.setShortcut('Ctrl+Shift+s')
+        toolbar.addAction(save_as_action)
+        toolbar.addSeparator()
+
+        save_action = qw.QAction('Save', self)
+        save_action.setToolTip('Save changes to the original input file (Ctrl+s)')
+        save_action.triggered.connect(self.save)
+        save_action.setShortcut('Ctrl+s')
+        toolbar.addAction(save_action)
+        toolbar.addSeparator()
+
+        quit_action = qw.QAction('Quit', self)
+        quit_action.setToolTip('Closes the editor')
+        quit_action.triggered.connect(self.quit)
+        toolbar.addAction(quit_action)
+        toolbar.addSeparator()
+
         layout = qw.QVBoxLayout()
-        box = qw.QPlainTextEdit(''.join(lines), self)
-        box.setFont(qg.QFont('Courier New', 10))
-        layout.addWidget(box)
-        btn_layout = qw.QHBoxLayout()
+        self.box = qw.QPlainTextEdit(''.join(lines), self)
+        self.box.resize(750, 700)
+        self.box.setFont(qg.QFont('Courier New', 10))
+        layout.addWidget(self.box)
+
+        #set the main page layout
+        widget = qw.QWidget()
+        widget.setLayout(layout) 
+        # self.setGeometry(500, 100, 700, 500)
+        self.setCentralWidget(widget)
+
+        '''btn_layout = qw.QHBoxLayout()
 
         btn = qw.QPushButton()
         btn.setText('Load')
-        btn.clicked.connect(lambda _, b=box: self.load(b))
+        btn.clicked.connect(self.load)
         btn_layout.addWidget(btn)
 
         btn = qw.QPushButton()
         btn.setText('Save As')
-        btn.clicked.connect(lambda _, b=box: self.save_as(b))
+        btn.clicked.connect(self.save_as)
         btn.setShortcut('Ctrl+Shift+s')
         btn_layout.addWidget(btn)
 
         btn = qw.QPushButton()
         btn.setText('Save')
-        btn.clicked.connect(lambda _, b=box: self.save(b))
+        btn.clicked.connect(self.save)
         btn.setShortcut('Ctrl+s')
         btn_layout.addWidget(btn)
 
@@ -478,28 +515,26 @@ class ViewerWindow(qw.QWidget):
         btn.clicked.connect(self.quit)
         btn_layout.addWidget(btn)
     
-        layout.addLayout(btn_layout)
+        layout.addLayout(btn_layout)'''
 
-        self.setLayout(layout)
-
-    def load(self, box):
+    def load(self):
         global data, info, lines, main
-        lines = [line + '\n' for line in box.toPlainText().split('\n')]
+        lines = [line + '\n' for line in self.box.toPlainText().split('\n')]
         data, info, _ = parse(lines, silent=True)
         main.close()
         build_main(data, info)
         self.close()
 
-    def save_as(self, box):
+    def save_as(self):
         filename, _ = qw.QFileDialog.getSaveFileName(self,
                                        'Save File',
                                        '',
                                        'All Files(*);;Text Files(*.txt);;AthenaK Input(*.athinput);;Athena Input(athinput.*)')
         if filename:
             with open(filename, 'w') as file:
-                file.write(box.toPlainText())
+                file.write(self.box.toPlainText())
 
-    def save(self, box):
+    def save(self):
         w = ConfirmWindow(self)
         self.windows.append(w)
         w.setAttribute(qc.Qt.WA_DeleteOnClose)
@@ -510,7 +545,7 @@ class ViewerWindow(qw.QWidget):
         loop.exec()
         if self.ok:
             with open(args.file, 'w') as file:
-                file.write(box.toPlainText())
+                file.write(self.box.toPlainText())
 
     def quit(self):
         self.close()
