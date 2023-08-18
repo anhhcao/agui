@@ -439,7 +439,6 @@ while lines:
                 slider = window[key]
                 value = float(values[event]) * sliders[key]['factor']
                 m, M = slider.Range
-                print(m, value, M)
                 if m <= value <= M:
                     forced_slider = True
                     slider.update(int(value) if value.is_integer() else value)
