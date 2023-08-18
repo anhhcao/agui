@@ -12,6 +12,10 @@ argparser.add_argument('--tk',
                        action='store_true', 
                        help='uses PYSimpleGUI (tkinter) instead of PySimpleGUIQt', 
                        default=False)
+argparser.add_argument('-r', '--run',
+                       action='store_true',
+                       help='executes the athena command and plots the tab files on run',
+                       default=False)
 args = argparser.parse_args()
 
 # import a version of PySimpleGUI
@@ -150,8 +154,9 @@ while True:
         break
     elif event == 'Launch':
         problem = problems[current_athena][values['predefined_dropdown']] if values['predefined_radio'] else values['load']
-        cmd = './pysg_run.py %s -x %s %s' % (problem, 
+        cmd = './pysg_run.py %s -x %s %s %s' % (problem, 
                                                         values['exe'],
+                                                        '-r' if args.run else '',
                                                         '--tk' if args.tk else '') 
         print(cmd)
         try:

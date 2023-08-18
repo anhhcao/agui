@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 from re import match
-from aparser import parse_generic as parse
+from aparser import parse_s as parse
 from argparse import ArgumentParser
 from os import getcwd, remove, mkdir, environ, path
 from subprocess import Popen, PIPE
 from importlib import import_module
 from glob import glob
-from copy import deepcopy
 
 cwd = getcwd()
 
@@ -25,10 +24,10 @@ argparser.add_argument('--tk',
                        action='store_true', 
                        help='uses PYSimpleGUI (tkinter) instead of PySimpleGUIQt', 
                        default=False)
-'''argparser.add_argument('-r', '--run',
+argparser.add_argument('-r', '--run',
                        action='store_true',
                        help='executes the athena command and plots the tab files on run',
-                       default=False)'''
+                       default=False)
 argparser.add_argument('file', help='the athinput file to configure')
 argparser.add_argument('-x', '--exe', help='the path to the athena executable')
 args = argparser.parse_args()
@@ -59,8 +58,6 @@ except:
 # removes the trailing zeroes then the dot from a string float x, then returns an int
 # utility function used by build_layout
 def rm_dot(x):
-    if using_tk:
-        return float(x)
     # being too precise causes problems, but hopefully this is enough
     s = '%.8g' % float(x)
     dot_pos = s.rfind('.')
@@ -82,10 +79,11 @@ def build_layout(data, info):
     menu = [
         ['Run', ['Print Only', 'Plot']],
         ['Options', ['Help', 'Reset']],
-        ['File', ['View Original', 'View']],
+        ['View', ['Input File']],
         ['Exit', ['Close All Plots', 'Close']]
     ]
-    layout = [[sg.Menu(menu, tearoff=True)], [sg.Text('Problem:', font=fstd_bold), 
+    '''[sg.Menu(menu, tearoff=True)],'''
+    layout = [ [sg.Menu(menu, tearoff=True)],[sg.Text('Problem:', font=fstd_bold), 
                sg.Stretch(), 
                sg.Text(info['problem'])]]
     reference = info['reference']
@@ -126,12 +124,11 @@ def build_layout(data, info):
             factor = max([1 if float(x) == 0 else round(rm_dot(x) / float(x)) for x in params])
             sliders[k] = {
                 'key':k+'_display',
-                'factor':factor,
-                'is_int':params[0].isdigit() and params[1].isdigit() and params[2].isdigit()
+                'factor':factor
             }
             #row.append(sg.Text(float(e['value']), key=sliders[k]['key'], background_color=bgstd))
             [minimum, maximum, increment, init] = [float(x) for x in params + [e['value']]]
-            row.append(sg.InputText(default_text=int(init) if sliders[k]['is_int'] else init, key=sliders[k]['key'], justification='right', size=(7, 0.75)))
+            row.append(sg.InputText(default_text=int(init) if init.is_integer() else init, key=sliders[k]['key'], justification='right', size=(7, 0.75), enable_events=True))
             # rm_dot only does anything significant if we are using qt
             slider = sg.Slider(
                 range=(int(factor * minimum), int(factor * maximum)),
@@ -192,7 +189,15 @@ def build_layout(data, info):
                         sg.Button('View File')
                     ]'''
     # add buttons to run/quit/help
-    layout.extend([[sg.Text()]])
+    layout.extend([[sg.Text()], 
+                   [
+                        sg.Button('Output'),
+                        sg.Button('Plot'), 
+                        sg.Button('View File'),
+                        sg.Button('Help'),
+                        sg.Button('Reset'),
+                        sg.Button('Quit')
+                    ]])
     return layout
 
 # collects the values from the GUI and builds the athena command
@@ -231,7 +236,7 @@ def run(input_file, output_dir, data, values):
 # builds and displays a new window containing only the athena command
 def display_cmd(s):
     window = sg.Window('Athena Output', 
-                        [[sg.Multiline(s, size=(100, round(len(s) / 100)))]], 
+                        [[sg.Multiline(s, size=(100, round(len(s) / 100)), font=('Courier New', 10))]], 
                         font=fstd)
     while True:
         event, _ = window.read()
@@ -286,57 +291,36 @@ def display_conf_dir(dir_path):
     window.close()
     return event == 'yes'
 
-def view_file(values=None):
-    new_data = None
-    key_iter = iter(data)
-    layout = []
-    r = None
-    with open(args.file) as file:
-        lines = file.readlines()
-    for line in lines:
-        if '#>' in line:
-            k = next(key_iter)
-            e = data[k]
-            value = e['value']
-            if values:
-                t = e['gtype']
-                if t == 'RADIO':
-                    for o in e['gparams'].split(','):
-                        if values[k+o]:
-                            value = o
-                            break
-                elif not using_tk and e['gtype'] == 'SCALE':
-                    value = values[sliders[k]['key']]
-                elif t == 'CHECK' and checks[k]:
-                    value = ''
-                    cs = checks[k]
-                    for ck in cs:
-                        if values[ck]:
-                            value += f'{cs[ck]},'
-                    value = value[:-1] + ' '
-                else:
-                    value = values[k]
-            row = [sg.Text(k + ' = '),
-                   sg.Input(default_text=value, size=(100, None), key=k),
-                   sg.Text(e['help'] + ((' #> ' + e['gparams']) if e['gparams'] else '')),
-                   sg.Stretch()]
-        else:
-            row = [sg.Text(line[:-1])]
-        layout.append(row)
-    window = sg.Window(args.file + (' (Edited)' if values else ''), [[sg.Column(layout, scrollable=True, size=(650, 500))], 
-                                             [sg.Text()], # buffer
-                                             [sg.Button('Save'), sg.Button('Quit')]])
+def view_file():
+    global lines
+    dummy = sg.Input(visible=False, enable_events=True, key='dummy')
+    window = sg.Window(args.file, 
+        [[sg.Multiline(default_text=''.join(lines), size=(75, 35), key='text', font=('Courier New', 10))],
+            [sg.Text()], # buffer
+        [
+            sg.Button('Load'), dummy, 
+            sg.FileSaveAs('Save As', file_types=(('All Files', '*.*'), 
+                                                ('Text File', '*.txt'), 
+                                                ('Athena Input', 'athinput.*'), 
+                                                ('AthenaK Input', '*.athinput'))), 
+            sg.Button('Save'),
+            sg.Button('Quit')]], return_keyboard_events=True)
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED or event == 'Quit':
             break
-        elif event == 'Save':
-            new_data = deepcopy(data)
-            for k in new_data:
-                new_data[k]['value'] = values[k]
+        elif event == 'Load':
+            lines = [line + '\n' for line in values['text'].split('\n')]
             break
+        elif event == 'dummy' and values['dummy']:
+            with open(values['dummy'], 'w') as dfile:
+                dfile.write(values['text'])
+        elif event == 'Save':
+            choice = sg.popup_ok_cancel('WARNING: You are about to override', args.file)
+            if choice == 'OK':
+                with open(args.file, 'w') as overriden_file:
+                    overriden_file.write(values['text'])
     window.close()
-    return new_data
 
 def update(dat, window):
     for k in dat:
@@ -354,78 +338,128 @@ def update(dat, window):
                     break
         elif t == 'SCALE':
             [m, M, _] = e['gparams'].split(':')
-            if float(m) < float(e['value']) < float(M): # only bother changing the slider if actually in range
-                window[k].update(value=int(sliders[k]['factor'] * float(e['value'])))
-            window[k+'_display'].update(value=int(float(e['value'])) if sliders[k]['is_int'] else e['value'])
+            value = float(e['value'])
+            if float(m) < value < float(M): # only bother changing the slider if actually in range
+                window[k].update(value=int(sliders[k]['factor'] * value))
+            window[k+'_display'].update(value=str(int(value) if value.is_integer() else value))
         else:
             window[k].update(value=e['value'])
 
-# parse the input files
-data, info, type = parse(args.file)
+with open(args.file) as file:
+    lines = file.readlines()
 
-sg.theme('Default1')
+while lines:
+    # parse the input files
+    data, info, type = parse(lines, silent=True)
 
-sg.SetOptions(slider_border_width=0)
+    forced_slider = False
 
-# start building gui
-inner_layout = build_layout(data, info)
-# pysgqt elements seem to be smaller than their tkinter counterparts, so it might be better to reduce the width scaling
-scale_factor = 27
-if using_tk:
-    scale_factor = 33
-win_size = (550, len(inner_layout) * scale_factor)
-#layout = [[sg.Column(inner_layout, size=win_size, scrollable=False, background_color=bgstd)]]
-# only allow verticle scroll for the tk version, otherwise a horizontal scroll bar will show up
-#if using_tk:
-#    layout[0][0].VerticalScrollOnly = True
-# create the main window '#777777'
-# already resizable by default?
-window = sg.Window('pysg run', inner_layout, size=win_size, font=fstd, resizable=True, grab_anywhere=True)
-# primary event loop
-while True:
-    event, values = window.read()
-    if event == sg.WIN_CLOSED or event == 'Close' or event == 'Close All Plots':
-        if event == 'Close All Plots':
-            for plot in plots: # inefficient
-                plot.kill()
-        break
-    elif event == 'Plot' or event == 'Print Only':
-        cmd = run(args.file, values['output-dir'], data, values)
-        if cmd and event == 'Plot':
-            if not path.exists(athena):
-                print('Athena not found\nExiting')
-                exit()
-            # open the plot in a subprocess
-            # remove the forward slash at the end if there is one
-            odir = values['output-dir']
-            if odir[-1] == '/':
-                odir = odir[:-1]
-            # remove the hst file since it always gets appended to
-            # intentional?
-            h = glob(odir + '/*.hst')
-            if len(h) > 0:
-                remove(h[0])
-            # will the tlim variable always be like this?
-            display_pbar(cmd, values['time/tlim'])
-            print(info)
-            plots.append(Popen(['python', 'plot1d.py', '-d', values['output-dir'], '-n', info['problem']]))
-            plots.append(Popen(['python', 'plot1d.py', '-d', values['output-dir'], '--hst', '-n', info['problem'] + ' history']))
-        elif cmd:
-            display_cmd(cmd)
-    elif event == 'Help':
-        display_help(data)
-    # update slider displays if using qt
-    elif event in sliders:
-        slider_info = sliders[event]
-        value = values[event] / slider_info['factor']
-        window[slider_info['key']].update(int(value) if slider_info['is_int'] else value)
-    elif event == 'View':
-        new_data = view_file(values)
-        if new_data:
-            update(new_data, window)
-    elif event == 'View Original':
-        view_file()
-    elif event == 'Reset':
-        update(data, window)
+    sg.theme('Default1')
 
-window.close()
+    sg.SetOptions(slider_border_width=0)
+
+    # start building gui
+    inner_layout = build_layout(data, info)
+    # pysgqt elements seem to be smaller than their tkinter counterparts, so it might be better to reduce the width scaling
+    scale_factor = 27
+    '''if using_tk:
+        scale_factor = 33'''
+    win_size = (550, len(inner_layout) * scale_factor)
+    #layout = [[sg.Column(inner_layout, size=win_size, scrollable=False, background_color=bgstd)]]
+    # only allow verticle scroll for the tk version, otherwise a horizontal scroll bar will show up
+    #if using_tk:
+    #    layout[0][0].VerticalScrollOnly = True
+    # create the main window '#777777'
+    # already resizable by default?
+    window = sg.Window('pysg run', inner_layout, size=win_size, font=fstd, resizable=True, grab_anywhere=False, return_keyboard_events=using_tk)
+    window.read(timeout=0)
+
+    if using_tk: # won't work in qt, though it doesn't need to
+        for slider in sliders:
+            window[slider].bind('<Enter>', '+c_etr')
+        window.bind('<Leave>', 'cursor leave')
+        focus = None
+        first = False
+        def update_tk_sliders(f):
+            # update the slider position
+            slider_key = focus.split('+')[0]
+            slider = window[slider_key]
+            raw_value = f(values[slider_key], slider.Resolution)
+            slider.update(raw_value)
+            m, M = slider.Range
+            if m <= raw_value <= M:
+                # update the slider display
+                slider_info = sliders[slider_key]
+                value = raw_value / slider_info['factor']
+                window[slider_info['key']].update(int(value) if value.is_integer() else value)
+
+    # primary event loop
+    while True:
+        event, values = window.read()
+        print(event)
+        if event == sg.WIN_CLOSED or event in ('Quit', 'Close', 'Close All Plots'):
+            if event == 'Close All Plots':
+                for plot in plots: # inefficient
+                    plot.kill()
+            lines = None
+            break
+        elif event in ('Output', 'Plot', 'Print Only'):
+            cmd = run(args.file, values['output-dir'], data, values)
+            if cmd and event == 'Plot':
+                if not path.exists(athena):
+                    print('Athena not found\nExiting')
+                    exit()
+                # open the plot in a subprocess
+                # remove the forward slash at the end if there is one
+                odir = values['output-dir']
+                if odir[-1] == '/':
+                    odir = odir[:-1]
+                # remove the hst file since it always gets appended to
+                # intentional?
+                h = glob(odir + '/*.hst')
+                if len(h) > 0:
+                    remove(h[0])
+                # will the tlim variable always be like this?
+                display_pbar(cmd, values['time/tlim'])
+                #print(info)
+                plots.append(Popen(['python', 'plot1d.py', '-d', values['output-dir'], '-n', info['problem']]))
+                plots.append(Popen(['python', 'plot1d.py', '-d', values['output-dir'], '--hst', '-n', info['problem'] + ' history']))
+            elif cmd:
+                display_cmd(cmd)
+        elif event == 'Help':
+            display_help(data)
+        # update slider displays if using qt
+        elif event in sliders:
+            slider_info = sliders[event]
+            value = values[event] / slider_info['factor']
+            window[slider_info['key']].update(int(value) if value.is_integer() else value)
+        elif '_display' in event:
+            try:
+                key = event[:-8]
+                slider = window[key]
+                value = float(values[event]) * sliders[key]['factor']
+                m, M = slider.Range
+                if m <= value <= M:
+                    forced_slider = True
+                    slider.update(int(value) if value.is_integer() else value)
+            except:
+                pass
+        elif event == 'View File':
+            view_file()
+            if lines:
+                break
+        elif event == 'Reset':
+            update(data, window)
+
+        # this allows the tk slider to work with the mouse wheel
+        if using_tk:
+            if '+c_etr' in event:
+                focus = event
+            elif event == 'cursor leave':
+                focus = None
+            elif event == 'MouseWheel:Up' and focus and 'c_etr' in focus:
+                update_tk_sliders(lambda x, y: x + y)
+            elif event == 'MouseWheel:Down' and focus and 'c_etr' in focus:
+                update_tk_sliders(lambda x, y: x - y)
+
+    window.close()
