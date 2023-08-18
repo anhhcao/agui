@@ -2,11 +2,9 @@
 import typing
 from PyQt5 import QtWidgets as qw, QtGui as qg
 from argparse import ArgumentParser
-from importlib import import_module
 from json import load
 from subprocess import Popen, PIPE
 from re import match
-from os import path, getcwd
 from sys import argv
 
 # parse arguments
@@ -28,8 +26,6 @@ with open('athena_problems.json') as problems_json:
 athena_problems = list(problems['athena'])
 athenac_problems = list(problems['athenac'])
 athenak_problems = list(problems['athenak'])
-
-cwd = getcwd()
 
 class MainWindow(qw.QMainWindow):
     def __init__(self):
