@@ -38,6 +38,7 @@ class MainWindow(qw.QMainWindow):
         super().__init__()
 
         self.radio_groups = []
+        self.windows = []
 
         page_layout = qw.QVBoxLayout()
         radio_layout = qw.QHBoxLayout()
@@ -175,10 +176,29 @@ class MainWindow(qw.QMainWindow):
             print(e)
 
     def help(self):
-        pass
+        w = HelpWindow()
+        self.windows.append(w)
+        w.show()
 
     def quit(self):
         self.close()
+
+class HelpWindow(qw.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('Help')
+        self.main_layout = qw.QVBoxLayout()
+        self.add_label('Athena Version:', '\tThe version of Athena (must match the version of the executable) to be used')
+        self.add_label('Athena Executable:', '\tEither the path or the name of the Athena executable. If only a name is given, then it is assumed that the executable is in /usr/bin.')
+        self.add_label('Selecting Problems:', '\tA problem can either be selected from the list of predefined problems or a custom problem can be chosen. Use the radio buttons to choose which method to use.')
+        self.setLayout(self.main_layout)
+
+    def add_label(self, s1, s2):
+        txt = qw.QLabel(s1)
+        txt.setStyleSheet('font-weight: bold')
+        self.main_layout.addWidget(txt)
+        self.main_layout.addWidget(qw.QLabel(s2))
+
 
 app = qw.QApplication(argv)
 
