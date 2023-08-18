@@ -9,10 +9,11 @@
 
 Stating perhaps the obvious, the different GUIs all have their own issues. Here is the current GUI list
 
-                   click_+/-  scroll_+/-    step<1      run?
-     tkrun         ok         not           ok		 -   
-     gooey         ?          ?             ?            ?
-     pysg-tk       ok         not           weird        not
-     pysg-qt       ok         ok            ok           not
-     pyqt          ok         ok            ok           ok
+                           click_+/-  scroll_+/-    step<1      run?     comments
+     tkrun   (test1)       ok         not           ok		 -
+     qtrun   (test5)       ok         ok  
+     gooey   (test7)       ok         ok            ?            ?
+     pyqt    (test1        ok         ok            ok           ok
+     pysg-tk (test13)      ok         not           weird        not     step < 1 not working?
+     pysg-qt (test13)      ok         ok            ok           not
  

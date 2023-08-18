@@ -162,6 +162,7 @@ ran3: athenac
 test0:
 	./z1.sh
 
+## test1:         old tkrun via arun1
 test1:
 	./arun1.py athinput.linear_wave1d > test1.sh
 	tkrun test1.sh
@@ -177,12 +178,14 @@ test3:
 test4:
 	python pysimplegui.py
 
+## test5:         native pyqt, tkrun style
 test5:
 	python pyqt.py testfile
 
 test6:
 	python pyqt.py testfile2
 
+## test7:         qooey, athena style
 test7:
 	./gooey_run2.py linear_wave_hydro.athinput
 
@@ -200,9 +203,11 @@ test11:
 	./pyqt_run.py test.athinput
 
 # will run the plot when run is clicked
+## test12:        pyqt native, athena style
 test12:
 	./pyqt_run.py athinput.linear_wave1d -r
 
+## test13:        pyqg, athena style
 test13: athena_problems.json
 	./pysg_menu.py
 
