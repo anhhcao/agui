@@ -5,6 +5,7 @@ from json import load
 from subprocess import Popen, PIPE
 from re import match
 from sys import argv
+from os import path
 
 # parse arguments
 argparser = ArgumentParser(description='Runs the GUI for configuring an athinput file')

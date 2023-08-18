@@ -396,6 +396,7 @@ while lines:
     # primary event loop
     while True:
         event, values = window.read()
+        print(event)
         if event == sg.WIN_CLOSED or event in ('Quit', 'Close', 'Close All Plots'):
             if event == 'Close All Plots':
                 for plot in plots: # inefficient
@@ -438,6 +439,7 @@ while lines:
                 slider = window[key]
                 value = float(values[event]) * sliders[key]['factor']
                 m, M = slider.Range
+                print(m, value, M)
                 if m <= value <= M:
                     forced_slider = True
                     slider.update(int(value) if value.is_integer() else value)

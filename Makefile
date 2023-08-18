@@ -205,7 +205,7 @@ test11:
 # will run the plot when run is clicked
 ## test12:        pyqt native, athena style
 test12:
-	./pyqt_run.py athinput.linear_wave1d -r
+	./pyqt_run.py athinput.linear_wave1d
 
 ## test13:        pyqg, athena style
 test13: athena_problems.json
