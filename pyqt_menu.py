@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 import typing
-from PyQt5 import QtCore as qc, QtCore, QtWidgets as qw, QtGui as qg
+from PyQt5 import QtWidgets as qw, QtGui as qg
 from argparse import ArgumentParser
 from importlib import import_module
 from json import load
@@ -8,8 +8,6 @@ from subprocess import Popen, PIPE
 from re import match
 from os import path, getcwd
 from sys import argv
-
-from PyQt5.QtWidgets import QWidget
 
 # parse arguments
 argparser = ArgumentParser(description='Runs the GUI for configuring an athinput file')
@@ -155,6 +153,21 @@ class MainWindow(qw.QMainWindow):
             self.reconfig.setVisible(True)
         self.current_athena = type
 
+    def rebuild(self, problem):
+        config = None
+        with open(problem) as file:
+            line = file.readline()
+            while line:
+                m = match('config[^=]+=(.+)', line)
+                if m:
+                    config = m.group(1)
+                    break
+                line = file.readline()
+        w = ConfigWindow(config)
+        w.show()
+        w.run()
+        w.close()
+
     def launch(self):
         problem = problems[self.current_athena][self.combo.currentText()] if self.predef_radio.isChecked() else self.problem.text()
         cmd = './pyqt_run.py %s -x %s %s %s' % (problem, 
@@ -163,14 +176,14 @@ class MainWindow(qw.QMainWindow):
                                                 '--tk' if args.tk else '') 
         print(cmd)
         try:
-            '''if self.reconfig.isChecked():
+            if self.reconfig.isChecked():
                 if self.current_athena == 'athenac':
                     raise Exception('Athena C reconfigure not yet implemented')
                 # otherwise it is athena++
                 print(problem)
                 self.rebuild(problem)
             if not path.exists(problem):
-                raise FileNotFoundError'''
+                raise FileNotFoundError
             Popen(cmd.split())
         except Exception as e:
             print(e)
@@ -182,6 +195,29 @@ class MainWindow(qw.QMainWindow):
 
     def quit(self):
         self.close()
+
+class ConfigWindow(qw.QWidget):
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        self.setWindowTitle('Rebuilding Executable')
+        self.main_layout = qw.QVBoxLayout()
+        bash_label = qw.QLabel('./reconfig.sh ' + self.config)
+        bash_label.setStyleSheet('font-weight: bold')
+        bash_label.setFont(qg.QFont('Courier New', 10))
+        self.main_layout.addWidget(bash_label)
+        self.txt = qw.QLabel()
+        self.txt.setFont(qg.QFont('Courier New', 10))
+        self.main_layout.addWidget(self.txt)
+        self.setLayout(self.main_layout)
+
+    def run(self):
+        p = Popen(['./reconfig.sh', self.config], stdout=PIPE)
+        line = p.stdout.readline()
+        while line:
+            self.txt.setText(line.decode())
+            qg.QGuiApplication.processEvents()
+            line = p.stdout.readline()
 
 class HelpWindow(qw.QWidget):
     def __init__(self):
