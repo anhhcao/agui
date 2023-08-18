@@ -23,6 +23,8 @@ class MainWindow(qw.QMainWindow):
         self.sliders = {}
         self.input={}
 
+        self.forced_slider = False
+
         self.initUI()
 
     # removes the trailing zeroes then the dot from a string float x, then returns an int
@@ -377,6 +379,7 @@ class MainWindow(qw.QMainWindow):
                 #creates a horizontal slider
                 init = float(e['value'])
                 label_slider = qw.QLineEdit(str(int(init) if init.is_integer() else init))
+                label_slider.textEdited.connect(lambda value, key=k: self.update_slider(value, key))
                 label_slider.setAlignment(qc.Qt.AlignRight)
                 label_slider.setFixedWidth(85)
                 # the label slider is unique to this slider
@@ -404,10 +407,26 @@ class MainWindow(qw.QMainWindow):
                 self.elmtlayout.addLayout(group_layout)
                 self.input[k] = label_slider
 
+    def update_slider(self, value, key):
+        try:
+            slider_info = self.sliders[key]
+            slider = slider_info['key']
+            minimum = slider.minimum()
+            maximum = slider.maximum()
+            fvalue = float(value) * slider_info['factor']
+            if minimum <= fvalue <= maximum:
+                self.forced_slider = True
+                slider.setValue(int(fvalue))
+        except:
+            pass
+
     def updateLabel(self, key, label, value):
-        slider_info = self.sliders[key]
-        scaled = value/slider_info['factor']
-        label.setText(str(int(scaled) if scaled.is_integer() else scaled))
+        if self.forced_slider:
+            self.forced_slider = False
+        else:
+            slider_info = self.sliders[key]
+            scaled = value/slider_info['factor']
+            label.setText(str(int(scaled) if scaled.is_integer() else scaled))
 
 class LoadingWindow(qw.QMainWindow):
     def __init__(self, cmd, tlim):

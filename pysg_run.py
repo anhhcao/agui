@@ -124,12 +124,11 @@ def build_layout(data, info):
             factor = max([1 if float(x) == 0 else round(rm_dot(x) / float(x)) for x in params])
             sliders[k] = {
                 'key':k+'_display',
-                'factor':factor,
-                'is_int':params[0].isdigit() and params[1].isdigit() and params[2].isdigit()
+                'factor':factor
             }
             #row.append(sg.Text(float(e['value']), key=sliders[k]['key'], background_color=bgstd))
             [minimum, maximum, increment, init] = [float(x) for x in params + [e['value']]]
-            row.append(sg.InputText(default_text=int(init) if sliders[k]['is_int'] else init, key=sliders[k]['key'], justification='right', size=(7, 0.75)))
+            row.append(sg.InputText(default_text=int(init) if init.is_integer() else init, key=sliders[k]['key'], justification='right', size=(7, 0.75), enable_events=True))
             # rm_dot only does anything significant if we are using qt
             slider = sg.Slider(
                 range=(int(factor * minimum), int(factor * maximum)),
@@ -339,9 +338,10 @@ def update(dat, window):
                     break
         elif t == 'SCALE':
             [m, M, _] = e['gparams'].split(':')
-            if float(m) < float(e['value']) < float(M): # only bother changing the slider if actually in range
-                window[k].update(value=int(sliders[k]['factor'] * float(e['value'])))
-            window[k+'_display'].update(value=int(float(e['value'])) if sliders[k]['is_int'] else e['value'])
+            value = float(e['value'])
+            if float(m) < value < float(M): # only bother changing the slider if actually in range
+                window[k].update(value=int(sliders[k]['factor'] * value))
+            window[k+'_display'].update(value=str(int(value) if value.is_integer() else value))
         else:
             window[k].update(value=e['value'])
 
@@ -351,6 +351,8 @@ with open(args.file) as file:
 while lines:
     # parse the input files
     data, info, type = parse(lines, silent=True)
+
+    forced_slider = False
 
     sg.theme('Default1')
 
@@ -389,12 +391,11 @@ while lines:
                 # update the slider display
                 slider_info = sliders[slider_key]
                 value = raw_value / slider_info['factor']
-                window[slider_info['key']].update(int(value) if slider_info['is_int'] else value)
+                window[slider_info['key']].update(int(value) if value.is_integer() else value)
 
     # primary event loop
     while True:
         event, values = window.read()
-
         if event == sg.WIN_CLOSED or event in ('Quit', 'Close', 'Close All Plots'):
             if event == 'Close All Plots':
                 for plot in plots: # inefficient
@@ -430,7 +431,18 @@ while lines:
         elif event in sliders:
             slider_info = sliders[event]
             value = values[event] / slider_info['factor']
-            window[slider_info['key']].update(int(value) if slider_info['is_int'] else value)
+            window[slider_info['key']].update(int(value) if value.is_integer() else value)
+        elif '_display' in event:
+            try:
+                key = event[:-8]
+                slider = window[key]
+                value = float(values[event]) * sliders[key]['factor']
+                m, M = slider.Range
+                if m <= value <= M:
+                    forced_slider = True
+                    slider.update(int(value) if value.is_integer() else value)
+            except:
+                pass
         elif event == 'View File':
             view_file()
             if lines:
