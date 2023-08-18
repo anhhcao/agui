@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-import typing
 from PyQt5 import QtWidgets as qw, QtGui as qg
 from argparse import ArgumentParser
 from json import load
