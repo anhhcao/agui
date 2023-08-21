@@ -83,21 +83,21 @@ anaconda3:
 tkrun:
 	git clone $(URL4)
 
-## build:         build athenak
-build:	athenak
+## build_athenak:  build athenak
+build_athenak:	athenak
 	(mkdir -p athenak/build; cd athenak/build; cmake ..; make -j 4)
 
-## build_athena   build athena++ for the linear_wave problem
+## build_athena    build athena++ for the linear_wave problem
 build_athena: athena
 	(cd athena; ./configure.py --prob linear_wave; make clean; make -j)
 
-## build_athenac  build AthenaC for the linear_wave problem
+## build_athenac   build AthenaC for the linear_wave problem
 build_athenac: athenac
 	(cd athenac; autoconf;  ./configure; make all)
 
-## build_nemo:    build nemo - will build tkrun
+## build_nemo:     build nemo - will also build classic tkrun
 build_nemo:	nemo
-	(cd nemo; ./configure ; make build check bench5)
+	(cd nemo; ./configure ; make build check)
 
 # a few sample runs
 
@@ -107,7 +107,7 @@ run1:
 	@echo ./animate1 base=run1/tab/LinWave xcol=x1v ycol=velx
 	# -> LinWave.hydro_w.00000.tab
 
-## run1:          example advect_hyd
+## run2:          example advect_hyd
 run2:
 	$(ATHENA) -i athenak/inputs/tests/advect_hyd.athinput        -d run2
 	@echo ./animate1 base=run2/tab/Advect xcol=x1v ycol=dens
@@ -144,15 +144,16 @@ run8:
 
 
 #  We use past tense for old versions of athena :-)
-#  ran1 and ran2 are made by ATHENA++
+##  ran1 and ran2 are made by ATHENA++
 #  ran3 by good old AthenaC
+## ran1:          example athena++ linear_wave1d in vtk format
 ran1: athena
-	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ../ran1)
+	athena/bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ran1
 	@echo Results in ran1
 
 ## ran2:          example athena++ linear_wave1d needed by some tests - will also build athena++
 ran2: athena
-	(cd athena; bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ../ran2 output2/file_type=tab)
+	athena/bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ran2 output2/file_type=tab
 	@echo Results in ran2
 
 ## ran3:          example AthenaC linear_wave1d needed by some tests - will also build athenac
