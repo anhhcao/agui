@@ -85,7 +85,7 @@ tkrun:
 
 ## build_athenak:  build athenak
 build_athenak:	athenak
-	(mkdir -p athenak/build; cd athenak/build; cmake ..; make -j 4)
+	(mkdir -p athenak/build; cd athenak/build; cmake ..; make -j 8)
 
 ## build_athena    build athena++ for the linear_wave problem
 build_athena: athena
@@ -98,6 +98,9 @@ build_athenac: athenac
 ## build_nemo:     build nemo - will also build classic tkrun
 build_nemo:	nemo
 	(cd nemo; ./configure ; make build check)
+
+## build_python:    build your private anaconda3
+build_python:	python
 
 # a few sample runs
 
