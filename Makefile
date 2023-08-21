@@ -207,10 +207,11 @@ test11:
 test12:
 	./pyqt_run.py athinput.linear_wave1d
 
-## test13:        pyqg, athena style
+## test13:        pysg, athena style
 test13: athena_problems.json
 	./pysg_menu.py
 
+## test14:        pyqt, athena style
 test14: athena_problems.json
 	./pyqt_menu.py
 
