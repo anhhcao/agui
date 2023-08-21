@@ -192,9 +192,19 @@ delay = 100 / 1000
 # getting the variable names
 with open(f[0]) as file:
     file.readline()
-    variables = file.readline().split()[2:]
+    # regular tab file have as 2nd line
+    # i       x1v         rho ...               for athena
+    # gid   i       x1v         dens ...        for athenak
+    line2 = file.readline()
+    variables = line2.split()[1:]
+
+    # history files have as 2nd line
+    # [1]=time      [2]=dt       [3]=mass ...
+    # @todo  AthenaC has spaces in the column names, would need a different parsers
     if args.hst:
+        print("DEBUG hst",line2)
         variables = [v.split('=')[1] for v in variables]
+    print("tab variables detected:",variables)
 
 var_len = len(variables)
 
@@ -221,10 +231,12 @@ rbot = (bottom + top - rheight) / 2
 
 rax = fig.add_axes([rdleft, rbot, rwidth, rheight])
 
+# @todo   label_props and radio_props don't appear until python 3.10.x 
+
 radio = RadioButtons(rax, 
                      tuple(variables), 
-                     # label_props={'color': ['white' for _ in variables]},
-                     # radio_props={'color': ['#1f77b4' for _ in variables], 'edgecolor': ['black' for _ in variables]}
+                     label_props={'color': ['white' for _ in variables]},
+                     radio_props={'color': ['#1f77b4' for _ in variables], 'edgecolor': ['black' for _ in variables]}
                      )
 rax.axis('off') # removes the border around the radio buttons
 radio.on_clicked(select_h)
@@ -236,7 +248,8 @@ rax.text(0.055, 0.05, 'Y')
 rax = fig.add_axes([rdleft + 0.015, rbot, 0.25, rheight])
 radio2 = RadioButtons(rax, 
                       tuple(variables), 
-                      radio_props={'color': ['#1f77b4' for _ in variables], 'edgecolor': ['black' for _ in variables]})
+                      radio_props={'color': ['#1f77b4' for _ in variables], 'edgecolor': ['black' for _ in variables]}
+                      )
 rax.axis('off')
 radio2.on_clicked(select_v)
 
