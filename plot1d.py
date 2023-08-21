@@ -187,7 +187,7 @@ if args.hst:
     bottom = 0.1
 
 # the time in seconds between frames
-delay= 100 / 1000
+delay = 100 / 1000
 
 # getting the variable names
 with open(f[0]) as file:
@@ -224,7 +224,8 @@ rax = fig.add_axes([rdleft, rbot, rwidth, rheight])
 radio = RadioButtons(rax, 
                      tuple(variables), 
                      # label_props={'color': ['white' for _ in variables]},
-                     radio_props={'color': ['#1f77b4' for _ in variables], 'edgecolor': ['black' for _ in variables]})
+                     # radio_props={'color': ['#1f77b4' for _ in variables], 'edgecolor': ['black' for _ in variables]}
+                     )
 rax.axis('off') # removes the border around the radio buttons
 radio.on_clicked(select_h)
 
