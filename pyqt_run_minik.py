@@ -175,7 +175,7 @@ class MainWindow(qw.QMainWindow):
     def run(self, odir_input, plot):
         #print('run')
         #cmd = f'{athena} -i {args.file} -d {odir_input.text()} output2/file_type=tab '
-        cmd = f'{athena} -i {args.file} -d {odir_input.text()} <'
+        cmd = f'{athena} -i {args.file} -d {odir_input.text()} '
 
         for k in self.data:
             e = data[k]
