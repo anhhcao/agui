@@ -15,13 +15,13 @@ x1max     = 3.0        # maximum value of X1
 ix1_bc    = periodic   # inner-X1 boundary flag
 ox1_bc    = periodic   # outer-X1 boundary flag
 
-nx2       = 32         # Number of zones in X2-direction    #> RADIO 1,16,32,64,128,256
+nx2       = 1          # Number of zones in X2-direction    #> RADIO 1,16,32,64,128,256
 x2min     = 0.0        # minimum value of X2
 x2max     = 1.5        # maximum value of X2
 ix2_bc    = periodic   # inner-X2 boundary flag
 ox2_bc    = periodic   # outer-X2 boundary flag
 
-nx3       = 32         # Number of zones in X3-direction    #> RADIO 1,16,32,64,128,256
+nx3       = 1          # Number of zones in X3-direction    #> RADIO 1,16,32,64,128,256
 x3min     = 0.0        # minimum value of X3
 x3max     = 1.5        # maximum value of X3
 ix3_bc    = periodic   # inner-X3 boundary flag
@@ -29,8 +29,8 @@ ox3_bc    = periodic   # outer-X3 boundary flag
 
 <meshblock>
 nx1       = 64         # Number of cells in each MeshBlock, X1-dir
-nx2       = 32         # Number of cells in each MeshBlock, X2-dir
-nx3       = 32         # Number of cells in each MeshBlock, X3-dir
+nx2       = 32         # Number of cells in each MeshBlock, X2-dir      #> RADIO 1,16,32,64,128,256
+nx3       = 32         # Number of cells in each MeshBlock, X3-dir      #> RADIO 1,16,32,64,128,256
 
 <time>
 evolution  = dynamic   # dynamic/kinematic/static
@@ -48,9 +48,9 @@ gamma       = 1.66666666667   # gamma = C_p/C_v
 
 <problem>
 pgen_name = linear_wave # problem generator name
-wave_flag = 0           # Wave family number ([0-4] for adiabatic hydro, [0-6] for MHD)
-amp       = 1.0e-3      # Wave Amplitude
-vflow     = 0.0         # background flow velocity
+wave_flag = 0           # Wave family number ([0-4] for adiabatic hydro, [0-6] for MHD)   #> RADIO  0,1,2,3,4,5,6
+amp       = 1e-3        # Wave Amplitude                                                  #> RADIO  1e-4,1e-3,1e-2,0.1,0.2,0.3,0.4,0.5
+vflow     = 0.0         # background flow velocity                                        #> SCALE  0:1:0.05
 along_x1  = false       # set to 'true' for wave along x1-axis
 along_x2  = false       # set to 'true' for wave along x2-axis
 along_x3  = false       # set to 'true' for wave along x3-axis
