@@ -1,12 +1,17 @@
 # Developing an Athena GUI (AGUI)
 
-We show some examples of executing **athena** using a dynamic GUI.  In
-theory this could apply to any of the
+This is the development verson of **agui**, not to be confused with
+the public version that only works with "*mini-athenak*" that
+is being extracted from this during the Aug 21-25 week at IAS.
+
+Here show some examples of executing **athena** using a dynamic GUI.
+nIn theory this could apply to any of the
 [Athena](https://www.athena-astro.app/) family (athena [AC], athena++
 [AX], or athenak [AK]). It is easiest to work with **athenak**, since
 all the problems are compiled into one executable. We cover some
 examples of athena++ below as well, since at the moment athenak is not
-yet public.
+yet public. For good historic measure, classic athenaC is also
+available.
 
 
 Related and inspired by is NEMO's **tkrun** and **run** frontends,
@@ -14,8 +19,68 @@ but we aim to use python based software here. The GUI directive we
 are proposing are an updated version of the one that was used in
 [tkrun](https://teuben.github.io/nemo/man_html/tkrun.l.html)
 
+## Quick Start Guide
 
-## Example (athenak) 
+This **agui** is a convenience repo that can contain all dependant
+repos (athenac, athena, athenak and nemo). First get **agui**:
+
+      git clone https://github.com/teuben/agui
+      cd agui
+
+after which any of the components can be built, or pick the one you want to focus on:
+
+      make build_athenac
+      make build_athena
+      make build_athenak
+      make build_nemo
+      make build_python
+
+For some systems you may need to install additional software, which are assembled
+in the **requirement** files, e.g.
+
+### for Ubuntu Linux:
+
+      sudo apt install $(grep -v ^# requirements.apt)
+
+### for Redhat style Linux:
+
+      sudo dnf install $(grep -v ^# requirements.dnf)
+
+### for a Mac with brew:
+
+      brew install $(grep -v ^# requirements.brew)
+
+### for python (which should apply to any)
+
+      pip install -r requirements.txt
+
+How the user sets up python could be covered in a separate document. We do mention
+the **build_python** target listed before, which sets up a personal anaconda3 tree
+in this directory, but needs an additional
+
+      source anaconda3/python_start.sh
+
+to be activated in your shell.
+
+
+### Method-1:  using pyqt (the preferred method)
+
+Using native Qt is probably our preferred method of using the GUI, viz.
+
+      ./pyqt_menu.py
+
+should show a  GUI where to select an athinput file. Everything should guide itself.
+
+### Method-2:  using pysg
+
+pySimpleGui (pysg) is an alternative method where you can pick the GUI from "qt" or "tkinter",
+and actually two more we didn't play with. Here you would start with
+
+      ./pysq_menu.py
+
+and again, since it's a GUI, things should guide itself.
+
+## Detailed Example (athenak) 
 
 Using **athenak** is preferred, as it has *all* problems compiled
 into one executable. Examples  using **athena++** can be found below.
@@ -72,7 +137,7 @@ build/src/athena -i inputs/hydro/viscosity.athinput         -d run8
 ```
 
 
-## Example (athena++) using Linear Wave
+## Detailed Example (athena++) using Linear Wave
 
 First we grab and compile the code for the linear wave problem
 
