@@ -87,6 +87,11 @@ tkrun:
 build_athenak:	athenak
 	(mkdir -p athenak/build; cd athenak/build; cmake ..; make -j 8)
 
+
+B_ARM = 
+arm:	athenak
+	(mkdir -p athenak/build; cd athenak/build; cmake $(B_ARM) ..; make -j 8)	
+
 ## build_athena    build athena++ for the linear_wave problem
 build_athena: athena
 	(cd athena; ./configure.py --prob linear_wave; make clean; make -j)
@@ -218,6 +223,10 @@ test13: athena_problems.json
 ## test14:        pyqt, athena style
 test14: athena_problems.json
 	./pyqt_menu.py
+
+## test15:	  miniki version
+test15:
+	./pyqt_menu_minik.py
 
 athena_problems.json:
 	./write_problems.py
