@@ -3,6 +3,7 @@ import os
 from PyQt5 import QtCore, QtWidgets
 import argparse
 import re
+import subprocess
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -58,9 +59,12 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def run(self):
         contents = self.gatherData()
+        param = ""
         for line in contents:
             for key, value in line.items():
-                print(f"{key}={','.join(value)}")
+                param += f"{key}={value} "
+        print(param.split())
+        subprocess.run([self.param_file_type, self.param_file] + param.split())
     
     def save(self):
         contents = self.gatherData()
@@ -70,19 +74,7 @@ class MainWindow(QtWidgets.QMainWindow):
             with open(file_path, "w") as file:
                 for line in contents:
                     for key, value in line.items():
-                        if self.param_file_type == 'csh':
-                            file.write("set ")
-
-                        file.write(f"{key}=")
-                        
-                        if self.param_file_type == 'py':
-                            file.write('"')
-
-                        file.write(f"{','.join(value)}")
-
-                        if self.param_file_type == 'py':
-                            file.write('"')
-
+                        file.write(f"{key}={value}")
                     file.write("\n")
             print("saved to " + file_path)
     
@@ -100,7 +92,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if self.param_file_type == 'csh':
                         line = re.sub("set","",line,count=1)
                     label, value = line.strip().split("=")
-                    if value.startswith('"') and value.endswith('"'):
+                    if value.startswith('"') and value.endswith('"') or value.startswith("'") and value.endswith("'"):
                         value = value[1:-1]
                     value = value.split(",") if "," in value else [value]
                     default_values[label] = value
@@ -269,27 +261,38 @@ class MainWindow(QtWidgets.QMainWindow):
                     
                     if widget_index == 0 and isinstance(widget, QtWidgets.QLabel):
                         key = widget.text().split(':')[0]
+                        if self.param_file_type == "csh":
+                            key = "set " + key
                         defaults[key] = []
 
                     elif isinstance(widget, QtWidgets.QLineEdit):
-                        defaults[key].append(widget.text())
+                        value = widget.text()
+                        defaults[key].append(value)
 
                     elif isinstance(widget, QtWidgets.QRadioButton) or isinstance(widget, QtWidgets.QCheckBox):
                         if widget.isChecked():
-                            defaults[key].append(widget.text())
+                            value = widget.text()
+                            defaults[key].append(value)
 
                     elif isinstance(widget, QtWidgets.QSlider):
                         multiplier = self.sliderMultiplier.pop(0)
-                        defaults[key].append(str(widget.value()/multiplier))
+                        value = str(widget.value()/multiplier)
+                        defaults[key].append(value)
                         self.sliderMultiplier.append(multiplier)
+
+                values = defaults[key]
+                values = ','.join(values)
                 
+                if self.param_file_type == "python":
+                    defaults[key] = "'" + values + "'"
+                else:
+                    defaults[key] = values
                 layout_data.append(defaults)
         return layout_data
 
 def parsefile(file):
     filetype = "sh"
     with open(file, "r") as f:
-        # content = file.read()
         lines = f.readlines()
 
     groups = []
@@ -306,13 +309,13 @@ def parsefile(file):
         if match:
             if match.group(1):
                 filetype = "csh"
-            group_type = match.group(5)
-            group_name = match.group(2)
+            group_type = match.group(5).strip()
+            group_name = match.group(2).strip()
             default_option = match.group(3).strip()
             #check for quotations
-            if default_option[0] == '"' and default_option[-1] == '"':
+            if (default_option[0] == '"' and default_option[-1] == '"') or (default_option[0] == "'" and default_option[-1] == "'"):
                 default_option = default_option[1:-1]
-                filetype = "py"
+                filetype = "python"
             options = match.group(7).split(',') if match.group(7) else ""
             help = match.group(4).split('#')[1].strip() if match.group(4) else ""
             groups.append((group_type, group_name, options, default_option, help))
