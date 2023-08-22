@@ -274,8 +274,8 @@ if not args.hst:
         ax=fig.add_axes([0.18, 0.05, 0.65, 0.03]),
         label='Delay (ms)',
         valmin=1,
-        valmax=1000,
-        valinit=100,
+        valmax=100,
+        valinit=10,
     )
 
     delay_slider.on_changed(update_delay)
