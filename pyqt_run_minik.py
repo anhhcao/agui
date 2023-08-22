@@ -50,11 +50,11 @@ class MainWindow(qw.QMainWindow):
         # run, save, load, quit, help buttons -> located in a toolbar
         toolbar = self.addToolBar("ToolBar")
 
-        run_action = qw.QAction('Output', self)
-        run_action.setToolTip('Output the command the would be ran when plotted')
-
         plot_action = qw.QAction('Run', self)
         plot_action.setToolTip('Run minik and Plot the output of the command ran under these configurations')
+
+        run_action = qw.QAction('Dryrun', self)
+        run_action.setToolTip('Output the command the would be ran when run')
 
         edit_action = qw.QAction('Edit', self)
         edit_action.setToolTip('Open the input file for editing')
@@ -68,9 +68,10 @@ class MainWindow(qw.QMainWindow):
         quit_action = qw.QAction('Quit', self)
         quit_action.setToolTip('Exits the application')
 
-        toolbar.addAction(run_action)
-        toolbar.addSeparator()
+
         toolbar.addAction(plot_action)
+        toolbar.addSeparator()
+        toolbar.addAction(run_action)        
         toolbar.addSeparator()
         toolbar.addAction(edit_action)
         toolbar.addSeparator()
