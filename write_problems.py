@@ -1,9 +1,18 @@
 #! /usr/bin/env python
+import sys
 from re import match
 from aparser import parse_generic as parse
 import json
 
-file = open('inputs.txt', 'r')
+ofile ="athena_problems.json"
+
+if len(sys.argv) > 1:
+    ifile = sys.argv[1]
+else:
+    ifile = 'inputs.txt'
+    
+file = open(ifile, 'r')
+print("input: ",ifile)
 
 line = file.readline()
 
@@ -33,7 +42,8 @@ while line:
 json_object = json.dumps(dict, indent=3)
  
 # Writing to sample.json
-with open("athena_problems.json", "w") as outfile:
+with open(ofile, "w") as outfile:
     outfile.write(json_object)
 
 file.close()
+print("output:",ofile)
