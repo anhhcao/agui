@@ -23,9 +23,16 @@ args = argparser.parse_args()
 with open('athena_problems.json') as problems_json:
     problems = load(problems_json)
 
-athena_problems = list(problems['athena'])
-athenac_problems = list(problems['athenac'])
-athenak_problems = list(problems['athenak'])
+
+athena_problems = list([])
+athenac_problems = list([])
+athenak_problems = list([])
+if 'athena' in problems:
+    athena_problems = list(problems['athena'])
+if 'athenac' in problems:
+    athenac_problems = list(problems['athenac'])
+if 'athenak' in problems:    
+    athenak_problems = list(problems['athenak'])
 
 class MainWindow(qw.QMainWindow):
     def __init__(self):
