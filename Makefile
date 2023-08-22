@@ -18,6 +18,7 @@ GIT_DIRS = athena athenak
 URL0  = https://github.com/teuben/Athena-Cversion
 URL1  = https://github.com/PrincetonUniversity/athena
 URL2  = https://gitlab.com/theias/hpc/jmstone/athena-parthenon/athenak
+URL2  = https://gitlab.com/theias/hpc/jmstone/athena-parthenon/athena-mini-k
 URL3  = https://github.com/teuben/nemo
 URL4  = https://github.com/teuben/tkrun
 URL5a = https://github.com/teuben/agui
@@ -70,7 +71,7 @@ athena:
 	$(MAKE) build_athena
 
 athenak:
-	git clone --recursive $(URL2)
+	git clone --recursive $(URL2) athenak
 
 nemo:
 	git clone $(URL3)
