@@ -112,51 +112,21 @@ build_python:  python
 
 ##
 
-## run1:          example linear_wave_hydro (athenak)
+## run1:          example 1D linear_wave_hydro (athenak)   [ < 1sec  1069 cycles]
 run1:
-	$(ATHENA) -i athenak/inputs/tests/linear_wave_hydro.athinput -d run1
+	$(TIME) $(ATHENA) -i linear_wave_hydro.athinput -d run1
 	@echo ./animate1 base=run1/tab/LinWave xcol=x1v ycol=velx
-	# -> LinWave.hydro_w.00000.tab
 
-## run2:          example advect_hyd (athenak)
+## run2:          example 2D orszag_tang (athenak) [ ~109"  1403 cycles]
 run2:
-	$(ATHENA) -i athenak/inputs/tests/advect_hyd.athinput        -d run2
+	$(TIME) $(ATHENA) -i orszag_tang.athinput      -d run2
 	@echo ./animate1 base=run2/tab/Advect xcol=x1v ycol=dens
-	# -> Advect.hydro_u.00000.tab
 
-run3:
-	$(ATHENA) -i athenak/inputs/tests/advect_mhd.athinput        -d run3
-	#  -> Advect.mhd_u.00000.tab
-
-run4:
-	$(ATHENA) -i athenak/inputs/tests/hohlraum_1d.athinput       -d run4
-	#  -> hohlraum_1d.rad_coord.00000.tab  
-
-run5:
-	$(ATHENA) -i athenak/inputs/tests/rad_linwave.athinput       -d run5
-	# -> rad_linwave.hydro_w.*.tab
-	# -> rad_linwave.rad_coord.*.tab
-
-run6:
-	$(ATHENA) -i athenak/inputs/hydro/sod.athinput               -d run6
-	# -> Sod.hydro_w.00000.tab
-	#   base=run6/tab/Sod  xcol=3 ycol=4
-	#   base=run6/tab/Sod  xcol=3 ycol=5
-	#   base=run6/tab/Sod  xcol=3 ycol=6
-
-run7:
-	$(ATHENA) -i athenak/inputs/hydro/shu_osher.athinput         -d run7
-	#   THIS IS A KNOWN ERROR
-
-run8:
-	$(ATHENA) -i athenak/inputs/hydro/viscosity.athinput         -d run8
-	#   ViscTest.hydro_w.00000.tab 
-	#   base=run8/tab/ViscTest xcol=3 ycol=6
 
 
 #  We use past tense for old versions of athena :-)
 ##  ran1 and ran2 are made by ATHENA++
-#  ran3 by good old AthenaC
+##  ran3 by good old AthenaC
 ## ran1:          example athena++ linear_wave1d in vtk format
 ran1: athena
 	athena/bin/athena  -i inputs/hydro/athinput.linear_wave1d  -d ran1
