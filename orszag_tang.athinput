@@ -35,16 +35,16 @@ nx3       = 1         # Number of cells in each MeshBlock, X3-dir
 <time>
 evolution  = dynamic   # dynamic/kinematic/static
 integrator = rk3       # time integration algorithm
-cfl_number = 0.4       # The Courant, Friedrichs, & Lewy (CFL) Number
+cfl_number = 0.4       # The Courant, Friedrichs, & Lewy (CFL) Number         #> SCALE 0:1.2:0.1
 nlim       = -1        # cycle limit
-tlim       = 1.0       # time limit
+tlim       = 1.0       # time limit                                           #> SCALE 1:100:1
 ndiag      = 1         # cycles between diagostic output
 
 <mhd>
 eos         = ideal     # EOS type
 reconstruct = ppm4      # spatial reconstruction method
 rsolver     = hlld      # Riemann-solver to be used
-gamma       = 1.666666667     # gamma = C_p/C_v
+gamma       = 1.666666667     # gamma = C_p/C_v                               #> SCALE 0.1:2.0:0.05
 
 # Note: OT pgen does not read any parameters from input file
 <problem>
@@ -60,7 +60,7 @@ file_type   = tab       # Tabular data dump
 variable    = mhd_w_bcc # variables to be output
 data_format = %12.5e    # Optional data format string
 dt          = 0.01      # time increment between outputs
-slice_x2    = 0.0       # slice in x2
+slice_x2    = 0.0       # slice in x2                                         #> SCALE -0.5:0.5:0.1
 slice_x3    = 0.0       # slice in x3
 ghost_zones = false     # switch to output ghost cells
 
@@ -68,3 +68,4 @@ ghost_zones = false     # switch to output ghost cells
 file_type  = bin       # binary data dump
 variable   = mhd_w_bcc # variables to be output
 dt         = 0.01      # time increment between outputs
+
