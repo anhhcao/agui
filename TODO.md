@@ -26,11 +26,22 @@ Stating perhaps the obvious, the different GUIs all have their own issues. Here 
 
 # Python versions
 
-The latest nuisance is the label_props= and radio_props= arguments to matplotlib.widgets.RadioButtons()
-but also with a missing module pyparsing. Here's a summary of older versions of python that gave us
-trouble:
+A recent nuisance is the label_props= and radio_props= arguments to
+matplotlib.widgets.RadioButtons(), introduces in matplotlib 3.7.0, but
+also with a missing module pyparsing. They can usually be solved by
+updating your modules in your python, viz.
 
-     ubuntu 22.04           3.10.12    ok
-     anaconda3 2023.07-2    3.11.4     ok
-     anaconda3 2023.03-1    3.10.12    No module named 'pyparsing' 
-     anaconda3 2022.10      3.9.13     unexpected keyword argument 'label_props'
+     pip install --upgrade matplotlib
+     
+Here's a summary of older versions of python that gave us trouble:
+
+     ubuntu 22.04           3.10.12    3.7.2      ok
+     ubuntu 22.04           3.10.12    3.5.1      unexpected keyword argument 'label_props'
+     anaconda3 2023.07-2    3.11.4     3.7.1      ok
+     anaconda3 2023.03-1    3.10.12               No module named 'pyparsing' - broken release?
+     anaconda3 2022.10      3.9.13     3.5.2      unexpected keyword argument 'label_props'
+
+where versions can be retrieved as follows:
+
+     python --version
+     python -c 'import matplotlib as m; print(m.__version__)'
