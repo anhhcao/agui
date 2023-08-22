@@ -5,6 +5,14 @@
   test13:   pysq version
 
 
+- better detect what's available (tab, vtk, bin)
+  - use the -d flag in plot1.py for directory, it should auto-detect *.tab or tab/*.tab
+  - use vtk reader to grab vtk files (1d and 2d)
+  - use bin reader (can do AMR, where vtk cannot)
+
+-
+
+
 # Features
 
 Stating perhaps the obvious, the different GUIs all have their own issues. Here is the current GUI list
@@ -32,6 +40,10 @@ also with a missing module pyparsing. They can usually be solved by
 updating your modules in your python, viz.
 
      pip install --upgrade matplotlib
+
+or
+
+     pip install -r requirements.txt
      
 Here's a summary of older versions of python that gave us trouble. Again, the solution
 could we be to just update matplotlib.
