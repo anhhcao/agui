@@ -30,7 +30,13 @@ The latest nuisance is the label_props= and radio_props= arguments to matplotlib
 but also with a missing module pyparsing. Here's a summary of older versions of python that gave us
 trouble:
 
-     ubuntu 22.04           3.10.12    ok
-     anaconda3 2023.07-2    3.11.4     ok
-     anaconda3 2023.03-1    3.10.12    No module named 'pyparsing' 
-     anaconda3 2022.10      3.9.13     unexpected keyword argument 'label_props'
+
+                                       python -c 'import matplotlib; print(matplotlib.__version__)'
+
+     distro:                python:    mpl:     comments
+     -------------------    -------    -----    --------
+     ubuntu 22.04           3.10.12    3.7.2    ok
+     anaconda3 2023.07-2    3.11.4              ok
+     anaconda3 2023.03-1    3.10.12             No module named 'pyparsing'
+     ?                      3.10.9     3.7.2    ok
+     anaconda3 2022.10      3.9.13              unexpected keyword argument 'label_props'
