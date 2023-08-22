@@ -101,21 +101,23 @@ build_athenac: athenac
 	(cd athenac; autoconf;  ./configure; make all)
 
 ## build_nemo:     build nemo - will also build classic tkrun
-build_nemo:	nemo
+build_nemo:    nemo
 	(cd nemo; ./configure ; make build check)
 
 ## build_python:    build your private anaconda3
-build_python:	python
+build_python:  python
 
 # a few sample runs
 
-## run1:          example linear_wave_hydro
+##
+
+## run1:          example linear_wave_hydro (athenak)
 run1:
 	$(ATHENA) -i athenak/inputs/tests/linear_wave_hydro.athinput -d run1
 	@echo ./animate1 base=run1/tab/LinWave xcol=x1v ycol=velx
 	# -> LinWave.hydro_w.00000.tab
 
-## run2:          example advect_hyd
+## run2:          example advect_hyd (athenak)
 run2:
 	$(ATHENA) -i athenak/inputs/tests/advect_hyd.athinput        -d run2
 	@echo ./animate1 base=run2/tab/Advect xcol=x1v ycol=dens
@@ -167,6 +169,10 @@ ran2: athena
 ## ran3:          example AthenaC linear_wave1d needed by some tests - will also build athenac
 ran3: athenac
 	athenac/bin/athena  -i athenac/tst/1D-hydro/athinput.linear_wave1d  -d ran3
+
+
+
+## 
 
 test0:
 	./z1.sh
@@ -224,7 +230,7 @@ test13: athena_problems.json
 test14: athena_problems.json
 	./pyqt_menu.py
 
-## test15:	  miniki version
+## test15:        miniki version
 test15:
 	./pyqt_menu_minik.py
 
