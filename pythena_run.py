@@ -177,6 +177,10 @@ class MainWindow(qw.QMainWindow):
     
     def run(self, odir_input, plot):
         #print('run')
+        cmd = f'cp {args.file} {odir_input.text()}'
+        print(cmd)
+        Popen(cmd.split())
+        
         #cmd = f'{athena} -i {args.file} -d {odir_input.text()} output2/file_type=tab '
         cmd = f'{athena} -i {args.file} -d {odir_input.text()} '
 
@@ -199,6 +203,10 @@ class MainWindow(qw.QMainWindow):
                 cmd += '%s=%s ' % (k, self.input[k].text())
 
         print(cmd)
+        hname = f'{odir_input.text()}/cmd'
+        with open(hname, 'w') as file:
+                file.write(cmd)
+        
         if plot:
             if not path.exists(athena):
                 print('Athena not found\nExiting')
