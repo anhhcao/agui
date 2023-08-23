@@ -25,6 +25,7 @@ URL4  = https://github.com/teuben/tkrun
 URL5a = https://github.com/teuben/agui
 URL5b = https://github.com/anhhcao/agui
 URL5c = https://github.com/KylieGong/agui
+URL6  = https://github.com/teuben/pyThena
 
 # the ATHENA executable (from athena or athenak)
 # ATHENA = athena/bin/athena
@@ -225,3 +226,10 @@ agui_a:
 
 agui_k:
 	git clone $(URL5c) agui_k
+
+# testing a pyThena from scratch:
+
+pythena:
+	rm -rf pyThena
+	git clone $(URL6)
+	(cd pyThena; make build_athenak; make run1; make test1)
