@@ -57,6 +57,10 @@ class MainWindow(qw.QMainWindow):
         quit_action.triggered.connect(self.quit)
         toolbar.addAction(quit_action)
 
+        def browse(t):
+            file = qw.QFileDialog.getOpenFileName(self, "Select File", "")[0]
+            t.setText(file)
+
         if False:
             label = qw.QLabel('Athena Version: [deprecating]')
             radio_layout.addWidget(label)
@@ -81,9 +85,6 @@ class MainWindow(qw.QMainWindow):
             label.setStyleSheet("font-weight: bold")
             btn = qw.QPushButton(self)
             btn.setText("browse")
-            def browse(t):
-                file = qw.QFileDialog.getOpenFileName(self, "Select File", "")[0]
-                t.setText(file)
             self.exe = qw.QLineEdit(self)
             btn.clicked.connect(lambda: browse(self.exe))
             self.exe.setFixedWidth(250)
