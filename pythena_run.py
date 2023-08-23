@@ -203,7 +203,7 @@ class MainWindow(qw.QMainWindow):
                 cmd += '%s=%s ' % (k, self.input[k].text())
 
         print(cmd)
-        hname = f'{odir_input.text()}/cmd'
+        hname = f'{odir_input.text()}/history'
         with open(hname, 'w') as file:
                 file.write(cmd)
         
