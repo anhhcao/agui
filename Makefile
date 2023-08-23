@@ -203,7 +203,7 @@ test14: athena_problems.json
 
 ## test15:        miniki version
 test15:
-	./pyqt_menu_minik.py
+	./pythena.py
 
 athena_problems.json:
 	./write_problems.py
