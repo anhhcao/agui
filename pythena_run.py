@@ -206,7 +206,7 @@ class MainWindow(qw.QMainWindow):
             # remove the forward slash at the end if there is one
             odir = odir_input.text()
             # create odir (including intermediaries if needed)
-            os.makedirs(odir)
+            os.makedirs(odir,exist_ok=True)
             if odir[-1] == '/':
                 odir = odir[:-1]
             # remove the hst file since it always gets appended to
