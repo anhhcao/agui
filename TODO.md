@@ -6,11 +6,23 @@
 
 
 - better detect what's available (tab, vtk, bin)
-  - use the -d flag in plot1.py for directory, it should auto-detect *.tab or tab/*.tab
-  - use vtk reader to grab vtk files (1d and 2d)
+  - use the -d flag in plot1.py for directory, it should auto-detect *.tab or tab/*.tab  (same for bin)
+  - use vtk reader to grab vtk files (1d and 2d)  [use bin]
   - use bin reader (can do AMR, where vtk cannot)
+  - use basename after the problem set, and then run1, run2, ..... inside of those?
+    - the startup tool could look inside the problem run directories
+  
 
--
+
+# Older software
+
+Awkward to use, but here it is:
+
+      ./plot_tab.py  -i tab/LinWave.hydro_w.00000.tab  -n 100 -v dens
+
+and for 2D:
+
+      ./plot_slice.py run2/bin/OrszagTang.mhd_w_bcc.00001.bin dens show --notex
 
 
 # Features
