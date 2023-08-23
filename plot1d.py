@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import RadioButtons, Button, Slider, CheckButtons, TextBox
 from argparse import ArgumentParser
 import glob
+import os
 import matplotlib.style as mplstyle
 mplstyle.use(['ggplot', 'fast'])
 
@@ -154,15 +155,22 @@ def mouse_moved(e):
         resume()
 
 argparser = ArgumentParser(description='plots the athena tab files specified')
-argparser.add_argument('-d', '--dir', help='the directory containing the tab files', required=True)
+argparser.add_argument('-d', '--dir', help='the athena run directory containing tab/ or *.tab files', required=True)
 argparser.add_argument('--hst', action='store_true', help='plots the hst file rather animating the tab files')
 argparser.add_argument('-n', '--name', help='name of the problem being plotted') # primarily just used by the other gui
 argparser.add_argument('-f', '--fix', action='store_true', help='fixes the x and y axes of the animation based on the animation\'s first frame')
 args = argparser.parse_args()
 
 # fnames='run1/tab/LinWave*tab'
-t = '/*hst' if args.hst else '/*tab' 
-f = glob.glob(args.dir + t)
+if args.hst:
+    f = glob.glob(args.dir + '/*.hst')
+else:
+    if os.path.exists(args.dir + '/tab'):
+        # athena++/athenak style
+        f = glob.glob(args.dir + '/tab/*.tab')
+    else:
+        # athenac style
+        f = glob.glob(args.dir + '/*.tab')
 f.sort()
 length = len(f)
 #print('DEBUG: %s has %d files' % (fnames,len(f)))
@@ -273,9 +281,9 @@ if not args.hst:
     delay_slider = Slider(
         ax=fig.add_axes([0.18, 0.05, 0.65, 0.03]),
         label='Delay (ms)',
-        valmin=1,
-        valmax=100,
-        valinit=10,
+        valmin=0,
+        valmax=20,
+        valinit=5,
     )
 
     delay_slider.on_changed(update_delay)
