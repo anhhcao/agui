@@ -203,18 +203,18 @@ class MainWindow(qw.QMainWindow):
                 cmd += '%s=%s ' % (k, self.input[k].text())
 
         print(cmd)
+        # create odir (including intermediaries if needed)
+        odir = odir_input.text()
+        os.makedirs(odir,exist_ok=True)
         hname = f'{odir_input.text()}/history'
         with open(hname, 'w') as file:
-                file.write(cmd)
+            file.write(cmd)
         
         if plot:
             if not path.exists(athena):
                 print('Athena not found\nExiting')
             # open the plot in a subprocess
             # remove the forward slash at the end if there is one
-            odir = odir_input.text()
-            # create odir (including intermediaries if needed)
-            os.makedirs(odir,exist_ok=True)
             if odir[-1] == '/':
                 odir = odir[:-1]
             # remove the hst file since it always gets appended to
