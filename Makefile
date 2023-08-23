@@ -89,7 +89,7 @@ build_athenak:	athenak
 	(mkdir -p athenak/build; cd athenak/build; cmake ..; make -j 8)
 
 
-B_ARM = 
+B_ARM = -D CMAKE_CXX_COMPILER=clang++-mp-15 -D CMAKE_C_COMPILER=clang-mp-15 -D Kokkos_ARCH_ARMV81=On
 arm:	athenak
 	(mkdir -p athenak/build; cd athenak/build; cmake $(B_ARM) ..; make -j 8)	
 
