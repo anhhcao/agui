@@ -40,7 +40,11 @@ and for 2D:
 
       ./plot_slice.py run2/bin/OrszagTang.mhd_w_bcc.00001.bin dens show --notex
 
-but this only brings up one plot, no animation. our plot2d should do that
+but this only brings up one plot, no animation. our plot2d should do that.
+
+And for hst files
+
+      ./plot_hst.py ./plot_hst.py  -i run2/OrszagTang.mhd.hst  -v dt
 
 
 # Features
