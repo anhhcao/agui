@@ -1,20 +1,31 @@
 # List of issues and todo's
 
-- option to integrate with a running athena.
-  test12:   pyqt version
-  test13:   pysq version
-
+- python vs. python3 (just a worry if some have no python, but do have python3)
 
 - better detect what's available (tab, vtk, bin)
-  - use the -d flag in plot1.py for directory, it should auto-detect *.tab or tab/*.tab  (same for bin)
-  - use vtk reader to grab vtk files (1d and 2d)  [use bin]
-  - use bin reader (can do AMR, where vtk cannot)
-  - use basename after the problem set, and then run1, run2, ..... inside of those?
-    - the startup tool could look inside the problem run directories
+  - use the -d flag in plot1.py for directory, it should auto-detect *.tab or tab/*.tab  [done]
+  - use vtk reader to grab vtk files (1d and 2d)  [no more vtk, we use bin]
+  - use bin reader (can do AMR, where vtk cannot) - check between
+
+- for output (run) directory, use basename of the problem set, and then run1, run2, ..... inside of those?
+  - the startup tool could look inside the problem run directories
+  - this closes the loop in running and reviewing old runs  
+
+- GUI peculiarities
+  - when browsing, a cancel does not repopulate with the old entry
+  - killing parent will not kill the children (could be an advanced option,
+    because it's nice killing a parent keeps the children alive.
+
+- option to integrate with a running athena
+
+- plot1d:  bring up multiple plots.  issue will be what scaling to use
+
+- plot2d:  allow option of contour with color, or just contour or just color. this would
+  (like in plot1d) give us option to combine two variables
+
   
 
-
-# Older software
+# Older vis software from athenak
 
 Awkward to use, but here it is:
 
@@ -23,6 +34,8 @@ Awkward to use, but here it is:
 and for 2D:
 
       ./plot_slice.py run2/bin/OrszagTang.mhd_w_bcc.00001.bin dens show --notex
+
+but this only brings up one plot, no animation. our plot2d should do that
 
 
 # Features
@@ -37,11 +50,6 @@ Stating perhaps the obvious, the different GUIs all have their own issues. Here 
      pysg-tk (test13)      ok         not           weird        not     step < 1 not working?
      pysg-qt (test13)      ok         ok            ok           not
  
-
-# Things to consider
-
-- athenak vs. minik  (a version for only athena_minik)
-- python vs. python3
 
 
 # Python versions
