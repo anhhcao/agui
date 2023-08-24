@@ -1,53 +1,51 @@
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets
+import os
+from PyQt5 import QtCore, QtWidgets
 import argparse
 import re
+import subprocess
 
 class MainWindow(QtWidgets.QMainWindow):
 
-    def __init__(self, parameters):
+    def __init__(self, parameters, param_file, filetype):
         super(MainWindow, self).__init__()
 
-        self.groups = groups
+        self.groups = parameters
         self.radio_groups = []
-        self.sliderlabels = []
+        self.param_file = param_file
+        self.param_file_type = filetype
+        self.sliderMultiplier = []
+        self.sliders = []
 
         self.initUI()
     
     def initUI(self):
         self.pagelayout = QtWidgets.QVBoxLayout()       #page layout
-        self.dbtnlayout = QtWidgets.QHBoxLayout()       #layout for the default buttons
-        self.elmtlayout = QtWidgets.QVBoxLayout()   #layout for the added widgets, stacks elements
-        
-        #add layouts to the page
-        self.pagelayout.addLayout(self.dbtnlayout) 
-        self.pagelayout.addLayout(self.elmtlayout)
 
-        #run, save, load, quit, help button
-        btn = QtWidgets.QPushButton(self)
-        btn.setText("run")
-        btn.clicked.connect(self.run)
-        self.dbtnlayout.addWidget(btn)
+        #run, save, load, quit, help buttons -> located in a toolbar
+        toolbar = self.addToolBar("ToolBar")
 
-        btn = QtWidgets.QPushButton(self)
-        btn.setText("save")
-        btn.clicked.connect(self.save)
-        self.dbtnlayout.addWidget(btn)
+        run_action = QtWidgets.QAction('Run', self)
+        save_action = QtWidgets.QAction('Save', self)
+        load_action = QtWidgets.QAction('Load', self)
+        quit_action = QtWidgets.QAction('Quit', self)
+        help_action = QtWidgets.QAction('Help', self)
 
-        btn = QtWidgets.QPushButton(self)
-        btn.setText("load")
-        btn.clicked.connect(self.load)
-        self.dbtnlayout.addWidget(btn)
+        toolbar.addAction(run_action)
+        toolbar.addSeparator()
+        toolbar.addAction(save_action)
+        toolbar.addSeparator()
+        toolbar.addAction(load_action)
+        toolbar.addSeparator()
+        toolbar.addAction(quit_action)
+        toolbar.addSeparator()
+        toolbar.addAction(help_action)
 
-        btn = QtWidgets.QPushButton(self)
-        btn.setText("quit")
-        btn.clicked.connect(self.quit)
-        self.dbtnlayout.addWidget(btn)
-
-        btn = QtWidgets.QPushButton(self)
-        btn.setText("help")
-        btn.clicked.connect(self.help)
-        self.dbtnlayout.addWidget(btn)
+        run_action.triggered.connect(self.run)
+        save_action.triggered.connect(self.save)
+        load_action.triggered.connect(self.load)
+        quit_action.triggered.connect(self.quit)
+        help_action.triggered.connect(self.help)
         
         #set the main page layout
         widget = QtWidgets.QWidget()
@@ -55,20 +53,69 @@ class MainWindow(QtWidgets.QMainWindow):
         scroll = QtWidgets.QScrollArea()    #add scrollbar
         scroll.setWidgetResizable(True)
         scroll.setWidget(widget)
-        self.setGeometry(500, 100, 700, 500)
         self.setCentralWidget(scroll)
 
         self.createWidgetsFromGroups()
     
     def run(self):
-        print('run')
+        contents = self.gatherData()
+        param = ""
+        for line in contents:
+            for key, value in line.items():
+                param += f"{key}={value} "
+        print(param.split())
+        subprocess.run([self.param_file_type, self.param_file] + param.split())
     
     def save(self):
-        print('save')
+        contents = self.gatherData()
+        default_file_path = self.param_file + ".key"
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save File", default_file_path, "All Files (*)")
+        if file_path:
+            with open(file_path, "w") as file:
+                for line in contents:
+                    for key, value in line.items():
+                        file.write(f"{key}={value}")
+                    file.write("\n")
+            print("saved to " + file_path)
     
     def load(self):
-        print('load')
-    
+        options = QtWidgets.QFileDialog.Options()
+        load_file = self.param_file +".key" if os.path.exists(self.param_file +".key") else ""
+        file, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose a File", load_file, "All Files (*)", options=options)
+        
+        #parse the loaded file
+        if file:
+            #turn the parameters in the file into a dictionary
+            default_values = {}
+            with open(file, "r") as f:
+                for line in f:
+                    if self.param_file_type == 'csh':
+                        line = re.sub("set","",line,count=1)
+                    label, value = line.strip().split("=")
+                    if value.startswith('"') and value.endswith('"') or value.startswith("'") and value.endswith("'"):
+                        value = value[1:-1]
+                    value = value.split(",") if "," in value else [value]
+                    default_values[label] = value
+            
+            #go through the elements in the widget and alter it to the values specified
+            for elements in range(self.pagelayout.count()):
+                element = self.pagelayout.itemAt(elements).layout()
+                if element is not None:
+                    for widget_index in range(element.count()):
+                        widget = element.itemAt(widget_index).widget()
+                        
+                        if isinstance(widget, QtWidgets.QLineEdit):
+                            widget.setText(''.join(default_values[widget.objectName()]))
+
+                        elif isinstance(widget, QtWidgets.QRadioButton) or isinstance(widget, QtWidgets.QCheckBox):
+                            if widget.text() in default_values[widget.objectName()]:
+                                widget.setChecked(True)
+
+                        elif isinstance(widget, QtWidgets.QSlider):
+                            multiplier = self.sliderMultiplier.pop(0)
+                            widget.setValue(int(float(''.join(default_values[widget.objectName()]))*multiplier))
+                            self.sliderMultiplier.append(multiplier)
+
     def quit(self):
         self.close()
         print('quit')
@@ -86,117 +133,211 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.radio_groups.append(new_group)
                 group_layout = QtWidgets.QHBoxLayout()
                 label = QtWidgets.QLabel(group_name+":")
+                label.setToolTip(help)
                 group_layout.addWidget(label)
                 for option in options:
                     option = option.strip()
                     radio_button = QtWidgets.QRadioButton(option)
+                    radio_button.setObjectName(group_name)
                     new_group.addButton(radio_button)
                     group_layout.addWidget(radio_button)
                     if option in default_option:
                         radio_button.setChecked(True)
-                self.elmtlayout.addLayout(group_layout)
+                self.pagelayout.addLayout(group_layout)
 
-            elif group_type == "IFILE" or group_type == "OFILE" or group_type == "IDIR":
+            elif group_type == "IFILE" or group_type == "OFILE" or group_type == "IDIR" or group_type == "ODIR":
                 print("browse files button created")
                 group_layout = QtWidgets.QHBoxLayout()
                 label = QtWidgets.QLabel(group_name+":")
+                label.setToolTip(help)
                 group_layout.addWidget(label)
                 btn = QtWidgets.QPushButton(self)
                 btn.setText("browse...")
-                def browse():
-                    file = QtWidgets.QFileDialog.getOpenFileNames(self, "Select File", "")
-                    print(file)
-                btn.clicked.connect(browse)
+            
                 txt = QtWidgets.QLineEdit(self)
+                txt.setText(default_option)
+                txt.setObjectName(group_name)
+                if group_type == "OFILE" or group_type == "IFILE":
+                    btn.clicked.connect(lambda edit=txt: self.browse("FILE", edit))
+                else:
+                    btn.clicked.connect(lambda edit=txt: self.browse("DIR", edit))
                 group_layout.addWidget(btn)
                 group_layout.addWidget(txt)
-                self.elmtlayout.addLayout(group_layout)
+                self.pagelayout.addLayout(group_layout)
 
             elif group_type == "CHECK":
                 print("checkbox created")
                 group_layout = QtWidgets.QHBoxLayout()
                 label = QtWidgets.QLabel(group_name+":")
+                label.setToolTip(help)
                 group_layout.addWidget(label)
                 for option in options:
                     option = option.strip()
                     checkbox = QtWidgets.QCheckBox(option, self)
+                    checkbox.setObjectName(group_name)
                     group_layout.addWidget(checkbox)
                     if option in default_option:
                         checkbox.setChecked(True)
-                self.elmtlayout.addLayout(group_layout)
+                self.pagelayout.addLayout(group_layout)
 
             elif group_type == "ENTRY":
                 print("textbox created")
                 group_layout = QtWidgets.QHBoxLayout()
                 label = QtWidgets.QLabel(group_name+":")
+                label.setToolTip(help)
                 group_layout.addWidget(label)
                 txt = QtWidgets.QLineEdit(self)
+                txt.setObjectName(group_name)
                 txt.setText(default_option)
                 group_layout.addWidget(txt)
-                self.elmtlayout.addLayout(group_layout)
+                self.pagelayout.addLayout(group_layout)
             
             elif group_type == "SCALE":
                 group_layout = QtWidgets.QHBoxLayout()
                 label = QtWidgets.QLabel(group_name+":")
+                label.setToolTip(help)
                 group_layout.addWidget(label)
                 options = ''.join(options)
                 options = options.split(':')
 
                 print("slider created")
-                #creates a horizontal slider
+                #creates a horizontal decimal slider
+                decimals = len(str(options[2]).split('.')[1]) if '.' in str(options[2]) else 0
+                multiplier = 10**decimals
                 slider = QtWidgets.QSlider(self)
                 slider.setOrientation(QtCore.Qt.Horizontal)
-                slider.setSingleStep(int(float(options[2])*100))
-                slider.setPageStep(int(float(options[2])*100))       #moves the slider when clicking or up/down
-                slider.setRange(int(options[0])*100, int(options[1])*100)
-                slider.setValue(int(float(default_option[0])*100))
+                slider.setSingleStep(int(float(options[2])*multiplier))
+                slider.setPageStep(int(float(options[2])*multiplier))       #moves the slider when clicking or up/down
+                slider.setRange(int(options[0])*multiplier, int(options[1])*multiplier)
+                slider.setValue(int(float(default_option[0])*multiplier))
 
-                label_slider = QtWidgets.QLabel(str(default_option[0]))
-                slider.valueChanged.connect(lambda value, lbl=label_slider: self.updateLabel(lbl, value))
-                
-                group_layout.addWidget(label_slider)
+                slider_label = QtWidgets.QLabel(f"{slider.value()/multiplier}", self)
+                slider.valueChanged.connect(lambda: self.updateLabel())
+                slider.setObjectName(group_name)
+                self.sliderMultiplier.append(multiplier)
+                self.sliders.append((slider, slider_label, multiplier))
+                group_layout.addWidget(slider_label)
                 group_layout.addWidget(slider)
-                self.elmtlayout.addLayout(group_layout)
+                self.pagelayout.addLayout(group_layout)
 
-    def updateLabel(self, label, value):
-        label.setText(str(value/100))
+            # Create a visual separator (horizontal line)
+            separator = QtWidgets.QFrame()
+            separator.setFrameShape(QtWidgets.QFrame.HLine)
+            separator.setFrameShadow(QtWidgets.QFrame.Sunken)
+            separator.setFixedHeight(1)  # Set a fixed height for the separator
+            self.pagelayout.addWidget(separator)
+
+    def updateLabel(self):
+        for slider, label, multiplier in self.sliders:
+            label.setText(f"{slider.value()/multiplier}")
+
+    def browse(self, gtype, txt):
+        options = QtWidgets.QFileDialog.Options()
+        file = None
+        dir = None
+
+        if gtype == 'FILE':
+            file, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose a File", "", "All Files (*)", options=options)
+        if gtype == 'DIR':
+            dir = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
+        if file:
+            txt.setText(file)
+            print(file + " selected")
+        if dir:
+            print(f"{dir} selected")
+
+    def gatherData(self):
+        layout_data = []
+
+        for hbox_layout_index in range(self.pagelayout.count()):
+            hbox_layout = self.pagelayout.itemAt(hbox_layout_index).layout()
+            
+            if hbox_layout is not None:
+                defaults = {}
+                key = None
+
+                for widget_index in range(hbox_layout.count()):
+                    widget = hbox_layout.itemAt(widget_index).widget()
+                    
+                    if widget_index == 0 and isinstance(widget, QtWidgets.QLabel):
+                        key = widget.text().split(':')[0]
+                        if self.param_file_type == "csh":
+                            key = "set " + key
+                        defaults[key] = []
+
+                    elif isinstance(widget, QtWidgets.QLineEdit):
+                        value = widget.text()
+                        defaults[key].append(value)
+
+                    elif isinstance(widget, QtWidgets.QRadioButton) or isinstance(widget, QtWidgets.QCheckBox):
+                        if widget.isChecked():
+                            value = widget.text()
+                            defaults[key].append(value)
+
+                    elif isinstance(widget, QtWidgets.QSlider):
+                        multiplier = self.sliderMultiplier.pop(0)
+                        value = str(widget.value()/multiplier)
+                        defaults[key].append(value)
+                        self.sliderMultiplier.append(multiplier)
+
+                values = defaults[key]
+                values = ','.join(values)
+                
+                if self.param_file_type == "python":
+                    defaults[key] = "'" + values + "'"
+                else:
+                    defaults[key] = values
+                layout_data.append(defaults)
+        return layout_data
+
+def parsefile(file):
+    filetype = "sh"
+    with open(file, "r") as f:
+        lines = f.readlines()
+
+    groups = []
+    # group 1 = set or None
+    # group 2 = name of widget
+    # group 3 = default values, may have "" around
+    # group 4 = # help or None
+    # group 5 = widget type
+    # group 6 (unused) = name=value if old format, otherwise None
+    # group 7 = widget parameters or None
+    pattern = '^\s*(set\s+)?([^#]+)\s*=([^#]+)(#.*)?#>\s+([^\s]+)(.*=[^\s]*)?(.+)?$'
+    for line in lines:
+        match = re.match(pattern, line)
+        if match:
+            if match.group(1):
+                filetype = "csh"
+            group_type = match.group(5).strip()
+            group_name = match.group(2).strip()
+            default_option = match.group(3).strip()
+            #check for quotations
+            if (default_option[0] == '"' and default_option[-1] == '"') or (default_option[0] == "'" and default_option[-1] == "'"):
+                default_option = default_option[1:-1]
+                filetype = "python"
+            options = match.group(7).split(',') if match.group(7) else ""
+            help = match.group(4).split('#')[1].strip() if match.group(4) else ""
+            groups.append((group_type, group_name, options, default_option, help))
+    
+    return groups, filetype
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Dynamic GUI Builder")
     parser.add_argument("param_file", help="Path to the text file containing parameters")
     args = parser.parse_args()
 
-    with open(args.param_file, "r") as file:
-        # content = file.read()
-        lines = file.readlines()
-
-    groups = []
-    # matches = re.findall(r'#>\s+(\w+)\s+(\w+)=(.+?)(?:\n|#>|$)', content, re.DOTALL)
-    # for match in matches:
-        # group_type = match[0]
-        # group_name = match[1]
-        # options = match[2].split(' ', 1)
-        # default_option = []
-        # if len(options) > 1: 
-        #     default_option = options[0].split(',')
-        #     options = options[1].split(',')
-    pattern = r"\s*(\w+)\s*=\s*([^\s#]+)\s*#\s*([^\#]+)\s*#\s*>\s*(\w+)(?:\s+(\S+))?"
-    for line in lines:
-        match = re.match(pattern, line)
-        if match:
-            group_type = match.group(4)
-            group_name = match.group(1)
-            default_option = match.group(2)
-            options = match.group(5).split(',') if match.group(5) else ""
-            help = match.group(3)
-
-            groups.append((group_type, group_name, options, default_option, help))
+    groups, filetype = parsefile(args.param_file)    
 
     app = QtWidgets.QApplication(sys.argv)
-    w = MainWindow(groups)
-    w.show()
+    w = MainWindow(groups, args.param_file, filetype)
+    w.inputFile = args.param_file
+    w.adjustSize()  #adjust to fit elements accordingly
 
-    print(sys.argv)
+    #sets a minimum window size
+    w.setMinimumWidth(500) 
+    w.setMinimumHeight(200)
+    w.show()
 
     try:
         print('opening window')
