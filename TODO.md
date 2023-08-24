@@ -17,6 +17,7 @@
   - when browsing, a cancel does not repopulate with the old entry
   - killing parent will not kill the children (could be an advanced option,
     because it's nice killing a parent keeps the children alive.
+  - resizing and sizing of sub-areas in the GUI (avoid negative space)
 
 - option to integrate with a running athena [advanced]
 
@@ -26,6 +27,8 @@
 
 - plot2d:  allow option of contour with color, or just contour or just color. this would
   (like in plot1d) give us option to combine two variables and compare them.
+
+- plot2d:  can we assume nx3=1 or could we also have X or Y slices?
   
 
   
@@ -34,7 +37,7 @@
 
 Awkward to use, but here it is:
 
-      ./plot_tab.py  -i tab/LinWave.hydro_w.00000.tab  -n 100 -v dens
+      ./plot_tab.py  -i run1/tab/LinWave.hydro_w.00000.tab  -n 100 -v dens
 
 and for 2D:
 
