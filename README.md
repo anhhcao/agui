@@ -1,8 +1,8 @@
 # Developing an Athena GUI (AGUI)
 
 This is the development verson of **agui**, not to be confused with
-the public version that only works with "*mini-athenak*" that
-is being extracted from this during the Aug 21-25 week at IAS.
+the public version **pyThena** that only works with "*Athena-miniK*" that
+was extracted from this code base during the Aug 21-25 week at IAS.
 
 Here show some examples of executing **athena** using a dynamic GUI.
 nIn theory this could apply to any of the
