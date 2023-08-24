@@ -4,24 +4,29 @@
 
 - better detect what's available (tab, vtk, bin)
   - use the -d flag in plot1.py for directory, it should auto-detect *.tab or tab/*.tab  [done]
-  - use vtk reader to grab vtk files (1d and 2d)  [no more vtk, we use bin]
-  - use bin reader (can do AMR, where vtk cannot) - check between
+  - use vtk reader to grab vtk files (1d and 2d)  [no more vtk, we will only use bin and tab]
+  - use bin reader (can do AMR, where vtk cannot) - check between athena_read.py and plot_slice.py
+    what's the best way to construct plot2d.py from
 
 - for output (run) directory, use basename of the problem set, and then run1, run2, ..... inside of those?
   - the startup tool could look inside the problem run directories
-  - this closes the loop in running and reviewing old runs  
+  - this closes the loop in running and reviewing old runs
+  - could clean up after running?
 
 - GUI peculiarities
   - when browsing, a cancel does not repopulate with the old entry
   - killing parent will not kill the children (could be an advanced option,
     because it's nice killing a parent keeps the children alive.
 
-- option to integrate with a running athena
+- option to integrate with a running athena [advanced]
 
-- plot1d:  bring up multiple plots.  issue will be what scaling to use
+- plot1d:  bring up multiple graphs in one plot.  issue will then how to solve the scaling issue
+
+- plot1d:  allow a fixed scaling [the -f flag does that based on first plot, but not always good enough]
 
 - plot2d:  allow option of contour with color, or just contour or just color. this would
-  (like in plot1d) give us option to combine two variables
+  (like in plot1d) give us option to combine two variables and compare them.
+  
 
   
 
