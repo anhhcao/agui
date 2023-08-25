@@ -46,9 +46,10 @@ def animate(i):
     else:
         d = data[i][zvar][0]
     time = data[i]['time']
-    #xlim = data[i]['xlim']
-    #ylim = data[i]['ylim']
-    sax.set_xlim((-0.5,0.5))
+    xlim = data[i]['xlim']
+    ylim = data[i]['ylim']
+    extent=[xlim[0],xlim[1],ylim[0],ylim[1]]
+    #sax.set_xlim((-0.5,0.5))
     
 
     ax.clear()
@@ -56,16 +57,18 @@ def animate(i):
     #ax.set_ylim(ylim)
     if True:
         im = ax.imshow(d,cmap=kwargs['cmap'],  # norm=norm, vmin=vmin, vmax=vmax,
-              interpolation='none', origin='lower')
+                       interpolation='none', origin='lower', extent=extent)
+                       
+        
         # @todo    this fig.colorbar() will recursively die
         # fig.colorbar(im, cax=cax, orientation='vertical')
     else:
+        # now broken after using extent=
         im = ax.imshow(d,cmap=kwargs['cmap'],  # norm=norm, vmin=vmin, vmax=vmax,
-              interpolation='none', origin='lower')
-        
+                       interpolation='none', origin='lower', extent=extent)
         x = np.arange(d.shape[0])
         y = np.arange(d.shape[1])
-        cs = ax.contour(x,y,d)
+        cs = ax.contour(x,y,d,extent=extent)
                        
     if not xlim and args.fix: # just need to check one since its either both or none
         xlim = ax.get_xlim()
@@ -159,6 +162,8 @@ def update_cols(x, y):
 def update_delay(x):
     global delay
     delay = x / 1000
+    #  something odd about setting the delay
+    # print("DELAY:",delay)
 
 def update_fslider(n):
     global frame_sliding, current_frame
@@ -184,7 +189,6 @@ def reload_data():
     print("Reading %d data-frames for %s" % (length,zvar))
     for i in range(len(f)):
         data[i] = athena_read.bin(f[i],False,**kwargs)
-    print("Done")    
     
 
 argparser = ArgumentParser(description='plots the athena tab files specified')
