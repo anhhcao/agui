@@ -25,12 +25,12 @@ kwargs['location'] = 0
 kwargs['vmin'] = None
 kwargs['vmax'] = None
 kwargs['norm'] = 'linear'
-kwargs['cmap'] = 'viridis'
 kwargs['cmap'] = 'rainbow'
+kwargs['cmap'] = 'gist_rainbow'
+kwargs['cmap'] = 'viridis'
 kwargs['x1_min'] = None
 kwargs['x1_max'] = None
 kwargs['x2_min'] = None
-kwargs['x2_max'] = None
 kwargs['x2_max'] = None
 kwargs['output_file'] = None
 
