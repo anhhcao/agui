@@ -16,6 +16,15 @@
   - the delay(ms) in the animator doesn't seem to work well, it's erratic?
     For example I had it taking 5.8sec to do run2, but that was then
     independent of the delay setting , which is now 1..20 ms.
+  - in the animation, the picture at T=0 when nothing is loaded yet looks
+
+- Important need for our GUI tags.   We need a new TAGNAME, that clones a keyword value, e.g.
+       nx=1   # help for a    #>   SLIDER 0:10:1
+       ny=1   # help for b    #>   LINK nx
+  or in athena there are blocks, so there it would need to be something like
+       ny=1   # help for b    #>   LINK mesh/nx
+  this would cause mesh/ny to get the value of mesh/nx.
+
 
 - option to integrate with a running athena [advanced]
 
@@ -26,7 +35,7 @@
 - plot2d:  allow option of contour with color, or just contour or just color. this would
   (like in plot1d) give us option to combine two variables and compare them.
 
-- plot2d:  can we assume nx3=1 or could we also have X or Y slices?
+- plot2d:  can we assume nx3=1 or could we also have X or Y slices? [done, indeed we assume Z=0]
 
 - ensure if with id= we can handle different *.tab files. Probably need a new --id flag in plot1d.py for this
   In the end, extracting them from the bin file might be faster.
