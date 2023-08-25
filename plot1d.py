@@ -161,7 +161,7 @@ argparser.add_argument('-n', '--name', help='name of the problem being plotted')
 argparser.add_argument('-f', '--fix', action='store_true', help='fixes the x and y axes of the animation based on the animation\'s first frame')
 args = argparser.parse_args()
 
-# fnames='run1/tab/LinWave*tab'
+# @todo   there can be several ID types of the form   BASENAME.ID.NNNNN.tab
 if args.hst:
     f = glob.glob(args.dir + '/*.hst')
 else:
