@@ -36,21 +36,28 @@ kwargs['output_file'] = None
 
 zvar = 'dens'
 
+# https://saturncloud.io/blog/how-to-animate-the-colorbar-in-matplotlib-a-guide/
 
 def animate(i):
     global xcol, ycol, current_frame, xlim, ylim, kwargs
     kwargs['variable'] = zvar
-    d = athena_read.bin(f[i],False,**kwargs)
-    #time = d['time']
-    time = i
+    if False:
+        d = athena_read.bin(f[i],False,**kwargs)
+    else:
+        d = data[i][zvar][0]
+    time = data[i]['time']
+    #xlim = data[i]['xlim']
+    #ylim = data[i]['ylim']
+    sax.set_xlim((-0.5,0.5))
+    
+
     ax.clear()
-    if xlim:
-        ax.set_xlim(xlim)
-        ax.set_ylim(ylim)
+    #ax.set_xlim(xlim)
+    #ax.set_ylim(ylim)
     if True:
         im = ax.imshow(d,cmap=kwargs['cmap'],  # norm=norm, vmin=vmin, vmax=vmax,
               interpolation='none', origin='lower')
-        # @todo    this fig.colorbar() will recrsively die
+        # @todo    this fig.colorbar() will recursively die
         # fig.colorbar(im, cax=cax, orientation='vertical')
     else:
         im = ax.imshow(d,cmap=kwargs['cmap'],  # norm=norm, vmin=vmin, vmax=vmax,
@@ -63,7 +70,7 @@ def animate(i):
     if not xlim and args.fix: # just need to check one since its either both or none
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
-    ax.set_title(f'Time: {float(time)} Variable: {zvar}', loc='left')
+    ax.set_title(f'{zvar}  Time: {float(time)}', loc='left')
     ax.set_xlabel('x')
     ax.set_ylabel('y')
 
@@ -138,7 +145,9 @@ def select_v(label):
         animate(current_frame)
         fig.canvas.draw_idle()
     print('select_v',label)
-    zvar = label    
+    zvar = label
+    kwargs['variable'] = zvar
+    reload_data()
 
 def update_cols(x, y):
     global xcol, ycol, ixcol, iycol
@@ -170,6 +179,14 @@ def mouse_moved(e):
     elif not hard_paused:
         resume()
 
+def reload_data():
+    global data
+    print("Reading %d data-frames for %s" % (length,zvar))
+    for i in range(len(f)):
+        data[i] = athena_read.bin(f[i],False,**kwargs)
+    print("Done")    
+    
+
 argparser = ArgumentParser(description='plots the athena tab files specified')
 argparser.add_argument('-d', '--dir', help='the athena run directory containing tab/ or *.tab files', required=True)
 argparser.add_argument('-n', '--name', help='name of the problem being plotted') # primarily just used by the other gui
@@ -179,6 +196,10 @@ args = argparser.parse_args()
 f = glob.glob(args.dir + '/bin/*.bin')
 f.sort()
 length = len(f)
+
+data = list(range(len(f)))
+reload_data()
+
 
 #print('DEBUG: %s has %d files' % (fnames,len(f)))
 
@@ -215,6 +236,7 @@ fig, ax = plt.subplots()
 fig.subplots_adjust(left=left, bottom=bottom, top=top) # old bottom was 0.34
 divider = make_axes_locatable(ax)
 cax = divider.append_axes('right', size='5%', pad=0.05)
+sax = ax.secondary_xaxis('bottom')
 # plt.rcParams['font.family'] = 'Arial'
 # pause on close otherwise we might freeze
 fig.canvas.mpl_connect('close_event', pause)
