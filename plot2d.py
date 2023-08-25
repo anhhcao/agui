@@ -9,6 +9,7 @@ from argparse import ArgumentParser
 import athena_read
 import glob
 import os
+import sys
 import matplotlib.style as mplstyle
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 #mplstyle.use(['ggplot', 'fast'])
@@ -201,6 +202,10 @@ f = glob.glob(args.dir + '/bin/*.bin')
 f.sort()
 length = len(f)
 
+if length==0:
+    print("No bin data found")
+    sys.exit(0)
+
 data = list(range(len(f)))
 reload_data()
 
@@ -226,7 +231,7 @@ delay = 100 / 1000
 
 # getting the variable names
 variables = athena_read.bin(f[0],True)
-print("tab variables detected:",variables)
+print("bin variables detected:",variables)
 var_len = len(variables)
 
 # 0-based, change from animate2
