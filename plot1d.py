@@ -30,7 +30,7 @@ def animate(i):
     if xlim:
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
-    ax.plot(x, y)
+    ax.plot(x, y, '.')
     if not xlim and args.fix: # just need to check one since its either both or none
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
