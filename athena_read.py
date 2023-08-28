@@ -36,7 +36,7 @@ def error_dat(filename, **kwargs):
 
 
 # Read .tab files and return dict.
-def tab(filename):
+def tab(filename, show_vars=False):
 
     # Parse header
     data_dict = {}
@@ -45,8 +45,6 @@ def tab(filename):
         attributes = re.search(r'time=(\S+)\s+cycle=(\S+)', line)
         line = data_file.readline()
         headings = line.split()[1:]
-    data_dict['time'] = float(attributes.group(1))
-    data_dict['cycle'] = int(attributes.group(2))
     headings = headings[1:]
 
     # Go through lines
@@ -76,11 +74,17 @@ def tab(filename):
     data_array = np.transpose(np.reshape(data_array, array_shape),
                               array_transpose)
 
+
+    
     # Finalize data
     for n, heading in enumerate(headings):
         if check_nan_flag:
             check_nan(data_array[n, ...])
         data_dict[heading] = data_array[n, ...]
+    if show_vars:
+        return list(data_dict.keys())
+    data_dict['time'] = float(attributes.group(1))
+    data_dict['cycle'] = int(attributes.group(2))
     return data_dict
 
 
@@ -150,7 +154,10 @@ def hst(filename, raw=False):
                 check_nan(val)
     return data
 
-# Read .bin files and return dict ?
+# Read .bin files and return dict with numpy array of variables and WCS
+# This is a Z-only code ripped from athenak's plot_slice.py
+# It returns not only all numpy arrays, but also a few meta-data
+# named:   'time', 'xlim', 'ylim'
 def bin(filename, show_vars=False, **kwargs):
     
     # Read data
@@ -167,7 +174,10 @@ def bin(filename, show_vars=False, **kwargs):
             print(line)
             raise RuntimeError('Unrecognized data file format.')
         next(f)
-        next(f)
+        line = f.readline().decode('ascii')
+        if line[:7] != '  time=':
+            raise RuntimeError('Could not read time.')
+        sim_time = float(line[7:])
         next(f)
         line = f.readline().decode('ascii')
         if line[:19] != '  size of location=':
@@ -199,7 +209,6 @@ def bin(filename, show_vars=False, **kwargs):
         num_variables_base = len(variable_names_base)
         if show_vars:
             return variable_names_base
-        print("variable_names_base: ", variable_names_base)
             
         if True:
             variable_name = kwargs['variable']
@@ -216,6 +225,9 @@ def bin(filename, show_vars=False, **kwargs):
             [name for _, name in sorted(zip(variable_inds, variable_names))]
         variable_inds_sorted = \
             [ind for ind, _ in sorted(zip(variable_inds, variable_names))]
+
+        # @todo loop over variables
+        retval = {}
 
         # Read input file metadata
         input_data = {}
@@ -332,13 +344,19 @@ def bin(filename, show_vars=False, **kwargs):
     # Extract quantity without derivation
     quantity = quantities[variable_name]
 
-    print("PJT",num_blocks_used,quantity.shape)
-
     if kwargs['output_file'] == None:
-        if num_blocks_used == 1:
-            return quantity[0]
-        print("Cannot merge blocks yet")
-        return quantity[0]
+        if num_blocks_used > 1:
+            raise RuntimeError('too many blocks, mesh and meshblock not the same')
+        quantities['time'] = sim_time
+
+        x1_min = float(input_data['mesh']['x1min'])
+        x1_max = float(input_data['mesh']['x1max'])
+        x2_min = float(input_data['mesh']['x2min'])
+        x2_max = float(input_data['mesh']['x2max'])
+        quantities['xlim'] = (x1_min,x1_max)
+        quantities['ylim'] = (x2_min,x2_max)
+            
+        return quantities
 
     # Calculate colors
     if kwargs['vmin'] is None:
@@ -437,7 +455,12 @@ if __name__ == "__main__":
     kwargs['output_file'] = 'show'
     # kwargs['output_file'] = None
 
-    print(bin(sys.argv[1],True))
-    
-    d = bin(sys.argv[1],False,**kwargs)
-    print('data',d)
+    if False:
+        print(bin(sys.argv[1],True))
+        d = bin(sys.argv[1],False,**kwargs)    
+        print('data',d)
+    else:
+        print(tab(sys.argv[1],True))
+        d = tab(sys.argv[1],False)
+        print('data',d)
+        

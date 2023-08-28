@@ -2,11 +2,6 @@
 
 - python vs. python3 (just a worry if some have no python, but do have python3)
 
-- better detect what's available (tab, vtk, bin)
-  - use the -d flag in plot1.py for directory, it should auto-detect *.tab or tab/*.tab  [done]
-  - use vtk reader to grab vtk files (1d and 2d)  [no more vtk, we will only use bin and tab]
-  - use bin reader (can do AMR, where vtk cannot) - check between athena_read.py and plot_slice.py
-    what's the best way to construct plot2d.py from
 
 - for output (run) directory, use basename of the problem set, and then run1, run2, ..... inside of those?
   - the startup tool could look inside the problem run directories
@@ -17,6 +12,19 @@
   - when browsing, a cancel does not repopulate with the old entry
   - killing parent will not kill the children (could be an advanced option,
     because it's nice killing a parent keeps the children alive.
+  - resizing and sizing of sub-areas in the GUI (avoid negative space)
+  - the delay(ms) in the animator doesn't seem to work well, it's erratic?
+    For example I had it taking 5.8sec to do run2, but that was then
+    independent of the delay setting , which is now 1..20 ms.
+  - in the animation, the picture at T=0 when nothing is loaded yet looks
+
+- Important need for our GUI tags.   We need a new TAGNAME, that clones a keyword value, e.g.
+       nx=1   # help for a    #>   SLIDER 0:10:1
+       ny=1   # help for b    #>   LINK nx
+  or in athena there are blocks, so there it would need to be something like
+       ny=1   # help for b    #>   LINK mesh/nx
+  this would cause mesh/ny to get the value of mesh/nx.
+
 
 - option to integrate with a running athena [advanced]
 
@@ -26,15 +34,20 @@
 
 - plot2d:  allow option of contour with color, or just contour or just color. this would
   (like in plot1d) give us option to combine two variables and compare them.
-  
 
+- plot2d:  can we assume nx3=1 or could we also have X or Y slices? [done, indeed we assume Z=0]
+
+- ensure if with id= we can handle different *.tab files. Probably need a new --id flag in plot1d.py for this
+  In the end, extracting them from the bin file might be faster.
+  
+- save animation as mp4? 
   
 
 # Older vis software from athenak
 
 Awkward to use, but here it is:
 
-      ./plot_tab.py  -i tab/LinWave.hydro_w.00000.tab  -n 100 -v dens
+      ./plot_tab.py  -i run1/tab/LinWave.hydro_w.00000.tab  -n 100 -v dens
 
 and for 2D:
 
