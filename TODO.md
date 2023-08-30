@@ -17,6 +17,8 @@
     For example I had it taking 5.8sec to do run2, but that was then
     independent of the delay setting , which is now 1..20 ms.
   - in the animation, the picture at T=0 when nothing is loaded yet looks
+  - it's easy to accidentally hiut the RUN button twice.... athena will run twice. Do
+    we need to make a lock file?
 
 - Important need for our GUI tags.   We need a new TAGNAME, that clones a keyword value, e.g.
        nx=1   # help for a    #>   SLIDER 0:10:1
