@@ -102,11 +102,8 @@ def restart(self=None):
     global current_frame, xlim
     xlim = None
     pause()
-    current_frame=0
-    animate(0)
-    fig.canvas.draw_idle()
-    if not hard_paused:
-        resume()
+    update_fslider(0)
+    resume()
 
 # select the horizontal variable
 def select_h(label):
@@ -176,10 +173,10 @@ argparser = ArgumentParser(description='plots the athena tab files specified')
 argparser.add_argument('-d', '--dir', help='the athena run directory containing tab/ or *.tab files', required=True)
 argparser.add_argument('--hst', action='store_true', help='plots the hst file rather animating the tab files')
 argparser.add_argument('-n', '--name', help='name of the problem being plotted') # primarily just used by the other gui
-argparser.add_argument('-f', '--fix', action='store_true', help='fixes the x and y axes of the animation based on the min/max of the current data')
+argparser.add_argument('-f', '--fix', action='store_true', help='fixes the x and y axes of the animation based on the animation\'s first frame')
 args = argparser.parse_args()
 
-# @todo   there can be several ID types of the form   BASENAME.ID.NNNNN.tab
+# fnames='run1/tab/LinWave*tab'
 if args.hst:
     f = glob.glob(args.dir + '/*.hst')
 else:
@@ -191,6 +188,7 @@ else:
         f = glob.glob(args.dir + '/*.tab')
 f.sort()
 length = len(f)
+print(length)
 #print('DEBUG: %s has %d files' % (fnames,len(f)))
 
 # global vars
@@ -401,7 +399,7 @@ if not args.hst:
     # in order to pause the animation when using the frame slider
     fig.canvas.mpl_connect('motion_notify_event', mouse_moved)
 else:
-    dotax = fig.add_axes([0.1, 0.125, 0.2, 0.05])
+    dotax = fig.add_axes([0.05, 0.125, 0.2, 0.05])
     dotbox = CheckButtons(dotax, ['Use points'])
     dotbox.on_clicked(dotboxf)
     dotax.set_facecolor('white')

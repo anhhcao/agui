@@ -219,7 +219,7 @@ class MainWindow(qw.QMainWindow):
         for k in self.links:
             v = values[k] = values[self.links[k]]
             cmd += f'{k}={v} '
-        #print(self.links)
+        print(self.links)
         print(cmd)
         # create odir (including intermediaries if needed)
         odir = dirname
@@ -253,12 +253,15 @@ class MainWindow(qw.QMainWindow):
             # @todo     solve when info['problem'] has spaces (as many do)
             #Popen(['python', 'plot1d.py', '-d', odir+'/tab',           '-n', info['problem']])
             #Popen(['python', 'plot1d.py', '-d', odir,         '--hst', '-n', info['problem'] + ' history'])
-            cmd1 = 'python plot1d.py  -d %s/tab' % (odir)
-            cmd2 = 'python plot1d.py  -d %s --hst' % (odir)
+            cmd1 = 'python plot1d.py  -d %s/tab -n tab' % (odir)
+            cmd2 = 'python plot1d.py  -d %s --hst -n history' % (odir)
+            cmd3 = 'python plot2d.py  -d %s -n bin' % (odir)            
             print(cmd1)
             print(cmd2)
+            print(cmd3)
             Popen(cmd1.split())
             Popen(cmd2.split())
+            Popen(cmd3.split())
         else:
             w = DisplayWindow(cmd)
             self.windows.append(w)

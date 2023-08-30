@@ -12,7 +12,7 @@ import os
 import sys
 import matplotlib.style as mplstyle
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-#mplstyle.use(['ggplot', 'fast'])
+mplstyle.use(['ggplot', 'fast'])
 
 # TODO list
 # round buttons
@@ -59,10 +59,9 @@ def animate(i):
     if True:
         im = ax.imshow(d,cmap=kwargs['cmap'],  # norm=norm, vmin=vmin, vmax=vmax,
                        interpolation='none', origin='lower', extent=extent)
-                       
-        
+
         # @todo    this fig.colorbar() will recursively die
-        # fig.colorbar(im, cax=cax, orientation='vertical')
+        fig.colorbar(im, cax=cax, orientation='vertical')
     else:
         # now broken after using extent=
         im = ax.imshow(d,cmap=kwargs['cmap'],  # norm=norm, vmin=vmin, vmax=vmax,
@@ -242,6 +241,7 @@ iycol = 0
 
 # plotting configuration
 fig, ax = plt.subplots()
+ax.grid(False)
 fig.subplots_adjust(left=left, bottom=bottom, top=top) # old bottom was 0.34
 divider = make_axes_locatable(ax)
 cax = divider.append_axes('right', size='5%', pad=0.05)
@@ -254,7 +254,7 @@ fig.canvas.mpl_connect('close_event', pause)
 plt.get_current_fig_manager().set_window_title(args.name if args.name else f[0].split('.')[0])
 
 rheight = var_len / 25
-rwidth = 0.045
+rwidth = 0.25
 rdleft = 0.03
 rbot = (bottom + top - rheight) / 2
 
@@ -263,7 +263,7 @@ rax = fig.add_axes([rdleft, rbot, rwidth, rheight])
 
 # use same axes to add text in order to make it easier to adjust
 # rax.text(-0.055, 0.05, 'X')
-rax.text(0.055, 0.05, 'Y')
+rax.text(-0.0425, 0.055, 'Z')
 
 # rax = fig.add_axes([rdleft + 0.015, rbot, 0.25, rheight])
 radio2 = RadioButtons(rax, 

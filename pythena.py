@@ -37,7 +37,7 @@ class MainWindow(qw.QMainWindow):
 
         self.plot = True
 
-        page_layout = qw.QGridLayout()
+        page_layout = qw.QVBoxLayout()
         radio_layout = qw.QVBoxLayout()
         exe_layout = qw.QHBoxLayout()
         load_layout = qw.QHBoxLayout()
@@ -126,28 +126,28 @@ class MainWindow(qw.QMainWindow):
 
         self.l1 = qw.QLabel('Problems:')
         self.l1.setStyleSheet('font-weight: bold')
-        page_layout.addWidget(self.l1, 1, 1)
+        predef_layout.addWidget(self.l1)
         self.combo = qw.QComboBox()
         self.combo.addItems(list(athena_problems))
         #predef_layout.addStretch()
-        page_layout.addWidget(self.combo, 1, 2)
+        predef_layout.addWidget(self.combo)
     
         rbtn = qw.QRadioButton('Configure New')
         rbtn.toggled.connect(lambda: self.set_plot(True))
         rbtn.setChecked(True)  
-        page_layout.addWidget(rbtn, 2, 1)
+        radio_layout.addWidget(rbtn)
         rbtn = qw.QRadioButton('Plot Existing')      
         rbtn.toggled.connect(lambda: self.set_plot(False))
-        page_layout.addWidget(rbtn, 2, 2)
+        radio_layout.addWidget(rbtn)
 
         # btn_group.addButton(self.load_radio)
         #btn_group.addButton(self.predef_radio)
         self.radio_groups.append(btn_group)
-        #page_layout.addWidget()
-        #page_layout.addLayout(exe_layout)
-        #page_layout.addLayout(load_layout)
-        #page_layout.addLayout(predef_layout)
-        #page_layout.addLayout(radio_layout)
+
+        page_layout.addLayout(exe_layout)
+        page_layout.addLayout(load_layout)
+        page_layout.addLayout(predef_layout)
+        page_layout.addLayout(radio_layout)
         # checkbox
 
         if False:
